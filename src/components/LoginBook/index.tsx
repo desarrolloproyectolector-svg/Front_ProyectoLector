@@ -3,7 +3,12 @@
 import React, { useState, useRef } from 'react';
 import styles from './styles.module.css';
 
+import api from '../../utils/api';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+
 export const LoginBook: React.FC = () => {
+    const router = useRouter();
     // State
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -57,7 +62,7 @@ export const LoginBook: React.FC = () => {
         if (input.id === 'password' && passwordErrorRef.current) passwordErrorRef.current.style.display = 'none';
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const userValid = checkInput(usernameInputRef.current, usernameErrorRef.current);
@@ -73,56 +78,81 @@ export const LoginBook: React.FC = () => {
             return;
         }
 
-        // --- SUCCESS SEQUENCE ---
-        // setIsSubmitting(true);
-
-        // 0. Set Welcome Name
-        const nameToDisplay = username.includes('@') ? username.split('@')[0] : username;
-        setDisplayName(nameToDisplay);
-
-        // 1. UI Feedback & Disappear Form
-        if (contentLayerRef.current) {
-            contentLayerRef.current.style.opacity = '0';
-            contentLayerRef.current.style.pointerEvents = 'none';
-            setTimeout(() => {
-                if (contentLayerRef.current) contentLayerRef.current.style.display = 'none';
-            }, 300);
-        }
-
-        // 2. Animation Step 1: Open Cover (200ms)
-        setTimeout(() => {
-            if (frontCoverRef.current) {
-                frontCoverRef.current.style.transform = "translateZ(30px) rotateY(-160deg)";
-            }
-        }, 200);
-
-        // 3. Animation Step 2: Flip Blank Pages 
-        // We select the pages manually or via ref array
-        const pages = pagesContainerRef.current?.children;
-        if (pages) {
-            Array.from(pages).forEach((page, index) => {
-                setTimeout(() => {
-                    const angle = -150 - (Math.random() * 10);
-                    (page as HTMLElement).style.transform = `rotateY(${angle}deg)`;
-                }, 400 + (index * 100));
+        try {
+            // API Login Call
+            const response = await api.post('/auth/login', {
+                email: username,
+                password: password
             });
-        }
 
-        // 4. Animation Step 3: Zoom In (2200ms)
-        setTimeout(() => {
-            if (bookRef.current) {
-                // Use CSS Module class
-                bookRef.current.classList.add(styles.zoomState);
-                bookRef.current.style.transform = "rotateY(0deg) rotateX(0deg) scale(8) translateX(-5%)";
-                bookRef.current.style.opacity = "0";
+            // Assuming backend returns { token: '...', user: { ... } }
+            const { token, user } = response.data;
+            const userName = user?.name || username.split('@')[0];
+
+            // Save Token
+            localStorage.setItem('token', token);
+            Cookies.set('token', token, { expires: 7 }); // expires in 7 days
+
+            // --- SUCCESS SEQUENCE ---
+            // 0. Set Welcome Name
+            setDisplayName(userName);
+
+            // 1. UI Feedback & Disappear Form
+            if (contentLayerRef.current) {
+                contentLayerRef.current.style.opacity = '0';
+                contentLayerRef.current.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    if (contentLayerRef.current) contentLayerRef.current.style.display = 'none';
+                }, 300);
             }
-        }, 2200);
 
-        // 5. Animation Step 4: Dispatch Event / Redirect (4500ms)
-        setTimeout(() => {
-            console.log("Book Opened! Dispatching event...");
-            document.dispatchEvent(new CustomEvent('bookOpened'));
-        }, 4500);
+            // 2. Animation Step 1: Open Cover (200ms)
+            setTimeout(() => {
+                if (frontCoverRef.current) {
+                    frontCoverRef.current.style.transform = "translateZ(30px) rotateY(-160deg)";
+                }
+            }, 200);
+
+            // 3. Animation Step 2: Flip Blank Pages 
+            const pages = pagesContainerRef.current?.children;
+            if (pages) {
+                Array.from(pages).forEach((page, index) => {
+                    setTimeout(() => {
+                        const angle = -150 - (Math.random() * 10);
+                        (page as HTMLElement).style.transform = `rotateY(${angle}deg)`;
+                    }, 400 + (index * 100));
+                });
+            }
+
+            // 4. Animation Step 3: Zoom In (2200ms)
+            setTimeout(() => {
+                if (bookRef.current) {
+                    bookRef.current.classList.add(styles.zoomState);
+                    bookRef.current.style.transform = "rotateY(0deg) rotateX(0deg) scale(8) translateX(-5%)";
+                    bookRef.current.style.opacity = "0";
+                }
+            }, 2200);
+
+            // 5. Animation Step 4: Dispatch Event / Redirect (4500ms)
+            setTimeout(() => {
+                console.log("Login Successful! Redirecting...");
+                // Redirect based on role if available, or default to alumno
+                // const role = user?.role || 'alumno'; 
+                router.push('/alumno/store');
+            }, 4500);
+
+        } catch (error) {
+            console.error('Login Failed', error);
+            // Show error feedback (e.g., shake and show message)
+            if (bookRef.current) {
+                bookRef.current.classList.add(styles.animateShake);
+                setTimeout(() => bookRef.current?.classList.remove(styles.animateShake), 500);
+            }
+            if (passwordErrorRef.current) {
+                passwordErrorRef.current.textContent = "⚠ Credenciales incorrectas";
+                passwordErrorRef.current.style.display = 'inline-block';
+            }
+        }
     };
 
     return (

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function DashboardIndex() {
-    redirect('/dashboard/store');
+    redirect('/alumno/store');
 }

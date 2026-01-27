@@ -9,12 +9,12 @@ export const MenuLateral: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
 
     // Mapping ID to Route
     const menuItems = [
-        { route: '/dashboard/library', icon: 'library', label: 'Mi Biblioteca' },
-        { route: '/dashboard/store', icon: 'store', label: 'Tienda' },
-        { route: '/dashboard/redeem', icon: 'ticket', label: 'Canjear Código' },
-        { route: '/dashboard/stats', icon: 'chart', label: 'Progreso' },
-        { route: '/dashboard/schedule', icon: 'calendar', label: 'Horario' },
-        { route: '/dashboard/settings', icon: 'settings', label: 'Ajustes' },
+        { route: '/alumno/library', icon: 'library', label: 'Mi Biblioteca' },
+        { route: '/alumno/store', icon: 'store', label: 'Tienda' },
+        { route: '/alumno/redeem', icon: 'ticket', label: 'Canjear Código' },
+        { route: '/alumno/stats', icon: 'chart', label: 'Progreso' },
+        { route: '/alumno/schedule', icon: 'calendar', label: 'Horario' },
+        { route: '/alumno/settings', icon: 'settings', label: 'Ajustes' },
     ];
 
     return (

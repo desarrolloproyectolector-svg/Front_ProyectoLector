@@ -12,7 +12,7 @@ export const CanjeCodigo: React.FC = () => {
     });
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let val = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        const val = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
         let formatted = '';
         for (let i = 0; i < val.length; i++) {
             if (i > 0 && i % 4 === 0) formatted += '-';
