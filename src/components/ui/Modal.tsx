@@ -7,7 +7,8 @@ interface ModalProps {
     onClose: () => void;
     title: string;
     children: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'sm' | 'md' | 'lg' | 'xl' | '4xl';
+    maxWidth?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({ 
@@ -15,7 +16,8 @@ export const Modal: React.FC<ModalProps> = ({
     onClose, 
     title, 
     children, 
-    size = 'md' 
+    size = 'md',
+    maxWidth
 }) => {
     useEffect(() => {
         if (isOpen) {
@@ -35,8 +37,11 @@ export const Modal: React.FC<ModalProps> = ({
         sm: 'max-w-md',
         md: 'max-w-2xl',
         lg: 'max-w-4xl',
-        xl: 'max-w-6xl'
+        xl: 'max-w-6xl',
+        '4xl': 'max-w-7xl'
     };
+
+    const widthClass = maxWidth || sizeClasses[size];
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -47,7 +52,7 @@ export const Modal: React.FC<ModalProps> = ({
             ></div>
 
             {/* Modal */}
-            <div className={`relative w-full ${sizeClasses[size]} bg-gradient-to-br from-white to-[#faf8f5] rounded-2xl shadow-2xl border border-[#e3dac9]/50 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300`}>
+            <div className={`relative w-full ${widthClass} bg-gradient-to-br from-white to-[#faf8f5] rounded-2xl shadow-2xl border border-[#e3dac9]/50 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300`}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-[#e3dac9]">
                     <h2 className="text-2xl font-playfair font-bold text-[#2b1b17]">
@@ -57,7 +62,7 @@ export const Modal: React.FC<ModalProps> = ({
                         onClick={onClose}
                         className="p-2 hover:bg-[#e3dac9] rounded-lg transition-colors duration-200 group"
                     >
-                        <svg className="w-6 h-6 text-[#5d4037] group-hover:text-[#2b1b17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-6 h-6 text-[#8d6e3f] group-hover:text-[#2b1b17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>

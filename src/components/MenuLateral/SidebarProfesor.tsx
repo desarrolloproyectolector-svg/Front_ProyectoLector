@@ -10,8 +10,6 @@ export default function SidebarProfesor({ isOpen }: { isOpen: boolean }) {
       role="Profesor"
       menuItems={[
         { href: '/profesor', icon: 'library', label: 'Inicio' },
-        { href: '/profesor/alumnos', icon: 'users', label: 'Alumnos' },
-        { href: '/profesor/horario', icon: 'calendar', label: 'Horario' },
       ]}
     />
   );

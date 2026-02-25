@@ -10,7 +10,6 @@ export default function SidebarTutor({ isOpen }: { isOpen: boolean }) {
       role="Tutor"
       menuItems={[
         { href: '/tutor', icon: 'library', label: 'Inicio' },
-        { href: '/tutor/hijos', icon: 'users', label: 'Mis Hijos' },
       ]}
     />
   );

@@ -10,8 +10,8 @@ export default function SidebarAdmin({ isOpen }: { isOpen: boolean }) {
       role="Administrador"
       menuItems={[
         { href: '/admin', icon: 'chart', label: 'Dashboard' },
+        { href: '/admin/escuelas', icon: 'library', label: 'Escuelas' },
         { href: '/admin/usuarios', icon: 'users', label: 'Usuarios' },
-        { href: '/admin/reportes', icon: 'library', label: 'Reportes' },
         { href: '/admin/libros', icon: 'library', label: 'Libros' },
       ]}
     />

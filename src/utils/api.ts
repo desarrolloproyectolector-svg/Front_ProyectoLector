@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create Axios Instance with Base URL
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://freeborn-oliva-cotemporaneously.ngrok-free.dev/',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.proyectolector.com',
     headers: {
         'Content-Type': 'application/json',
     },

@@ -1,0 +1,390 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Modal } from '@/components/ui/Modal';
+import { profesorService } from '../../../service/escuela/profesor/profesor.service';
+import {
+    ProfesorEscuela,
+    ProfesorEditFormData,
+    ProfesorEditFormErrors,
+    EditProfesorPayload,
+    getNombreCompletoProfesor,
+} from '../../../types/escuela/profesor/profesor.types';
+import { toast } from '@/utils/toast';
+
+interface Props {
+    open: boolean;
+    onClose: () => void;
+    onSuccess: () => void;
+    profesor: ProfesorEscuela;
+}
+
+export default function EditarProfesorModal({ open, onClose, onSuccess, profesor }: Props) {
+    const [formData, setFormData] = useState<ProfesorEditFormData>({
+        nombre: '',
+        apellidoPaterno: '',
+        apellidoMaterno: '',
+        correo: '',
+        telefono: '',
+        fechaNacimiento: '',
+        genero: '',
+        password: '',
+        activo: true,
+    });
+
+    const [errors, setErrors] = useState<ProfesorEditFormErrors>({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
+    // ─── Poblar form con datos actuales ──────────────────────────────────────
+    useEffect(() => {
+        if (profesor && open) {
+            setFormData({
+                nombre: profesor.persona.nombre ?? '',
+                apellidoPaterno: profesor.persona.apellidoPaterno ?? '',
+                apellidoMaterno: profesor.persona.apellidoMaterno ?? '',
+                correo: profesor.persona.correo ?? '',
+                telefono: profesor.persona.telefono ?? '',
+                fechaNacimiento: profesor.persona.fechaNacimiento ?? '',
+                genero: profesor.persona.genero ?? '',
+                password: '',
+                activo: profesor.persona.activo !== false,
+            });
+            setErrors({});
+        }
+    }, [profesor, open]);
+
+    const handleChange = (field: keyof ProfesorEditFormData) =>
+        (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+            const value = field === 'activo'
+                ? (e.target as HTMLSelectElement).value === 'true'
+                : e.target.value;
+            setFormData(prev => ({ ...prev, [field]: value }));
+            if (errors[field as keyof ProfesorEditFormErrors]) {
+                setErrors(prev => ({ ...prev, [field]: undefined }));
+            }
+        };
+
+    const validate = (): boolean => {
+        const newErrors: ProfesorEditFormErrors = {};
+
+        if (!formData.nombre.trim())           newErrors.nombre = 'El nombre es requerido';
+        if (!formData.apellidoPaterno.trim())  newErrors.apellidoPaterno = 'El apellido paterno es requerido';
+        if (!formData.apellidoMaterno.trim())  newErrors.apellidoMaterno = 'El apellido materno es requerido';
+
+        if (!formData.correo.trim()) {
+            newErrors.correo = 'El correo es requerido';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
+            newErrors.correo = 'Correo inválido';
+        }
+
+        if (formData.password && formData.password.length > 0 && formData.password.length < 6) {
+            newErrors.password = 'Mínimo 6 caracteres';
+        }
+
+        if (formData.telefono?.trim() && !/^[0-9+\s()-]{10,}$/.test(formData.telefono)) {
+            newErrors.telefono = 'Formato de teléfono inválido';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validate()) return;
+
+        try {
+            setIsLoading(true);
+
+            const payload: EditProfesorPayload = {};
+
+            if (formData.nombre.trim())           payload.nombre = formData.nombre.trim();
+            if (formData.apellidoPaterno.trim())  payload.apellidoPaterno = formData.apellidoPaterno.trim();
+            if (formData.apellidoMaterno.trim())  payload.apellidoMaterno = formData.apellidoMaterno.trim();
+            if (formData.correo.trim())           payload.correo = formData.correo.trim().toLowerCase();
+            if (formData.telefono?.trim())        payload.telefono = formData.telefono.trim();
+            if (formData.fechaNacimiento)         payload.fechaNacimiento = formData.fechaNacimiento;
+            if (formData.genero)                  payload.genero = formData.genero;
+            if (formData.password && formData.password.length > 0) payload.password = formData.password;
+            payload.activo = formData.activo;
+
+            const response = await profesorService.editarProfesor(profesor.id, payload);
+
+            toast.success(
+                `¡Profesor ${response.data.nombre} ${response.data.apellidoPaterno} actualizado exitosamente!`,
+                5000
+            );
+
+            onClose();
+            onSuccess();
+        } catch (error: any) {
+            toast.error(error.message || 'Error al actualizar el profesor.', 6000);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleClose = () => {
+        if (isLoading) return;
+        setErrors({});
+        setShowPassword(false);
+        onClose();
+    };
+
+    const inputClass = (field: keyof ProfesorEditFormErrors) =>
+        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
+            errors[field]
+                ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+        }`;
+
+    const labelClass = 'block text-sm font-bold text-[#2b1b17] mb-2';
+
+    const ErrorMsg = ({ field }: { field: keyof ProfesorEditFormErrors }) =>
+        errors[field] ? (
+            <p className="mt-1.5 text-sm text-red-600 flex items-center gap-1">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {errors[field]}
+            </p>
+        ) : null;
+
+    return (
+        <Modal
+            isOpen={open}
+            onClose={handleClose}
+            title={`Editar: ${getNombreCompletoProfesor(profesor)}`}
+            size="lg"
+        >
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+
+                {/* ── Información Personal ───────────────────────────────── */}
+                <div>
+                    <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                        <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full" />
+                        Información Personal
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        {/* Nombre — ocupa toda la fila */}
+                        <div className="md:col-span-2">
+                            <label className={labelClass}>
+                                Nombre(s) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.nombre}
+                                onChange={handleChange('nombre')}
+                                disabled={isLoading}
+                                className={inputClass('nombre')}
+                            />
+                            <ErrorMsg field="nombre" />
+                        </div>
+
+                        {/* Apellido Paterno */}
+                        <div>
+                            <label className={labelClass}>
+                                Apellido Paterno <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.apellidoPaterno}
+                                onChange={handleChange('apellidoPaterno')}
+                                disabled={isLoading}
+                                className={inputClass('apellidoPaterno')}
+                            />
+                            <ErrorMsg field="apellidoPaterno" />
+                        </div>
+
+                        {/* Apellido Materno */}
+                        <div>
+                            <label className={labelClass}>
+                                Apellido Materno <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.apellidoMaterno}
+                                onChange={handleChange('apellidoMaterno')}
+                                disabled={isLoading}
+                                className={inputClass('apellidoMaterno')}
+                            />
+                            <ErrorMsg field="apellidoMaterno" />
+                        </div>
+
+                        {/* Correo */}
+                        <div>
+                            <label className={labelClass}>
+                                Correo Electrónico <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                value={formData.correo}
+                                onChange={handleChange('correo')}
+                                disabled={isLoading}
+                                className={inputClass('correo')}
+                            />
+                            <ErrorMsg field="correo" />
+                        </div>
+
+                        {/* Teléfono */}
+                        <div>
+                            <label className={labelClass}>
+                                Teléfono
+                                <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                            </label>
+                            <input
+                                type="tel"
+                                value={formData.telefono || ''}
+                                onChange={handleChange('telefono')}
+                                disabled={isLoading}
+                                className={inputClass('telefono')}
+                            />
+                            <ErrorMsg field="telefono" />
+                        </div>
+
+                        {/* Fecha de Nacimiento */}
+                        <div>
+                            <label className={labelClass}>
+                                Fecha de Nacimiento
+                                <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                            </label>
+                            <input
+                                type="date"
+                                value={formData.fechaNacimiento || ''}
+                                onChange={handleChange('fechaNacimiento')}
+                                disabled={isLoading}
+                                className={inputClass('fechaNacimiento')}
+                            />
+                        </div>
+
+                        {/* Género */}
+                        <div>
+                            <label className={labelClass}>
+                                Género
+                                <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                            </label>
+                            <select
+                                value={formData.genero || ''}
+                                onChange={handleChange('genero')}
+                                disabled={isLoading}
+                                className={inputClass('genero')}
+                            >
+                                <option value="">Sin especificar</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        {/* Estado */}
+                        <div>
+                            <label className={labelClass}>Estado</label>
+                            <select
+                                value={formData.activo ? 'true' : 'false'}
+                                onChange={handleChange('activo')}
+                                disabled={isLoading}
+                                className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 transition-all"
+                            >
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Contraseña ─────────────────────────────────────────── */}
+                <div>
+                    <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                        <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full" />
+                        Seguridad
+                    </h3>
+
+                    <div className="bg-[#fbf8f1] rounded-xl p-4 mb-4 border border-[#e3dac9]">
+                        <p className="text-sm text-[#8d6e3f] flex items-center gap-2">
+                            <svg className="w-4 h-4 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Deja en blanco si no deseas cambiar la contraseña
+                        </p>
+                    </div>
+
+                    <div className="relative">
+                        <label className={labelClass}>
+                            Nueva Contraseña
+                            <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                        </label>
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Mínimo 6 caracteres"
+                            value={formData.password || ''}
+                            onChange={handleChange('password')}
+                            disabled={isLoading}
+                            className={inputClass('password')}
+                            autoComplete="new-password"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-[42px] text-[#a1887f] hover:text-[#2b1b17] transition-colors"
+                        >
+                            {showPassword ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+                            ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            )}
+                        </button>
+                        <ErrorMsg field="password" />
+                    </div>
+                </div>
+
+                {/* ── Botones ────────────────────────────────────────────── */}
+                <div className="flex gap-3 pt-6 border-t border-[#e3dac9]">
+                    <button
+                        type="button"
+                        onClick={handleClose}
+                        disabled={isLoading}
+                        className="flex-1 px-4 py-3 rounded-xl border-2 border-[#e3dac9] text-[#5d4037] font-bold hover:bg-[#fbf8f1] transition-colors disabled:opacity-50"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {isLoading ? (
+                            <>
+                                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                </svg>
+                                Guardando...
+                            </>
+                        ) : (
+                            <>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Guardar Cambios
+                            </>
+                        )}
+                    </button>
+                </div>
+            </form>
+        </Modal>
+    );
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { Libro } from '../../data/libros';
+import type { Libro } from '../../../data/libros';
 import styles from './styles.module.css';
 
 interface DetalleProductoProps {

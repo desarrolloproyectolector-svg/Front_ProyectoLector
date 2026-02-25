@@ -1,65 +1,109 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AddAlumnoModal } from '../../../components/escuela/alumnos/AddAlumnoModal';
+import { EditAlumnoModal } from '../../../components/escuela/alumnos/EditAlumnoModal';
+import { CargaMasivaModal } from '../../../components/escuela/alumnos/CargaMasivaModal';
 import { AlumnoTable } from '../../../components/escuela/alumnos/AlumnoTable';
-
-interface Alumno {
-    id: number;
-    nombre: string;
-    email: string;
-    grupo: string;
-    librosActivos: number;
-    progreso: number;
-    estado: 'activo' | 'inactivo';
-    fechaRegistro: string;
-}
+import { alumnoService } from '../../../service/escuela/alumnos/alumno.service';
+import { toast } from '@/utils/toast';
+import { AlumnoEscuela, getNombreCompletoAlumno, formatGrupo } from '../../../types/escuela/alumnos/alumno.types';
 
 export default function AlumnosPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterEstado, setFilterEstado] = useState<'todos' | 'activo' | 'inactivo'>('todos');
+    const [filterGrado, setFilterGrado] = useState<string>('todos');
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showCargaMasivaModal, setShowCargaMasivaModal] = useState(false);
+    const [selectedAlumno, setSelectedAlumno] = useState<AlumnoEscuela | null>(null);
+    const [alumnoToDelete, setAlumnoToDelete] = useState<AlumnoEscuela | null>(null);
+    const [alumnos, setAlumnos] = useState<AlumnoEscuela[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string>('');
 
-    // Datos de ejemplo
-    const [alumnos, setAlumnos] = useState<Alumno[]>([
-        { id: 1, nombre: 'Ana García López', email: 'ana.garcia@escuela.edu', grupo: '3-A', librosActivos: 5, progreso: 78, estado: 'activo', fechaRegistro: '2024-01-15' },
-        { id: 2, nombre: 'Carlos Mendoza', email: 'carlos.mendoza@escuela.edu', grupo: '3-A', librosActivos: 3, progreso: 45, estado: 'activo', fechaRegistro: '2024-01-20' },
-        { id: 3, nombre: 'María Rodríguez', email: 'maria.rodriguez@escuela.edu', grupo: '3-B', librosActivos: 7, progreso: 92, estado: 'activo', fechaRegistro: '2024-02-01' },
-        { id: 4, nombre: 'José Hernández', email: 'jose.hernandez@escuela.edu', grupo: '3-B', librosActivos: 2, progreso: 34, estado: 'inactivo', fechaRegistro: '2024-01-18' },
-        { id: 5, nombre: 'Laura Martínez', email: 'laura.martinez@escuela.edu', grupo: '3-C', librosActivos: 6, progreso: 67, estado: 'activo', fechaRegistro: '2024-02-10' },
-        { id: 6, nombre: 'Pedro Sánchez', email: 'pedro.sanchez@escuela.edu', grupo: '2-A', librosActivos: 4, progreso: 55, estado: 'activo', fechaRegistro: '2024-01-25' },
-    ]);
+    // Cargar alumnos desde la API
+    const cargarAlumnos = async () => {
+        try {
+            setIsLoading(true);
+            const response = await alumnoService.obtenerAlumnos();
+            console.log('✅ Alumnos cargados:', response);
+            setAlumnos(response.data);
+        } catch (error: any) {
+            console.error('Error al cargar alumnos:', error);
+            toast.error('Error al cargar la lista de alumnos');
+            setAlumnos([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        cargarAlumnos();
+    }, []);
 
     const filteredAlumnos = alumnos.filter(alumno => {
-        const matchSearch = alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          alumno.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          alumno.grupo.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchEstado = filterEstado === 'todos' || alumno.estado === filterEstado;
-        return matchSearch && matchEstado;
+        const nombreCompleto = getNombreCompletoAlumno(alumno);
+        const matchSearch = nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          alumno.persona.correo.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchGrado = filterGrado === 'todos' ||
+                          (alumno.grado && alumno.grado.toString() === filterGrado);
+        return matchSearch && matchGrado;
     });
 
-    const totalActivos = alumnos.filter(a => a.estado === 'activo').length;
-    const promedioProgreso = Math.round(alumnos.reduce((acc, a) => acc + a.progreso, 0) / alumnos.length);
+    const gradosUnicos = Array.from(new Set(alumnos.map(a => a.grado).filter(Boolean)));
+    const conTutor = alumnos.filter(a => a.padre !== null).length;
 
     const handleAddSuccess = () => {
-        // Aquí podrías refrescar los datos desde el servidor
-        console.log('Alumno agregado exitosamente');
-        // TODO: Recargar lista de alumnos
+        console.log('✅ Alumno agregado exitosamente, recargando lista...');
+        cargarAlumnos();
     };
 
-    const handleView = (alumno: Alumno) => {
-        console.log('Ver alumno:', alumno);
-        // TODO: Implementar vista de detalles
+    const handleEdit = (alumno: AlumnoEscuela) => {
+        setSelectedAlumno(alumno);
+        setShowEditModal(true);
     };
 
-    const handleEdit = (alumno: Alumno) => {
-        console.log('Editar alumno:', alumno);
-        // TODO: Implementar edición
+    const handleEditSuccess = () => {
+        console.log('✅ Alumno editado exitosamente, recargando lista...');
+        cargarAlumnos();
+        setShowEditModal(false);
+        setSelectedAlumno(null);
     };
 
-    const handleDelete = (alumno: Alumno) => {
-        console.log('Eliminar alumno:', alumno);
-        // TODO: Implementar confirmación y eliminación
+    const handleDeleteRequest = (alumno: AlumnoEscuela) => {
+        setAlumnoToDelete(alumno);
+        setDeleteError('');
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!alumnoToDelete) return;
+
+        try {
+            setIsDeleting(true);
+            setDeleteError('');
+            await alumnoService.eliminarAlumno(alumnoToDelete.personaId);
+
+            console.log('✅ Alumno eliminado:', alumnoToDelete.personaId);
+            toast.success(`Alumno ${getNombreCompletoAlumno(alumnoToDelete)} eliminado exitosamente`);
+
+            setShowDeleteModal(false);
+            setAlumnoToDelete(null);
+            cargarAlumnos();
+        } catch (error: any) {
+            console.error('❌ Error al eliminar alumno:', error);
+            setDeleteError(error.message || 'Error al eliminar el alumno. Por favor intenta de nuevo.');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleDeleteCancel = () => {
+        setShowDeleteModal(false);
+        setAlumnoToDelete(null);
+        setDeleteError('');
     };
 
     return (
@@ -75,36 +119,8 @@ export default function AlumnosPage() {
                         </div>
                         <div>
                             <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Total Alumnos</p>
-                            <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">{alumnos.length}</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 shadow-sm">
-                            <svg className="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Activos</p>
-                            <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">{totalActivos}</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3.5 rounded-xl bg-gradient-to-br from-[#d4af37]/10 to-[#d4af37]/5 shadow-sm">
-                            <svg className="w-7 h-7 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Libros Totales</p>
                             <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">
-                                {alumnos.reduce((acc, a) => acc + a.librosActivos, 0)}
+                                {isLoading ? '...' : alumnos.length}
                             </h3>
                         </div>
                     </div>
@@ -114,12 +130,50 @@ export default function AlumnosPage() {
                     <div className="flex items-center gap-4">
                         <div className="p-3.5 rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5 shadow-sm">
                             <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Progreso Promedio</p>
-                            <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">{promedioProgreso}%</h3>
+                            <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Grados</p>
+                            <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">
+                                {isLoading ? '...' : gradosUnicos.length}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 shadow-sm">
+                            <svg className="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Con Tutor</p>
+                            <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">
+                                {isLoading ? '...' : conTutor}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Card carga masiva */}
+                <div
+                    onClick={() => setShowCargaMasivaModal(true)}
+                    className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="p-3.5 rounded-xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 shadow-sm group-hover:from-emerald-500/20 group-hover:to-emerald-500/10 transition-all">
+                            <svg className="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1">Carga Masiva</p>
+                            <p className="text-sm font-bold text-[#2b1b17] group-hover:text-emerald-700 transition-colors">
+                                Importar Excel
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -139,10 +193,11 @@ export default function AlumnosPage() {
                     </div>
 
                     <div className="flex gap-2 w-full md:w-auto">
+                        {/* Buscador */}
                         <div className="relative flex-1 md:w-80">
                             <input
                                 type="text"
-                                placeholder="Buscar por nombre, email o grupo..."
+                                placeholder="Buscar por nombre o email..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300"
@@ -162,7 +217,20 @@ export default function AlumnosPage() {
                             )}
                         </div>
 
-                        <button 
+                        {/* Botón Carga Masiva */}
+                        <button
+                            onClick={() => setShowCargaMasivaModal(true)}
+                            className="px-4 py-3 bg-gradient-to-r from-emerald-700 to-emerald-600 text-white rounded-xl font-bold hover:from-emerald-800 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
+                            title="Carga masiva desde Excel"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span className="hidden sm:inline">Carga Masiva</span>
+                        </button>
+
+                        {/* Botón Nuevo Alumno */}
+                        <button
                             onClick={() => setShowAddModal(true)}
                             className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
                         >
@@ -175,55 +243,145 @@ export default function AlumnosPage() {
                 </div>
 
                 {/* Filter Buttons */}
-                <div className="flex gap-3 mt-6">
+                <div className="flex flex-wrap gap-3 mt-6">
                     <button
-                        onClick={() => setFilterEstado('todos')}
+                        onClick={() => setFilterGrado('todos')}
                         className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                            filterEstado === 'todos'
+                            filterGrado === 'todos'
                                 ? 'bg-[#d4af37] text-[#2b1b17] shadow-md'
                                 : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
                         }`}
                     >
-                        Todos
+                        Todos los Grados
                     </button>
-                    <button
-                        onClick={() => setFilterEstado('activo')}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                            filterEstado === 'activo'
-                                ? 'bg-emerald-500 text-white shadow-md'
-                                : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
-                        }`}
-                    >
-                        Activos
-                    </button>
-                    <button
-                        onClick={() => setFilterEstado('inactivo')}
-                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                            filterEstado === 'inactivo'
-                                ? 'bg-gray-500 text-white shadow-md'
-                                : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
-                        }`}
-                    >
-                        Inactivos
-                    </button>
+                    {[1, 2, 3, 4, 5, 6].map((grado) => (
+                        <button
+                            key={grado}
+                            onClick={() => setFilterGrado(grado.toString())}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
+                                filterGrado === grado.toString()
+                                    ? 'bg-purple-500 text-white shadow-md'
+                                    : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
+                            }`}
+                        >
+                            {grado}° Grado
+                        </button>
+                    ))}
                 </div>
             </div>
 
             {/* Alumnos Table */}
             <div className="bg-white rounded-xl shadow-lg border border-[#e3dac9]/50 overflow-hidden">
-                <AlumnoTable
-                    alumnos={filteredAlumnos}
-                    onView={handleView}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-64">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#d4af37]"></div>
+                    </div>
+                ) : (
+                    <AlumnoTable
+                        alumnos={filteredAlumnos}
+                        onEdit={handleEdit}
+                        onDelete={handleDeleteRequest}
+                    />
+                )}
             </div>
+
+            {/* Modal de confirmación de eliminación */}
+            {showDeleteModal && alumnoToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Overlay */}
+                    <div
+                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                        onClick={handleDeleteCancel}
+                    />
+                    {/* Dialog */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fade-in">
+                        {/* Icono de advertencia */}
+                        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100">
+                            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+
+                        <h3 className="font-playfair text-xl font-bold text-[#2b1b17] text-center mb-2">
+                            Eliminar Alumno
+                        </h3>
+                        <p className="text-[#5d4037] text-center text-sm mb-1">
+                            ¿Estás seguro de que deseas eliminar a:
+                        </p>
+                        <p className="text-[#2b1b17] font-bold text-center mb-1">
+                            {getNombreCompletoAlumno(alumnoToDelete)}
+                        </p>
+                        <p className="text-[#8d6e3f] text-center text-xs mb-6">
+                            {alumnoToDelete.persona.correo}
+                        </p>
+                        <p className="text-red-600 text-center text-xs mb-6">
+                            Esta acción no se puede deshacer.
+                        </p>
+
+                        {/* Error de eliminación */}
+                        {deleteError && (
+                            <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-3 rounded text-sm text-red-800">
+                                {deleteError}
+                            </div>
+                        )}
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleDeleteCancel}
+                                disabled={isDeleting}
+                                className="flex-1 px-4 py-3 rounded-xl border-2 border-[#e3dac9] text-[#5d4037] font-bold hover:bg-[#fbf8f1] transition-colors disabled:opacity-50"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleDeleteConfirm}
+                                disabled={isDeleting}
+                                className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {isDeleting ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                        Eliminando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        Eliminar
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Add Alumno Modal */}
             <AddAlumnoModal
                 isOpen={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 onSuccess={handleAddSuccess}
+            />
+
+            {/* Edit Alumno Modal */}
+            {selectedAlumno && (
+                <EditAlumnoModal
+                    isOpen={showEditModal}
+                    onClose={() => {
+                        setShowEditModal(false);
+                        setSelectedAlumno(null);
+                    }}
+                    onSuccess={handleEditSuccess}
+                    alumno={selectedAlumno}
+                />
+            )}
+
+            {/* Carga Masiva Modal */}
+            <CargaMasivaModal
+                isOpen={showCargaMasivaModal}
+                onClose={() => setShowCargaMasivaModal(false)}
+                onSuccess={cargarAlumnos}
             />
         </div>
     );

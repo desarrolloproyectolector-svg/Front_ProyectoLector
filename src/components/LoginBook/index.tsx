@@ -85,13 +85,14 @@ export const LoginBook: React.FC = () => {
                 password: password
             });
 
-            // Assuming backend returns { token: '...', user: { ... } }
-            const { token, user } = response.data;
-            const userName = user?.name || username.split('@')[0];
+            // API returns { access_token, user: { nombre, apellido, tipoPersona, ... } }
+            const { access_token, user } = response.data;
+            const userName = user?.nombre || username.split('@')[0];
+            const tipoPersona = user?.tipoPersona || 'alumno';
 
             // Save Token
-            localStorage.setItem('token', token);
-            Cookies.set('token', token, { expires: 7 }); // expires in 7 days
+            localStorage.setItem('token', access_token);
+            Cookies.set('token', access_token, { expires: 7 }); // expires in 7 days
 
             // --- SUCCESS SEQUENCE ---
             // 0. Set Welcome Name
@@ -133,12 +134,33 @@ export const LoginBook: React.FC = () => {
                 }
             }, 2200);
 
-            // 5. Animation Step 4: Dispatch Event / Redirect (4500ms)
+            // 5. Animation Step 4: Redirect based on user type (4500ms)
             setTimeout(() => {
                 console.log("Login Successful! Redirecting...");
-                // Redirect based on role if available, or default to alumno
-                // const role = user?.role || 'alumno'; 
-                router.push('/alumno/store');
+                console.log("tipoPersona:", tipoPersona);
+
+                // Normalizar el tipo de persona
+                const tipo = tipoPersona.toLowerCase().trim();
+
+                // Redirect based on tipoPersona
+                switch (tipo) {
+                    case 'administrador':
+                        router.push('/admin');
+                        break;
+                    case 'director':
+                        router.push('/escuela');
+                        break;
+                    case 'maestro':
+                        router.push('/profesor');
+                        break;
+                    case 'padre':
+                        router.push('/tutor');
+                        break;
+                    case 'alumno':
+                    default:
+                        router.push('/alumno/store');
+                        break;
+                }
             }, 4500);
 
         } catch (error) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { TarjetaEstadistica } from '../../../components/TarjetaEstadistica';
+import { TarjetaEstadistica } from '../../../components/alumno/TarjetaEstadistica';
 
 export default function StatsPage() {
     return (

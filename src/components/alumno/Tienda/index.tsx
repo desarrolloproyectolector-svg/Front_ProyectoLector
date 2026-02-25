@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { libros } from '../../data/libros';
-import type { Libro } from '../../data/libros';
+import { libros } from '../../../data/libros';
+import type { Libro } from '../../../data/libros';
 
 interface TiendaProps {
     onSelectBook?: (book: Libro) => void;

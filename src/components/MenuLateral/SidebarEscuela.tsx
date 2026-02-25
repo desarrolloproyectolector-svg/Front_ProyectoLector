@@ -9,8 +9,11 @@ export default function SidebarEscuela({ isOpen }: { isOpen: boolean }) {
       isOpen={isOpen}
       role="Escuela"
       menuItems={[
-        { href: '/escuela', icon: 'library', label: 'Inicio' },
+        { href: '/escuela', icon: 'chart', label: 'Dashboard' },
+        { href: '/escuela/alumnos', icon: 'users', label: 'Alumnos' },
+        { href: '/escuela/compras', icon: 'shopping', label: 'Compras' },
         { href: '/escuela/grupos', icon: 'calendar', label: 'Grupos' },
+        { href: '/escuela/profesores', icon: 'users', label: 'Profesores' },
       ]}
     />
   );

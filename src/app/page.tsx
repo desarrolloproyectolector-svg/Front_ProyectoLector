@@ -326,16 +326,7 @@ function FeatureCard({
               />
             </svg>
           )}
-          {icon === 'building' && (
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-3m0 0h10m0 0v3m-10-3h10m-6 0a1 1 0 00-1 1v3h2v-3a1 1 0 00-1-1z"
-              />
-            </svg>
-          )}
+         
         </div>
         <h3 className="font-playfair text-2xl font-bold mb-3 text-white group-hover:text-[#d4af37] transition-colors">
           {title}

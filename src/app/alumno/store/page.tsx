@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import Tienda from '../../../components/Tienda';
-import { DetalleProducto } from '../../../components/DetalleProducto';
+import Tienda from '../../../components/alumno/Tienda';
+import { DetalleProducto } from '../../../components/alumno/DetalleProducto';
 import type { Libro } from '../../../data/libros';
 
 export default function StorePage() {

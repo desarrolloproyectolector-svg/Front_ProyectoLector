@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { ContinuarLectura } from '../../../components/ContinuarLectura';
-import { TarjetaLibro } from '../../../components/TarjetaLibro';
-import { DetalleProducto } from '../../../components/DetalleProducto';
+import { TarjetaLibro } from '../../../components/alumno/TarjetaLibro';
+import { DetalleProducto } from '../../../components/alumno/DetalleProducto';
 import { libros } from '../../../data/libros';
 import type { Libro } from '../../../data/libros';
 
