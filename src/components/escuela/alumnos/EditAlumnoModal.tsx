@@ -22,72 +22,47 @@ export const EditAlumnoModal: React.FC<EditAlumnoModalProps> = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
 
-    // Preparar datos iniciales del formulario
     const initialData: AlumnoEditFormData = {
-        nombre: alumno.persona.nombre,
-        apellido: alumno.persona.apellido,
-        correo: alumno.persona.correo,
-        telefono: alumno.persona.telefono || '',
-        fechaNacimiento: alumno.persona.fechaNacimiento || '',
-        genero: alumno.persona.genero || '',
-        password: '', // Siempre vacío al inicio
-        grado: alumno.grado || undefined,
-        grupo: alumno.grupo || '',
-        cicloEscolar: alumno.cicloEscolar || ''
+        nombre:          alumno.persona.nombre,
+        apellidoPaterno: alumno.persona.apellidoPaterno,
+        apellidoMaterno: alumno.persona.apellidoMaterno ?? '',
+        correo:          alumno.persona.correo,
+        telefono:        alumno.persona.telefono        ?? '',
+        fechaNacimiento: alumno.persona.fechaNacimiento ?? '',
+        genero:          alumno.persona.genero          ?? '',
+        password:        '',
+        grado:           alumno.grado                  ?? undefined,
+        grupo:           alumno.grupo                  ?? '',
+        cicloEscolar:    alumno.cicloEscolar            ?? '',
     };
 
     const handleSubmit = async (data: AlumnoEditFormData) => {
         setIsLoading(true);
-        
         try {
-            // Preparar payload para la API
-            // Solo incluir campos que han sido modificados o que tienen valor
-            const payload: any = {};
+            // ✅ El endpoint PATCH /personas/alumnos/:id SOLO acepta datos de persona.
+            // grado, grupo y cicloEscolar NO deben enviarse — el backend retorna 400.
+            const payload: any = {
+                nombre:          data.nombre.trim(),
+                apellidoPaterno: data.apellidoPaterno.trim(),
+                apellidoMaterno: data.apellidoMaterno?.trim() || null,
+                correo:          data.correo.trim().toLowerCase(),
+            };
 
-            // Campos básicos (siempre se envían si tienen valor)
-            if (data.nombre.trim()) payload.nombre = data.nombre.trim();
-            if (data.apellido.trim()) payload.apellido = data.apellido.trim();
-            if (data.correo.trim()) payload.correo = data.correo.trim().toLowerCase();
-            
-            // Campos opcionales (solo si tienen valor)
-            if (data.telefono && data.telefono.trim()) {
-                payload.telefono = data.telefono.trim();
-            }
-            if (data.fechaNacimiento) {
-                payload.fechaNacimiento = data.fechaNacimiento;
-            }
-            if (data.genero) {
-                payload.genero = data.genero;
-            }
-            
-            // Contraseña (solo si se ingresó una nueva)
-            if (data.password && data.password.length > 0) {
-                payload.password = data.password;
-            }
+            if (data.telefono?.trim())        payload.telefono        = data.telefono.trim();
+            if (data.fechaNacimiento?.trim()) payload.fechaNacimiento = data.fechaNacimiento.trim();
+            if (data.genero?.trim())          payload.genero          = data.genero.trim();
+            if (data.password?.trim().length) payload.password        = data.password.trim();
 
-            console.log('📤 Enviando actualización del alumno:', payload);
-
-            // Llamar al servicio
             const response = await alumnoService.editarAlumno(alumno.id, payload);
-            
-            console.log('✅ Respuesta del backend:', response);
 
-            // Mostrar notificación de éxito
             toast.success(
-                `¡Alumno ${response.data.nombre} ${response.data.apellido} actualizado exitosamente!`,
+                `¡Alumno ${response.data.nombre} ${response.data.apellidoPaterno} actualizado exitosamente!`,
                 5000
             );
 
-            // Cerrar modal
             onClose();
-            
-            // Ejecutar callback de éxito (refrescar lista)
             onSuccess();
-
         } catch (error: any) {
-            console.error('❌ Error al editar alumno:', error);
-            
-            // Mostrar notificación de error
             toast.error(
                 error.message || 'Error al actualizar el alumno. Por favor, intenta nuevamente.',
                 6000
@@ -98,19 +73,20 @@ export const EditAlumnoModal: React.FC<EditAlumnoModalProps> = ({
     };
 
     const handleClose = () => {
-        if (!isLoading) {
-            onClose();
-        }
+        if (!isLoading) onClose();
     };
+
+    const nombreCompleto = `${alumno.persona.nombre} ${alumno.persona.apellidoPaterno}`.trim();
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title={`Editar Alumno: ${alumno.persona.nombre} ${alumno.persona.apellido}`}
+            title={`Editar Alumno: ${nombreCompleto}`}
             size="lg"
         >
             <AlumnoFormEdit
+                key={alumno.id}
                 initialData={initialData}
                 onSubmit={handleSubmit}
                 onCancel={handleClose}

@@ -15,7 +15,6 @@ import {
 } from '../../../types/escuela/profesor/profesor.types';
 import { toast } from '@/utils/toast';
 
-// ─── Shape que espera ProfesorCard ───────────────────────────────────────────
 interface ProfesorCardShape {
     id: number;
     nombre: string;
@@ -28,10 +27,8 @@ interface ProfesorCardShape {
     fechaIngreso?: string | null;
 }
 
-// ─── Adaptador: ProfesorEscuela → ProfesorCardShape ──────────────────────────
 const adaptarProfesor = (p: ProfesorEscuela): ProfesorCardShape => ({
     id: p.id,
-    // Nombre completo con ambos apellidos separados
     nombre: getNombreCompletoProfesor(p),
     email: p.persona.correo,
     especialidad: p.especialidad ?? 'Sin especificar',
@@ -42,8 +39,6 @@ const adaptarProfesor = (p: ProfesorEscuela): ProfesorCardShape => ({
     fechaIngreso: p.fechaIngreso ?? null,
 });
 
-// TODO: Reemplaza con el escuelaId real de tu contexto de auth
-// Ejemplo: const { user } = useAuth(); const escuelaId = user.escuelaId;
 const ESCUELA_ID_PLACEHOLDER = 1;
 
 export default function ProfesoresPage() {
@@ -52,7 +47,6 @@ export default function ProfesoresPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // ─── Estado de modales ───────────────────────────────────────────────────
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -61,7 +55,6 @@ export default function ProfesoresPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState('');
 
-    // ─── Carga de datos ──────────────────────────────────────────────────────
     const cargarProfesores = async () => {
         try {
             setIsLoading(true);
@@ -82,13 +75,10 @@ export default function ProfesoresPage() {
         cargarProfesores();
     }, []);
 
-    // ─── Handlers de registro ────────────────────────────────────────────────
     const handleAddSuccess = () => {
-        console.log('✅ Profesor registrado, recargando...');
         cargarProfesores();
     };
 
-    // ─── Handlers de edición ─────────────────────────────────────────────────
     const handleEditRequest = (id: number) => {
         const profesor = profesores.find(p => p.id === id);
         if (profesor) {
@@ -98,13 +88,11 @@ export default function ProfesoresPage() {
     };
 
     const handleEditSuccess = () => {
-        console.log('✅ Profesor editado, recargando...');
         cargarProfesores();
         setShowEditModal(false);
         setSelectedProfesor(null);
     };
 
-    // ─── Handlers de eliminación ─────────────────────────────────────────────
     const handleDeleteRequest = (id: number) => {
         const profesor = profesores.find(p => p.id === id);
         if (profesor) {
@@ -138,7 +126,6 @@ export default function ProfesoresPage() {
         setDeleteError('');
     };
 
-    // ─── Datos derivados ─────────────────────────────────────────────────────
     const profesoresAdaptados = profesores.map(adaptarProfesor);
 
     const filteredProfesores = profesoresAdaptados.filter(p =>
@@ -147,14 +134,13 @@ export default function ProfesoresPage() {
         p.especialidad.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const totalActivos           = profesoresAdaptados.filter(p => p.estado === 'activo').length;
-    const totalAlumnosAtendidos  = profesoresAdaptados.reduce((acc, p) => acc + p.alumnosTotales, 0);
-    const totalGrupos            = profesoresAdaptados.reduce((acc, p) => acc + p.gruposAsignados.length, 0);
+    const totalActivos          = profesoresAdaptados.filter(p => p.estado === 'activo').length;
+    const totalAlumnosAtendidos = profesoresAdaptados.reduce((acc, p) => acc + p.alumnosTotales, 0);
+    const totalGrupos           = profesoresAdaptados.reduce((acc, p) => acc + p.gruposAsignados.length, 0);
 
     return (
         <div className="space-y-6 animate-fade-in">
 
-            {/* Stats */}
             <ProfesorStats
                 totalProfesores={isLoading ? 0 : profesores.length}
                 totalActivos={isLoading ? 0 : totalActivos}
@@ -162,7 +148,6 @@ export default function ProfesoresPage() {
                 totalGrupos={isLoading ? 0 : totalGrupos}
             />
 
-            {/* Search */}
             <ProfesorSearch
                 value={searchTerm}
                 onChange={setSearchTerm}
@@ -170,7 +155,6 @@ export default function ProfesoresPage() {
                 totalFiltered={filteredProfesores.length}
             />
 
-            {/* Error global */}
             {error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg flex items-center gap-3">
                     <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +171,6 @@ export default function ProfesoresPage() {
                 </div>
             )}
 
-            {/* Contenido */}
             {isLoading ? (
                 <div className="flex items-center justify-center h-64">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#d4af37]" />
@@ -211,13 +194,10 @@ export default function ProfesoresPage() {
                 </div>
             )}
 
-            {/* ── Modal de confirmación de eliminación ─────────────────────── */}
+            {/* Modal eliminación */}
             {showDeleteModal && profesorToDelete && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div
-                        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={handleDeleteCancel}
-                    />
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleDeleteCancel} />
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fade-in">
                         <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100">
                             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,19 +205,10 @@ export default function ProfesoresPage() {
                                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
-
-                        <h3 className="font-playfair text-xl font-bold text-[#2b1b17] text-center mb-2">
-                            Eliminar Profesor
-                        </h3>
-                        <p className="text-[#5d4037] text-center text-sm mb-1">
-                            ¿Estás seguro de que deseas eliminar a:
-                        </p>
-                        <p className="text-[#2b1b17] font-bold text-center mb-1">
-                            {getNombreCompletoProfesor(profesorToDelete)}
-                        </p>
-                        <p className="text-[#8d6e3f] text-center text-xs mb-2">
-                            {profesorToDelete.persona.correo}
-                        </p>
+                        <h3 className="font-playfair text-xl font-bold text-[#2b1b17] text-center mb-2">Eliminar Profesor</h3>
+                        <p className="text-[#5d4037] text-center text-sm mb-1">¿Estás seguro de que deseas eliminar a:</p>
+                        <p className="text-[#2b1b17] font-bold text-center mb-1">{getNombreCompletoProfesor(profesorToDelete)}</p>
+                        <p className="text-[#8d6e3f] text-center text-xs mb-2">{profesorToDelete.persona.correo}</p>
                         <p className="text-red-600 text-center text-xs mb-6">
                             Esta acción eliminará también sus asignaciones con alumnos. No se puede deshacer.
                         </p>
@@ -281,15 +252,16 @@ export default function ProfesoresPage() {
                 </div>
             )}
 
-            {/* ── Modales ──────────────────────────────────────────────────── */}
             <NuevoProfesorModal
                 open={showAddModal}
                 onClose={() => setShowAddModal(false)}
                 onSuccess={handleAddSuccess}
             />
 
+            {/* ✅ key={selectedProfesor.id} — recrea el modal limpio al cambiar de profesor */}
             {selectedProfesor && (
                 <EditarProfesorModal
+                    key={selectedProfesor.id}
                     open={showEditModal}
                     onClose={() => {
                         setShowEditModal(false);

@@ -14,7 +14,6 @@ class ProfesorService {
 
     // ========================================================================
     // REGISTRO (POST /personas/registro-maestro)
-    // El director NO envía idEscuela — el backend la toma del token
     // ========================================================================
 
     async registrarProfesor(data: RegistroProfesorPayload): Promise<RegistroProfesorResponse> {
@@ -58,21 +57,21 @@ class ProfesorService {
 
     // ========================================================================
     // EDICIÓN (PATCH /personas/maestros/:id)
-    // :id = ID del maestro (tabla Maestro), NO el de persona
-    // Admin: cualquier maestro | Director: solo de su escuela
     // ========================================================================
 
     async editarProfesor(
         maestroId: number,
         data: EditProfesorPayload
     ): Promise<EditProfesorResponse> {
-        // ⚠️ Declarado FUERA del try para poder acceder en el catch
+        // ✅ FIX: Solo filtrar `undefined` — null es válido (ej: apellidoMaterno: null)
         const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
-            if (value !== undefined && value !== '' && value !== null) {
+            if (value !== undefined) {
                 acc[key] = value;
             }
             return acc;
         }, {} as any);
+
+        console.log('📤 Payload enviado a PATCH /personas/maestros/' + maestroId + ':', JSON.stringify(cleanedData, null, 2));
 
         try {
             const response = await api.patch<EditProfesorResponse>(
@@ -81,11 +80,13 @@ class ProfesorService {
             );
             return response.data;
         } catch (error: any) {
-            // 👇 LOGS TEMPORALES — pega esto en el chat para identificar el problema
             console.error('❌ Status:', error.response?.status);
             console.error('❌ Response data:', JSON.stringify(error.response?.data, null, 2));
-            console.error('❌ Payload enviado:', JSON.stringify(cleanedData, null, 2));
 
+            if (error.response?.status === 400) {
+                const msg = error.response?.data?.message || error.response?.data?.description;
+                throw new Error(Array.isArray(msg) ? msg.join(', ') : msg || 'Datos inválidos.');
+            }
             if (error.response?.status === 404) throw new Error('Profesor no encontrado.');
             if (error.response?.status === 403) throw new Error('No tienes permisos para editar este profesor.');
             if (error.response?.status === 409) throw new Error('El correo electrónico ya está registrado en el sistema.');
@@ -95,8 +96,6 @@ class ProfesorService {
 
     // ========================================================================
     // ELIMINACIÓN (DELETE /personas/maestros/:id)
-    // :id = ID del maestro (tabla Maestro), NO el de persona
-    // Admin: cualquier maestro | Director: solo de su escuela
     // ========================================================================
 
     async eliminarProfesor(maestroId: number): Promise<DeleteProfesorResponse> {
@@ -118,8 +117,7 @@ class ProfesorService {
     // ========================================================================
 
     private handleError(error: any, defaultMessage: string): Error {
-        const apiMessage =
-            error.response?.data?.message || error.response?.data?.description;
+        const apiMessage = error.response?.data?.message || error.response?.data?.description;
         if (apiMessage) return new Error(apiMessage);
         if (error.message) return new Error(error.message);
         return new Error(defaultMessage);

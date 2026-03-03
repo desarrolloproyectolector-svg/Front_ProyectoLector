@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 export interface UsuarioFormEditData {
     nombre: string;
@@ -26,28 +26,19 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
     isLoading = false,
     initialData,
 }) => {
-    const [nombre,          setNombre]          = useState(initialData?.nombre          ?? '');
+    // ✅ FIX: Se eliminó el useEffect que reseteaba el formulario.
+    // Los useState se inicializan UNA sola vez con initialData.
+    // El reset ahora se controla desde afuera con la prop `key` en EditUsuarioModal.
+    const [nombre, setNombre] = useState(initialData?.nombre ?? '');
     const [apellidoPaterno, setApellidoPaterno] = useState(initialData?.apellidoPaterno ?? '');
     const [apellidoMaterno, setApellidoMaterno] = useState(initialData?.apellidoMaterno ?? '');
-    const [email,           setEmail]           = useState(initialData?.email           ?? '');
-    const [telefono,        setTelefono]        = useState(initialData?.telefono        ?? '');
+    const [email, setEmail] = useState(initialData?.email ?? '');
+    const [telefono, setTelefono] = useState(initialData?.telefono ?? '');
     const [fechaNacimiento, setFechaNacimiento] = useState(initialData?.fechaNacimiento ?? '');
-    const [genero,          setGenero]          = useState(initialData?.genero          ?? '');
-    const [password,        setPassword]        = useState('');
+    const [genero, setGenero] = useState(initialData?.genero ?? '');
+    const [password, setPassword] = useState('');
 
-    // Errores de validación solo del lado cliente (frontend)
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    useEffect(() => {
-        setNombre(          initialData?.nombre          ?? '');
-        setApellidoPaterno( initialData?.apellidoPaterno ?? '');
-        setApellidoMaterno( initialData?.apellidoMaterno ?? '');
-        setEmail(           initialData?.email           ?? '');
-        setTelefono(        initialData?.telefono        ?? '');
-        setFechaNacimiento( initialData?.fechaNacimiento ?? '');
-        setGenero(          initialData?.genero          ?? '');
-        setPassword(''); // siempre limpio al abrir
-    }, [initialData]);
 
     const validate = (): boolean => {
         const newErrors: Record<string, string> = {};
@@ -61,7 +52,6 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
         if (!email.trim())
             newErrors.email = 'El correo es requerido';
 
-        // ✅ Contraseña: solo validar si el usuario escribió algo
         if (password.length > 0 && password.length < 6)
             newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
 
@@ -92,6 +82,10 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                     <label className={labelClass}>Nombre</label>
                     <input
                         type="text"
+                        name="nombre"
+                        id="nombre"
+                        autoComplete="off"
+                        disabled={isLoading}
                         value={nombre}
                         onChange={e => { setNombre(e.target.value); setErrors(p => ({ ...p, nombre: '' })); }}
                         className={inputClass('nombre')}
@@ -102,6 +96,10 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                     <label className={labelClass}>Apellido paterno</label>
                     <input
                         type="text"
+                        name="apellidoPaterno"
+                        id="apellidoPaterno"
+                        autoComplete="off"
+                        disabled={isLoading}
                         value={apellidoPaterno}
                         onChange={e => { setApellidoPaterno(e.target.value); setErrors(p => ({ ...p, apellidoPaterno: '' })); }}
                         className={inputClass('apellidoPaterno')}
@@ -115,6 +113,10 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                     </label>
                     <input
                         type="text"
+                        name="apellidoMaterno"
+                        id="apellidoMaterno"
+                        autoComplete="off"
+                        disabled={isLoading}
                         value={apellidoMaterno}
                         onChange={e => setApellidoMaterno(e.target.value)}
                         className={inputClass('apellidoMaterno')}
@@ -127,6 +129,10 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                 <label className={labelClass}>Correo electrónico</label>
                 <input
                     type="email"
+                    name="email"
+                    id="email"
+                    autoComplete="off"
+                    disabled={isLoading}
                     value={email}
                     onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })); }}
                     className={inputClass('email')}
@@ -143,6 +149,10 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                     </label>
                     <input
                         type="text"
+                        name="telefono"
+                        id="telefono"
+                        autoComplete="off"
+                        disabled={isLoading}
                         value={telefono}
                         onChange={e => setTelefono(e.target.value)}
                         maxLength={20}
@@ -155,6 +165,9 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                         <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
                     </label>
                     <select
+                        name="genero"
+                        id="genero"
+                        disabled={isLoading}
                         value={genero}
                         onChange={e => setGenero(e.target.value)}
                         className={inputClass('genero')}
@@ -175,13 +188,16 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                 </label>
                 <input
                     type="date"
+                    name="fechaNacimiento"
+                    id="fechaNacimiento"
+                    disabled={isLoading}
                     value={fechaNacimiento}
                     onChange={e => setFechaNacimiento(e.target.value)}
                     className={inputClass('fechaNacimiento')}
                 />
             </div>
 
-            {/* ✅ Contraseña — completamente opcional en edición */}
+            {/* Contraseña — opcional en edición */}
             <div>
                 <label className={labelClass}>
                     Nueva contraseña
@@ -191,6 +207,9 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                 </label>
                 <input
                     type="password"
+                    name="password"
+                    id="password"
+                    disabled={isLoading}
                     value={password}
                     onChange={e => { setPassword(e.target.value); setErrors(p => ({ ...p, password: '' })); }}
                     placeholder="Mínimo 6 caracteres si deseas cambiarla"

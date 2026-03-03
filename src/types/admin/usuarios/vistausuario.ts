@@ -1,7 +1,7 @@
-import type { Alumno } from './admin/usuarios/alumno';
-import type { Profesor } from './admin/usuarios/profesor';
-import type { Tutor } from './admin/usuarios/tutor';
-import type { Director } from './admin/usuarios/director';
+import type { Alumno } from '../../admin/usuarios/alumno';
+import type { Profesor } from '../../admin/usuarios/profesor';
+import type { Tutor } from '../../admin/usuarios/tutor';
+import type { Director } from '../../admin/usuarios/director';
 
 // Union type para cualquier tipo de usuario
 export type UsuarioTipo = Alumno | Profesor | Tutor | Director;
@@ -66,14 +66,16 @@ export type TipoPersona = 'administrador' | 'director' | 'maestro' | 'alumno' | 
 export interface Usuario {
     id: number;
     nombre: string;
-    apellido: string; 
-    apellidoPaterno?: string;
-    apellidoMaterno?: string;
+    apellidoPaterno: string;
+    apellidoMaterno: string | null;
     correo: string;
     telefono: string | null;
+    ultimaConexion?: string | null;
     tipoPersona: TipoPersona;
     activo: boolean;
     rolId: number;
+    fechaNacimiento?: string | null;
+    genero?: string | null;
     escuela?: {
         id: number;
         nombre: string;
@@ -108,7 +110,7 @@ export interface UsuariosResponse {
  */
 export const mapTipoPersonaToRole = (tipoPersona: TipoPersona): 'alumno' | 'profesor' | 'tutor' | 'director' => {
     const mapping: Record<TipoPersona, 'alumno' | 'profesor' | 'tutor' | 'director'> = {
-        'administrador': 'director', // Mostrar como director en UI
+        'administrador': 'director',
         'director': 'director',
         'maestro': 'profesor',
         'alumno': 'alumno',
@@ -121,5 +123,5 @@ export const mapTipoPersonaToRole = (tipoPersona: TipoPersona): 'alumno' | 'prof
  * Obtener nombre completo del usuario de la API
  */
 export const getNombreCompleto = (usuario: Usuario): string => {
-    return `${usuario.nombre} ${usuario.apellido}`.trim();
+    return `${usuario.nombre} ${usuario.apellidoPaterno} ${usuario.apellidoMaterno ?? ''}`.trim();
 };

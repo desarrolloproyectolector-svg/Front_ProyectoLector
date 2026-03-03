@@ -1,17 +1,9 @@
 // types/escuela/alumnos/alumno.types.ts
 
-/**
- * TIPOS CONSOLIDADOS PARA GESTIÓN DE ALUMNOS
- * Incluye tipos para: Registro, Edición, Eliminación y Listado
- */
-
 // ============================================================================
 // TIPOS PARA REGISTRO DE ALUMNO (POST /personas/registro-alumno)
 // ============================================================================
 
-/**
- * Datos del formulario de registro de alumno
- */
 export interface AlumnoFormData {
     nombre: string;
     apellidoPaterno: string;
@@ -19,15 +11,12 @@ export interface AlumnoFormData {
     email: string;
     password: string;
     telefono?: string;
-    fechaNacimiento?: string; // YYYY-MM-DD
+    fechaNacimiento?: string;
     grado?: number;
-    grupo?: string; // Solo la letra: "A", "B", "C"
-    cicloEscolar?: string; // Ej: "2024-2025"
+    grupo?: string;
+    cicloEscolar?: string;
 }
 
-/**
- * Payload que se envía a la API para registrar alumno
- */
 export interface RegistroAlumnoPayload {
     nombre: string;
     apellidoPaterno: string;
@@ -39,19 +28,16 @@ export interface RegistroAlumnoPayload {
     grado?: number;
     grupo?: string;
     cicloEscolar?: string;
-    // idEscuela NO se envía - se toma del token
 }
 
-/**
- * Estructura de la respuesta de la API al registrar alumno
- */
 export interface RegistroAlumnoResponse {
     message: string;
     description: string;
     data: {
         id: number;
         nombre: string;
-        apellido: string;
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string | null;
         fechaNacimiento: string | null;
@@ -72,9 +58,6 @@ export interface RegistroAlumnoResponse {
     };
 }
 
-/**
- * Errores de validación del formulario de registro
- */
 export interface AlumnoFormErrors {
     nombre?: string;
     apellidoPaterno?: string;
@@ -92,37 +75,30 @@ export interface AlumnoFormErrors {
 // TIPOS PARA LISTADO DE ALUMNOS (GET /director/alumnos)
 // ============================================================================
 
-/**
- * Estructura de una persona (datos básicos del alumno)
- */
 export interface PersonaAlumno {
     id: number;
     nombre: string;
-    apellido: string;
+    apellidoPaterno: string;
+    apellidoMaterno: string | null;
     correo: string;
     telefono: string | null;
     fechaNacimiento?: string | null;
     genero?: string | null;
 }
 
-/**
- * Estructura del padre/tutor del alumno
- */
 export interface PadreAlumno {
     id: number;
     parentesco: string;
     persona: {
         id: number;
         nombre: string;
-        apellido: string;
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string | null;
     };
 }
 
-/**
- * Estructura completa de un alumno según GET /director/alumnos
- */
 export interface AlumnoEscuela {
     id: number;
     personaId: number;
@@ -135,9 +111,6 @@ export interface AlumnoEscuela {
     padre: PadreAlumno | null;
 }
 
-/**
- * Respuesta de GET /director/alumnos
- */
 export interface AlumnosResponse {
     message: string;
     description: string;
@@ -149,28 +122,24 @@ export interface AlumnosResponse {
 // TIPOS PARA EDICIÓN DE ALUMNO (PATCH /personas/alumnos/:id)
 // ============================================================================
 
-/**
- * Datos para el formulario de edición de alumno
- */
 export interface AlumnoEditFormData {
     nombre: string;
-    apellido: string; // Apellido completo
+    apellidoPaterno: string;
+    apellidoMaterno: string;
     correo: string;
     telefono?: string;
-    fechaNacimiento?: string; // YYYY-MM-DD
+    fechaNacimiento?: string;
     genero?: string;
-    password?: string; // Nueva contraseña (opcional)
+    password?: string;
     grado?: number;
     grupo?: string;
     cicloEscolar?: string;
 }
 
-/**
- * Payload para PATCH /personas/alumnos/:id
- */
 export interface EditAlumnoPayload {
     nombre?: string;
-    apellido?: string;
+    apellidoPaterno?: string;
+    apellidoMaterno?: string | null;
     correo?: string;
     telefono?: string;
     fechaNacimiento?: string;
@@ -179,15 +148,13 @@ export interface EditAlumnoPayload {
     activo?: boolean;
 }
 
-/**
- * Respuesta de PATCH /personas/alumnos/:id
- */
 export interface EditAlumnoResponse {
     message: string;
     data: {
         id: number;
         nombre: string;
-        apellido: string;
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string | null;
         fechaNacimiento: string | null;
@@ -205,12 +172,10 @@ export interface EditAlumnoResponse {
     };
 }
 
-/**
- * Errores de validación del formulario de edición
- */
 export interface AlumnoEditFormErrors {
     nombre?: string;
-    apellido?: string;
+    apellidoPaterno?: string;
+    apellidoMaterno?: string;
     correo?: string;
     telefono?: string;
     fechaNacimiento?: string;
@@ -219,12 +184,9 @@ export interface AlumnoEditFormErrors {
 }
 
 // ============================================================================
-// TIPOS PARA ELIMINACIÓN DE ALUMNO (DELETE /personas/alumnos/:id)
+// TIPOS PARA ELIMINACIÓN DE ALUMNO
 // ============================================================================
 
-/**
- * Respuesta de DELETE /personas/alumnos/:id
- */
 export interface DeleteAlumnoResponse {
     message: string;
     description: string;
@@ -234,16 +196,11 @@ export interface DeleteAlumnoResponse {
 // HELPER FUNCTIONS
 // ============================================================================
 
-/**
- * Helper para obtener el nombre completo del alumno
- */
 export const getNombreCompletoAlumno = (alumno: AlumnoEscuela): string => {
-    return `${alumno.persona.nombre} ${alumno.persona.apellido}`.trim();
+    const mat = alumno.persona.apellidoMaterno ? ` ${alumno.persona.apellidoMaterno}` : '';
+    return `${alumno.persona.nombre} ${alumno.persona.apellidoPaterno}${mat}`.trim();
 };
 
-/**
- * Helper para formatear el grupo (ej: "5-A")
- */
 export const formatGrupo = (grado: number | null, grupo: string | null): string => {
     if (!grado || !grupo) return 'Sin asignar';
     return `${grado}-${grupo}`;

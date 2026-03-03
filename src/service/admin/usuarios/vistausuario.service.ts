@@ -36,7 +36,8 @@ export class UsuarioService {
      */
     static async update(id: number, data: Partial<{
         nombre: string;
-        apellido: string;
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string;
         fechaNacimiento: string;

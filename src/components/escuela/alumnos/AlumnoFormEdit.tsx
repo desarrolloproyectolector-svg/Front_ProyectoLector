@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AlumnoEditFormData, AlumnoEditFormErrors } from '../../../types/escuela/alumnos/alumno.types';
 
 interface AlumnoFormEditProps {
@@ -16,10 +16,12 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
     onCancel,
     isLoading = false
 }) => {
+    // ✅ Sin useEffect — los useState se inicializan una sola vez con initialData
     const [formData, setFormData] = useState<AlumnoEditFormData>(
         initialData || {
             nombre: '',
-            apellido: '',
+            apellidoPaterno: '',
+            apellidoMaterno: '',
             correo: '',
             telefono: '',
             fechaNacimiento: '',
@@ -34,43 +36,25 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
     const [errors, setErrors] = useState<AlumnoEditFormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
 
-    useEffect(() => {
-        if (initialData) {
-            setFormData(initialData);
-        }
-    }, [initialData]);
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
-        // Si es grado, convertir a número
         const finalValue = name === 'grado' ? (value ? parseInt(value) : undefined) : value;
-        
-        setFormData(prev => ({
-            ...prev,
-            [name]: finalValue
-        }));
-        
-        // Limpiar error cuando el usuario empieza a escribir
+
+        setFormData(prev => ({ ...prev, [name]: finalValue }));
+
         if (errors[name as keyof AlumnoEditFormErrors]) {
-            setErrors(prev => ({
-                ...prev,
-                [name]: undefined
-            }));
+            setErrors(prev => ({ ...prev, [name]: undefined }));
         }
     };
 
     const validate = (): boolean => {
         const newErrors: AlumnoEditFormErrors = {};
 
-        // Validaciones obligatorias
-        if (!formData.nombre.trim()) {
+        if (!formData.nombre.trim())
             newErrors.nombre = 'El nombre es requerido';
-        }
 
-        if (!formData.apellido.trim()) {
-            newErrors.apellido = 'El apellido es requerido';
-        }
+        if (!formData.apellidoPaterno.trim())
+            newErrors.apellidoPaterno = 'El apellido paterno es requerido';
 
         if (!formData.correo.trim()) {
             newErrors.correo = 'El correo es requerido';
@@ -78,19 +62,13 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
             newErrors.correo = 'Correo inválido';
         }
 
-        // Validación de contraseña (opcional, pero si se ingresa debe ser válida)
-        if (formData.password && formData.password.length > 0) {
-            if (formData.password.length < 6) {
-                newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-            }
-        }
+        if (formData.password && formData.password.length > 0 && formData.password.length < 6)
+            newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
 
-        // Validación de teléfono (opcional pero si se ingresa debe ser válido)
-        if (formData.telefono && formData.telefono.trim()) {
+        if (formData.telefono?.trim()) {
             const phoneRegex = /^[0-9+\s()-]{10,}$/;
-            if (!phoneRegex.test(formData.telefono)) {
+            if (!phoneRegex.test(formData.telefono))
                 newErrors.telefono = 'Formato de teléfono inválido';
-            }
         }
 
         setErrors(newErrors);
@@ -99,10 +77,7 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (validate()) {
-            onSubmit(formData);
-        }
+        if (validate()) onSubmit(formData);
     };
 
     const inputClass = (field: keyof AlumnoEditFormErrors) =>
@@ -116,19 +91,19 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+
             {/* Información Personal */}
             <div>
                 <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full"></div>
                     Información Personal
                 </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Nombre */}
                     <div>
                         <label className={labelClass}>
-                            Nombre(s)
-                            <span className="text-red-500 ml-1">*</span>
+                            Nombre(s) <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
@@ -139,46 +114,49 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                             disabled={isLoading}
                             className={inputClass('nombre')}
                         />
-                        {errors.nombre && (
-                            <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                {errors.nombre}
-                            </p>
-                        )}
+                        {errors.nombre && <p className="mt-1 text-xs text-red-600">{errors.nombre}</p>}
                     </div>
 
-                    {/* Apellido completo */}
+                    {/* Apellido Paterno */}
                     <div>
                         <label className={labelClass}>
-                            Apellido(s)
-                            <span className="text-red-500 ml-1">*</span>
+                            Apellido Paterno <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
-                            name="apellido"
-                            value={formData.apellido}
+                            name="apellidoPaterno"
+                            value={formData.apellidoPaterno}
                             onChange={handleChange}
-                            placeholder="Ej: González López"
+                            placeholder="Ej: González"
                             disabled={isLoading}
-                            className={inputClass('apellido')}
+                            className={inputClass('apellidoPaterno')}
                         />
-                        {errors.apellido && (
-                            <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                {errors.apellido}
-                            </p>
-                        )}
+                        {errors.apellidoPaterno && <p className="mt-1 text-xs text-red-600">{errors.apellidoPaterno}</p>}
                     </div>
 
+                    {/* Apellido Materno */}
+                    <div>
+                        <label className={labelClass}>
+                            Apellido Materno
+                            <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="apellidoMaterno"
+                            value={formData.apellidoMaterno || ''}
+                            onChange={handleChange}
+                            placeholder="Ej: López"
+                            disabled={isLoading}
+                            className={inputClass('apellidoMaterno')}
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     {/* Correo */}
                     <div>
                         <label className={labelClass}>
-                            Correo Electrónico
-                            <span className="text-red-500 ml-1">*</span>
+                            Correo Electrónico <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="email"
@@ -189,14 +167,7 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                             disabled={isLoading}
                             className={inputClass('correo')}
                         />
-                        {errors.correo && (
-                            <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                {errors.correo}
-                            </p>
-                        )}
+                        {errors.correo && <p className="mt-1 text-xs text-red-600">{errors.correo}</p>}
                     </div>
 
                     {/* Teléfono */}
@@ -214,14 +185,7 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                             disabled={isLoading}
                             className={inputClass('telefono')}
                         />
-                        {errors.telefono && (
-                            <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                {errors.telefono}
-                            </p>
-                        )}
+                        {errors.telefono && <p className="mt-1 text-xs text-red-600">{errors.telefono}</p>}
                     </div>
 
                     {/* Fecha de Nacimiento */}
@@ -268,9 +232,8 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full"></div>
                     Información Académica
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Grado */}
                     <div>
                         <label className={labelClass}>Grado</label>
                         <select
@@ -290,7 +253,6 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                         </select>
                     </div>
 
-                    {/* Grupo */}
                     <div>
                         <label className={labelClass}>Grupo</label>
                         <select
@@ -308,7 +270,6 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                         </select>
                     </div>
 
-                    {/* Ciclo Escolar */}
                     <div>
                         <label className={labelClass}>Ciclo Escolar</label>
                         <input
@@ -324,17 +285,17 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                 </div>
             </div>
 
-            {/* Contraseña (opcional) */}
+            {/* Seguridad */}
             <div>
                 <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full"></div>
                     Seguridad
                 </h3>
-                
+
                 <div className="bg-[#fbf8f1] rounded-xl p-4 mb-4">
                     <p className="text-sm text-[#8d6e3f] flex items-center gap-2">
                         <svg className="w-4 h-4 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Deja este campo en blanco si no deseas cambiar la contraseña
                     </p>
@@ -362,27 +323,20 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                     >
                         {showPassword ? (
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                             </svg>
                         ) : (
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         )}
                     </button>
-                    {errors.password && (
-                        <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            {errors.password}
-                        </p>
-                    )}
+                    {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
                 </div>
             </div>
 
-            {/* Botones de acción */}
+            {/* Botones */}
             <div className="flex justify-end gap-3 pt-6 border-t border-[#e3dac9]">
                 <button
                     type="button"
@@ -408,7 +362,7 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                     ) : (
                         <>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                             </svg>
                             Guardar Cambios
                         </>

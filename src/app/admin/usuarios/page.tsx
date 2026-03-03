@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AddUsuarioModal } from '../../../components/admin/usuarios/AddUsuarioModal';
-import { EditUsuarioModal } from '../../../components/admin/usuarios/EditUsuarioModal';
+import { EditUsuarioModal } from '../../../components/admin/usuarios/Editusuariomodal';
 import { CargaMasivaAdminModal } from '../../../components/admin/usuarios/CargaMasivaAdminModal';
 import { UsuarioDetalleRow } from '../../../components/admin/usuarios/UsuarioDetalleRow';
 import { UsuarioService } from '../../../service/admin/usuarios/vistausuario.service';
@@ -299,9 +299,8 @@ export default function UsuariosAdminPage() {
                                 <button
                                     key={role}
                                     onClick={() => setFilterRole(role)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                                        filterRole === role ? activeClass[role] : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
-                                    }`}
+                                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${filterRole === role ? activeClass[role] : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
+                                        }`}
                                 >
                                     {labels[role]}
                                 </button>
@@ -327,6 +326,7 @@ export default function UsuariosAdminPage() {
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Contacto</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Escuela</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
+                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Últ. Conexión</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
@@ -375,7 +375,9 @@ export default function UsuariosAdminPage() {
                             </div>
                             <h3 className="font-playfair text-xl font-bold text-[#2b1b17] text-center mb-2">Eliminar Usuario</h3>
                             <p className="text-[#5d4037] text-center text-sm mb-1">¿Estás seguro de que deseas eliminar a:</p>
-                            <p className="text-[#2b1b17] font-bold text-center mb-1">{usuarioToDelete.nombre} {usuarioToDelete.apellido}</p>
+                            <p className="text-[#2b1b17] font-bold text-center mb-1">
+                                {getNombreCompleto(usuarioToDelete)}
+                            </p>
                             <p className="text-[#8d6e3f] text-center text-xs mb-6">{usuarioToDelete.correo}</p>
                             <p className="text-red-600 text-center text-xs mb-6">Esta acción no se puede deshacer.</p>
 

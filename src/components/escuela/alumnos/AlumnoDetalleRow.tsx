@@ -15,26 +15,16 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
     onDelete
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    
+
     const nombreCompleto = getNombreCompletoAlumno(alumno);
     const grupo = formatGrupo(alumno.grado, alumno.grupo);
-
-    // Separar apellido en partes si es necesario
-    const getApellidosSeparados = () => {
-        const partes = alumno.persona.apellido.trim().split(' ');
-        return {
-            paterno: partes[0] || '',
-            materno: partes.slice(1).join(' ') || ''
-        };
-    };
-
-    const { paterno, materno } = getApellidosSeparados();
 
     return (
         <>
             {/* Fila principal */}
             <tr className={`hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1]' : ''}`}>
-                {/* Columna: Alumno */}
+
+                {/* Alumno */}
                 <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-md">
@@ -47,32 +37,31 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                     </div>
                 </td>
 
-                {/* Columna: Grupo */}
+                {/* Grupo */}
                 <td className="px-6 py-4">
                     <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
                         📚 {grupo}
                     </span>
                 </td>
 
-                {/* Columna: Contacto */}
+                {/* Contacto */}
                 <td className="px-6 py-4">
                     <div className="text-sm text-[#5d4037] flex items-center gap-1">
                         {alumno.persona.telefono ? (
-                            <>
-                                <span className="text-[#d4af37]">📞</span> {alumno.persona.telefono}
-                            </>
+                            <><span className="text-[#d4af37]">📞</span> {alumno.persona.telefono}</>
                         ) : (
                             <span className="text-[#a1887f] italic">Sin teléfono</span>
                         )}
                     </div>
                 </td>
 
-                {/* Columna: Tutor */}
+                {/* Tutor */}
                 <td className="px-6 py-4">
                     {alumno.padre ? (
                         <div className="text-sm">
                             <div className="font-bold text-[#2b1b17]">
-                                {alumno.padre.persona.nombre} {alumno.padre.persona.apellido}
+                                {alumno.padre.persona.nombre} {alumno.padre.persona.apellidoPaterno}
+                                {alumno.padre.persona.apellidoMaterno ? ` ${alumno.padre.persona.apellidoMaterno}` : ''}
                             </div>
                             <div className="text-xs text-[#8d6e3f] capitalize">{alumno.padre.parentesco}</div>
                         </div>
@@ -81,39 +70,28 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                     )}
                 </td>
 
-                {/* Columna: Ciclo Escolar */}
+                {/* Ciclo Escolar */}
                 <td className="px-6 py-4">
                     <span className="text-sm text-[#5d4037]">
                         {alumno.cicloEscolar || <span className="text-[#a1887f] italic">N/A</span>}
                     </span>
                 </td>
 
-                {/* Columna: Acciones */}
+                {/* Acciones */}
                 <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                        {/* Botón expandir/contraer */}
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
-                            className={`p-2 rounded-lg transition-all duration-200 ${
-                                isExpanded 
-                                    ? 'bg-[#d4af37] text-white' 
-                                    : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'
-                            }`}
+                            className={`p-2 rounded-lg transition-all duration-200 ${isExpanded ? 'bg-[#d4af37] text-white' : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'}`}
                             title={isExpanded ? 'Contraer' : 'Expandir detalles'}
                         >
-                            <svg 
-                                className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                            >
+                            <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
 
-                        {/* Botón editar */}
-                        <button 
-                            onClick={() => onEdit(alumno)} 
+                        <button
+                            onClick={() => onEdit(alumno)}
                             className="p-2 hover:bg-blue-50 rounded-lg text-[#8d6e3f] hover:text-blue-600 transition-colors"
                             title="Editar alumno"
                         >
@@ -122,9 +100,8 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                             </svg>
                         </button>
 
-                        {/* Botón eliminar */}
-                        <button 
-                            onClick={() => onDelete(alumno)} 
+                        <button
+                            onClick={() => onDelete(alumno)}
                             className="p-2 hover:bg-red-50 rounded-lg text-[#8d6e3f] hover:text-red-600 transition-colors"
                             title="Eliminar alumno"
                         >
@@ -136,18 +113,16 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
             </tr>
 
-            {/* Fila expandible con detalles */}
+            {/* Fila expandible */}
             {isExpanded && (
                 <tr className="bg-[#fbf8f1]/30">
                     <td colSpan={6} className="px-8 py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
-                                
-                                {/* Grupo 1: Información Personal */}
+
+                                {/* Datos Personales */}
                                 <div className="p-5">
-                                    <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
-                                        👤 Datos Personales
-                                    </h4>
+                                    <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4">👤 Datos Personales</h4>
                                     <div className="space-y-3">
                                         <div>
                                             <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nombre(s)</p>
@@ -156,11 +131,11 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">A. Paterno</p>
-                                                <p className="text-sm text-[#2b1b17]">{paterno || '—'}</p>
+                                                <p className="text-sm text-[#2b1b17]">{alumno.persona.apellidoPaterno || '—'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">A. Materno</p>
-                                                <p className="text-sm text-[#2b1b17]">{materno || '—'}</p>
+                                                <p className="text-sm text-[#2b1b17]">{alumno.persona.apellidoMaterno || '—'}</p>
                                             </div>
                                         </div>
                                         {alumno.persona.fechaNacimiento && (
@@ -180,16 +155,14 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                                     </div>
                                 </div>
 
-                                {/* Grupo 2: Información Académica */}
+                                {/* Información Académica */}
                                 <div className="p-5 bg-[#fbf8f1]/20">
-                                    <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
-                                        📚 Información Académica
-                                    </h4>
+                                    <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4">📚 Información Académica</h4>
                                     <div className="space-y-3">
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Grado</p>
-                                                <p className="text-sm text-[#2b1b17]">{alumno.grado || '—'}°</p>
+                                                <p className="text-sm text-[#2b1b17]">{alumno.grado ? `${alumno.grado}°` : '—'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Grupo</p>
@@ -213,17 +186,16 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                                     </div>
                                 </div>
 
-                                {/* Grupo 3: Información del Tutor */}
+                                {/* Tutor */}
                                 <div className="p-5">
-                                    <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
-                                        👨‍👩‍👧 Tutor / Padre de Familia
-                                    </h4>
+                                    <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4">👨‍👩‍👧 Tutor / Padre de Familia</h4>
                                     {alumno.padre ? (
                                         <div className="space-y-3">
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nombre Completo</p>
                                                 <p className="text-sm text-[#2b1b17]">
-                                                    {alumno.padre.persona.nombre} {alumno.padre.persona.apellido}
+                                                    {alumno.padre.persona.nombre} {alumno.padre.persona.apellidoPaterno}
+                                                    {alumno.padre.persona.apellidoMaterno ? ` ${alumno.padre.persona.apellidoMaterno}` : ''}
                                                 </p>
                                             </div>
                                             <div>
@@ -242,9 +214,7 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                                             )}
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-[#a1887f] italic">
-                                            No hay un tutor asignado a este alumno.
-                                        </p>
+                                        <p className="text-sm text-[#a1887f] italic">No hay un tutor asignado a este alumno.</p>
                                     )}
                                 </div>
 

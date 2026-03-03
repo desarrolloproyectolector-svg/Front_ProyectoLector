@@ -11,9 +11,9 @@ export interface ProfesorFormData {
     email: string;
     password: string;
     telefono?: string;
-    fechaNacimiento?: string;   // YYYY-MM-DD
+    fechaNacimiento?: string;
     especialidad?: string;
-    fechaIngreso?: string;      // YYYY-MM-DD
+    fechaIngreso?: string;
 }
 
 export interface RegistroProfesorPayload {
@@ -26,7 +26,6 @@ export interface RegistroProfesorPayload {
     fechaNacimiento?: string;
     especialidad?: string;
     fechaIngreso?: string;
-    // idEscuela NO se envía — el backend lo toma del token del director
 }
 
 export interface RegistroProfesorResponse {
@@ -35,8 +34,8 @@ export interface RegistroProfesorResponse {
     data: {
         id: number;
         nombre: string;
-        apellidoPaterno: string;  // ✅ separado
-        apellidoMaterno: string;  // ✅ separado
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string | null;
         fechaNacimiento: string | null;
@@ -71,14 +70,13 @@ export interface ProfesorFormErrors {
 
 // ============================================================================
 // LISTADO (GET /escuelas/:id/maestros)
-// Los apellidos vienen SEPARADOS desde el backend
 // ============================================================================
 
 export interface PersonaProfesor {
     id: number;
     nombre: string;
-    apellidoPaterno: string;    // ✅ campo separado
-    apellidoMaterno: string;    // ✅ campo separado
+    apellidoPaterno: string;
+    apellidoMaterno: string | null;
     correo: string;
     telefono: string | null;
     fechaNacimiento?: string | null;
@@ -87,7 +85,7 @@ export interface PersonaProfesor {
 }
 
 export interface ProfesorEscuela {
-    id: number;           // ID de la tabla Maestro — usar para PATCH/DELETE
+    id: number;
     personaId: number;
     escuelaId: number;
     especialidad: string | null;
@@ -106,14 +104,12 @@ export interface ProfesoresResponse {
 
 // ============================================================================
 // EDICIÓN (PATCH /personas/maestros/:id)
-// :id = ID del maestro (tabla Maestro), NO el de persona
-// El PATCH recibe apellidoPaterno y apellidoMaterno separados
 // ============================================================================
 
 export interface ProfesorEditFormData {
     nombre: string;
-    apellidoPaterno: string;    // ✅ separado
-    apellidoMaterno: string;    // ✅ separado
+    apellidoPaterno: string;
+    apellidoMaterno: string;
     correo: string;
     telefono?: string;
     fechaNacimiento?: string;
@@ -124,8 +120,8 @@ export interface ProfesorEditFormData {
 
 export interface EditProfesorPayload {
     nombre?: string;
-    apellidoPaterno?: string;   // ✅ separado
-    apellidoMaterno?: string;   // ✅ separado
+    apellidoPaterno?: string;
+    apellidoMaterno?: string | null;  // ✅ null permitido para borrar el valor
     correo?: string;
     telefono?: string;
     fechaNacimiento?: string;
@@ -140,7 +136,7 @@ export interface EditProfesorResponse {
         id: number;
         nombre: string;
         apellidoPaterno: string;
-        apellidoMaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string | null;
         fechaNacimiento: string | null;
@@ -161,7 +157,7 @@ export interface ProfesorEditFormErrors {
 }
 
 // ============================================================================
-// ELIMINACIÓN (DELETE /personas/maestros/:id)
+// ELIMINACIÓN
 // ============================================================================
 
 export interface DeleteProfesorResponse {
@@ -173,8 +169,10 @@ export interface DeleteProfesorResponse {
 // HELPERS
 // ============================================================================
 
-export const getNombreCompletoProfesor = (profesor: ProfesorEscuela): string =>
-    `${profesor.persona.nombre} ${profesor.persona.apellidoPaterno} ${profesor.persona.apellidoMaterno}`.trim();
+export const getNombreCompletoProfesor = (profesor: ProfesorEscuela): string => {
+    const mat = profesor.persona.apellidoMaterno ? ` ${profesor.persona.apellidoMaterno}` : '';
+    return `${profesor.persona.nombre} ${profesor.persona.apellidoPaterno}${mat}`.trim();
+};
 
 export const getEstadoProfesor = (profesor: ProfesorEscuela): 'activo' | 'inactivo' =>
     profesor.persona.activo !== false ? 'activo' : 'inactivo';

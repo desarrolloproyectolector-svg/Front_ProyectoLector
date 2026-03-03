@@ -5,12 +5,12 @@ import React, { useState } from 'react';
 interface Usuario {
     id: number;
     nombre: string;
-    apellido: string | null;
-    apellidoPaterno?: string;
-    apellidoMaterno?: string;
+    apellidoPaterno: string;
+    apellidoMaterno: string | null;
     correo: string;
     telefono: string | null;
-    tipoPersona: string;
+    ultimaConexion?: string | null;
+    tipoPersona: 'administrador' | 'director' | 'maestro' | 'alumno' | 'padre';
     activo: boolean;
     rolId: number;
     escuela?: {
@@ -30,7 +30,22 @@ interface UsuarioDetalleRowProps {
 }
 
 const getNombreCompleto = (usuario: Usuario): string => {
-    return `${usuario.nombre ?? ''} ${usuario.apellido ?? ''}`.trim();
+    return `${usuario.nombre} ${usuario.apellidoPaterno} ${usuario.apellidoMaterno ?? ''}`.trim();
+};
+
+const formatUltimaConexion = (fecha?: string | null): string => {
+    if (!fecha) return 'Sin registro';
+
+    const parsedDate = new Date(fecha);
+    if (Number.isNaN(parsedDate.getTime())) return 'Sin registro';
+
+    return parsedDate.toLocaleString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 };
 
 export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
@@ -44,22 +59,8 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
     const [isExpanded, setIsExpanded] = useState(false);
     const nombreCompleto = getNombreCompleto(usuario);
 
-    // Lógica de separación de apellidos
-    const getApellidosSeparados = () => {
-        if (usuario.apellidoPaterno || usuario.apellidoMaterno) {
-            return {
-                paterno: usuario.apellidoPaterno || '',
-                materno: usuario.apellidoMaterno || ''
-            };
-        }
-        const partes = (usuario.apellido ?? '').trim().split(' ');
-        return {
-            paterno: partes[0] || '',
-            materno: partes.slice(1).join(' ') || ''
-        };
-    };
-
-    const { paterno, materno } = getApellidosSeparados();
+    const paterno = usuario.apellidoPaterno;
+    const materno = usuario.apellidoMaterno ?? '';
 
     return (
         <>
@@ -101,10 +102,14 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                     )}
                 </td>
                 <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
+                        }`}>
                         {usuario.activo ? '✓ Activo' : '○ Inactivo'}
+                    </span>
+                </td>
+                <td className="px-6 py-4">
+                    <span className="text-sm text-[#5d4037]">
+                        {formatUltimaConexion(usuario.ultimaConexion)}
                     </span>
                 </td>
                 <td className="px-6 py-4">
@@ -134,10 +139,10 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
             {/* Fila expandible organizada */}
             {isExpanded && (
                 <tr className="bg-[#fbf8f1]/30">
-                    <td colSpan={6} className="px-8 py-6">
+                    <td colSpan={7} className="px-8 py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
-                                
+
                                 {/* Grupo 1: Información Personal */}
                                 <div className="p-5">
                                     <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">

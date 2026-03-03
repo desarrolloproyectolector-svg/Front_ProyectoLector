@@ -17,16 +17,16 @@ export interface Alumno {
 export interface CreateAlumnoDTO {
     nombre: string;
     email: string;
-    password?: string; // Añadido para la API
+    password?: string;
     telefono: string;
     fechaNacimiento: string;
     matricula: string;
     grupo: string;
     nombreTutor: string;
     telefonoTutor: string;
-    idEscuela?: number; // Añadido para la API
-    grado?: string; // Añadido para la API
-    cicloEscolar?: string; // Añadido para la API
+    idEscuela?: number;
+    grado?: string;
+    cicloEscolar?: string;
 }
 
 export interface UpdateAlumnoDTO extends Partial<CreateAlumnoDTO> {
@@ -40,38 +40,6 @@ export interface AlumnoStats {
     totalLibrosActivos: number;
 }
 
-// Interfaz para separar el nombre completo
-export interface NombreCompleto {
-    nombre: string;
-    apellidoPaterno: string;
-    apellidoMaterno: string;
-}
-
-// Función auxiliar para dividir nombre completo
-export function dividirNombreCompleto(nombreCompleto: string): NombreCompleto {
-    const partes = nombreCompleto.trim().split(' ');
-    
-    if (partes.length === 1) {
-        return {
-            nombre: partes[0],
-            apellidoPaterno: '',
-            apellidoMaterno: ''
-        };
-    } else if (partes.length === 2) {
-        return {
-            nombre: partes[0],
-            apellidoPaterno: partes[1],
-            apellidoMaterno: ''
-        };
-    } else {
-        return {
-            nombre: partes[0],
-            apellidoPaterno: partes[1],
-            apellidoMaterno: partes.slice(2).join(' ')
-        };
-    }
-}
-
 // ==========================================
 // INTERFACES PARA BÚSQUEDA DE ALUMNOS (API)
 // ==========================================
@@ -79,8 +47,6 @@ export function dividirNombreCompleto(nombreCompleto: string): NombreCompleto {
 /**
  * Interfaz para un alumno retornado por la búsqueda de la API
  * Endpoint: GET /personas/alumnos/buscar
- * 
- * IMPORTANTE: La API devuelve "apellido" en lugar de "apellidoPaterno" y "apellidoMaterno"
  */
 export interface AlumnoBusqueda {
     id: string | number;
@@ -93,7 +59,8 @@ export interface AlumnoBusqueda {
     persona: {
         id: string | number;
         nombre: string;
-        apellido: string;  // ⚠️ La API devuelve "apellido" (un solo campo)
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono?: string;
     };
@@ -108,7 +75,8 @@ export interface AlumnoBusqueda {
         persona: {
             id: string | number;
             nombre: string;
-            apellido: string;
+            apellidoPaterno: string;
+            apellidoMaterno: string | null;
             correo: string;
             telefono?: string;
         };
@@ -138,9 +106,8 @@ export interface AlumnoBusquedaParams {
 
 /**
  * Función auxiliar para obtener el nombre completo de un alumno de búsqueda
- * La API devuelve "apellido" como un solo campo
  */
 export function getNombreCompletoAlumno(alumno: AlumnoBusqueda): string {
-    const { nombre, apellido } = alumno.persona;
-    return `${nombre} ${apellido}`.trim();
+    const { nombre, apellidoPaterno, apellidoMaterno } = alumno.persona;
+    return `${nombre} ${apellidoPaterno} ${apellidoMaterno ?? ''}`.trim();
 }

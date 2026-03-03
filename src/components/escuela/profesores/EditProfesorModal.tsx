@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { profesorService } from '../../../service/escuela/profesor/profesor.service';
 import {
@@ -20,39 +20,23 @@ interface Props {
 }
 
 export default function EditarProfesorModal({ open, onClose, onSuccess, profesor }: Props) {
+    // ✅ FIX: Sin useEffect — los useState se inicializan una sola vez con los datos
+    // del profesor. El reset se controla desde afuera con key={profesor.id}
     const [formData, setFormData] = useState<ProfesorEditFormData>({
-        nombre: '',
-        apellidoPaterno: '',
-        apellidoMaterno: '',
-        correo: '',
-        telefono: '',
-        fechaNacimiento: '',
-        genero: '',
-        password: '',
-        activo: true,
+        nombre:          profesor.persona.nombre          ?? '',
+        apellidoPaterno: profesor.persona.apellidoPaterno ?? '',
+        apellidoMaterno: profesor.persona.apellidoMaterno ?? '',
+        correo:          profesor.persona.correo          ?? '',
+        telefono:        profesor.persona.telefono        ?? '',
+        fechaNacimiento: profesor.persona.fechaNacimiento ?? '',
+        genero:          profesor.persona.genero          ?? '',
+        password:        '',
+        activo:          profesor.persona.activo !== false,
     });
 
     const [errors, setErrors] = useState<ProfesorEditFormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-
-    // ─── Poblar form con datos actuales ──────────────────────────────────────
-    useEffect(() => {
-        if (profesor && open) {
-            setFormData({
-                nombre: profesor.persona.nombre ?? '',
-                apellidoPaterno: profesor.persona.apellidoPaterno ?? '',
-                apellidoMaterno: profesor.persona.apellidoMaterno ?? '',
-                correo: profesor.persona.correo ?? '',
-                telefono: profesor.persona.telefono ?? '',
-                fechaNacimiento: profesor.persona.fechaNacimiento ?? '',
-                genero: profesor.persona.genero ?? '',
-                password: '',
-                activo: profesor.persona.activo !== false,
-            });
-            setErrors({});
-        }
-    }, [profesor, open]);
 
     const handleChange = (field: keyof ProfesorEditFormData) =>
         (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -68,9 +52,8 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
     const validate = (): boolean => {
         const newErrors: ProfesorEditFormErrors = {};
 
-        if (!formData.nombre.trim())           newErrors.nombre = 'El nombre es requerido';
-        if (!formData.apellidoPaterno.trim())  newErrors.apellidoPaterno = 'El apellido paterno es requerido';
-        if (!formData.apellidoMaterno.trim())  newErrors.apellidoMaterno = 'El apellido materno es requerido';
+        if (!formData.nombre.trim())          newErrors.nombre = 'El nombre es requerido';
+        if (!formData.apellidoPaterno.trim()) newErrors.apellidoPaterno = 'El apellido paterno es requerido';
 
         if (!formData.correo.trim()) {
             newErrors.correo = 'El correo es requerido';
@@ -78,13 +61,11 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
             newErrors.correo = 'Correo inválido';
         }
 
-        if (formData.password && formData.password.length > 0 && formData.password.length < 6) {
+        if (formData.password && formData.password.length > 0 && formData.password.length < 6)
             newErrors.password = 'Mínimo 6 caracteres';
-        }
 
-        if (formData.telefono?.trim() && !/^[0-9+\s()-]{10,}$/.test(formData.telefono)) {
+        if (formData.telefono?.trim() && !/^[0-9+\s()-]{10,}$/.test(formData.telefono))
             newErrors.telefono = 'Formato de teléfono inválido';
-        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -97,17 +78,18 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
         try {
             setIsLoading(true);
 
-            const payload: EditProfesorPayload = {};
+            const payload: EditProfesorPayload = {
+                nombre:          formData.nombre.trim(),
+                apellidoPaterno: formData.apellidoPaterno.trim(),
+                apellidoMaterno: formData.apellidoMaterno?.trim() || null,
+                correo:          formData.correo.trim().toLowerCase(),
+                activo:          formData.activo,
+            };
 
-            if (formData.nombre.trim())           payload.nombre = formData.nombre.trim();
-            if (formData.apellidoPaterno.trim())  payload.apellidoPaterno = formData.apellidoPaterno.trim();
-            if (formData.apellidoMaterno.trim())  payload.apellidoMaterno = formData.apellidoMaterno.trim();
-            if (formData.correo.trim())           payload.correo = formData.correo.trim().toLowerCase();
-            if (formData.telefono?.trim())        payload.telefono = formData.telefono.trim();
-            if (formData.fechaNacimiento)         payload.fechaNacimiento = formData.fechaNacimiento;
-            if (formData.genero)                  payload.genero = formData.genero;
-            if (formData.password && formData.password.length > 0) payload.password = formData.password;
-            payload.activo = formData.activo;
+            if (formData.telefono?.trim())        payload.telefono        = formData.telefono.trim();
+            if (formData.fechaNacimiento?.trim()) payload.fechaNacimiento = formData.fechaNacimiento.trim();
+            if (formData.genero?.trim())          payload.genero          = formData.genero.trim();
+            if (formData.password?.trim().length) payload.password        = formData.password.trim();
 
             const response = await profesorService.editarProfesor(profesor.id, payload);
 
@@ -170,7 +152,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                        {/* Nombre — ocupa toda la fila */}
+                        {/* Nombre — fila completa */}
                         <div className="md:col-span-2">
                             <label className={labelClass}>
                                 Nombre(s) <span className="text-red-500">*</span>
@@ -203,16 +185,16 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                         {/* Apellido Materno */}
                         <div>
                             <label className={labelClass}>
-                                Apellido Materno <span className="text-red-500">*</span>
+                                Apellido Materno
+                                <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
                             </label>
                             <input
                                 type="text"
-                                value={formData.apellidoMaterno}
+                                value={formData.apellidoMaterno ?? ''}
                                 onChange={handleChange('apellidoMaterno')}
                                 disabled={isLoading}
                                 className={inputClass('apellidoMaterno')}
                             />
-                            <ErrorMsg field="apellidoMaterno" />
                         </div>
 
                         {/* Correo */}

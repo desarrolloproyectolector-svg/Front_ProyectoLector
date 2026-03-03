@@ -12,9 +12,8 @@ interface EditUsuarioModalProps {
     usuario: {
         id: number;
         nombre: string;
-        apellido: string;
-        apellidoPaterno?: string;
-        apellidoMaterno?: string;
+        apellidoPaterno: string;
+        apellidoMaterno: string | null;
         correo: string;
         telefono: string | null;
         tipoPersona: string;
@@ -47,31 +46,21 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [error,     setError]     = useState<string>('');
 
-    const getInitialData = (): UsuarioFormEditData => {
-        // Priorizar apellidoPaterno/apellidoMaterno si vienen del API,
-        // si no, intentar partir el campo apellido (fallback)
-        let apellidoPaterno = '';
-        let apellidoMaterno = '';
+    // ✅ FIX DEFINITIVO: Se pasa `key={usuario.id}` a UsuarioFormEdit.
+    // Cuando React ve una key diferente, destruye y recrea el componente desde cero,
+    // inicializando los useState con los datos correctos del usuario seleccionado.
+    // Como UsuarioFormEdit ya NO tiene useEffect, nada puede resetear los campos
+    // mientras el usuario está escribiendo.
 
-        if (usuario.apellidoPaterno !== undefined || usuario.apellidoMaterno !== undefined) {
-            apellidoPaterno = usuario.apellidoPaterno ?? '';
-            apellidoMaterno = usuario.apellidoMaterno ?? '';
-        } else {
-            const partes    = (usuario.apellido ?? '').trim().split(' ');
-            apellidoPaterno = partes[0]                 ?? '';
-            apellidoMaterno = partes.slice(1).join(' ') ?? '';
-        }
-
-        return {
-            nombre:          usuario.nombre             ?? '',
-            apellidoPaterno,
-            apellidoMaterno,
-            email:           usuario.correo             ?? '',
-            telefono:        usuario.telefono           ?? '',
-            fechaNacimiento: usuario.fechaNacimiento    ?? '',
-            genero:          usuario.genero             ?? '',
-            password:        '',
-        };
+    const initialData: UsuarioFormEditData = {
+        nombre:          usuario.nombre             ?? '',
+        apellidoPaterno: usuario.apellidoPaterno    ?? '',
+        apellidoMaterno: usuario.apellidoMaterno    ?? '',
+        email:           usuario.correo             ?? '',
+        telefono:        usuario.telefono           ?? '',
+        fechaNacimiento: usuario.fechaNacimiento    ?? '',
+        genero:          usuario.genero             ?? '',
+        password:        '',
     };
 
     const handleSubmit = async (data: UsuarioFormEditData) => {
@@ -79,30 +68,21 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
             setIsLoading(true);
             setError('');
 
-            const apellidoCompleto = [data.apellidoPaterno, data.apellidoMaterno]
-                .filter(Boolean)
-                .join(' ')
-                .trim();
-
-            // ✅ Solo incluir campos que tienen valor real.
-            // Si password está vacío, NO lo enviamos al backend.
             const payload: Record<string, any> = {
-                nombre:   data.nombre,
-                apellido: apellidoCompleto,
-                correo:   data.email,
+                nombre:          data.nombre.trim(),
+                apellidoPaterno: data.apellidoPaterno.trim(),
+                apellidoMaterno: data.apellidoMaterno?.trim() || null,
+                correo:          data.email.trim(),
             };
 
-            // Campos opcionales: solo se agregan si tienen valor
             if (data.telefono?.trim())        payload.telefono        = data.telefono.trim();
             if (data.fechaNacimiento?.trim()) payload.fechaNacimiento = data.fechaNacimiento.trim();
             if (data.genero?.trim())          payload.genero          = data.genero.trim();
 
-            // ✅ Contraseña: SOLO si el usuario escribió algo (mínimo 1 caracter)
             if (data.password && data.password.trim().length > 0) {
                 payload.password = data.password.trim();
             }
 
-            console.log('📤 PATCH /admin/usuarios/' + usuario.id, payload);
             await UsuarioService.update(usuario.id, payload);
             console.log('✅ Usuario actualizado correctamente');
 
@@ -117,11 +97,18 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
         }
     };
 
+    const handleClose = () => {
+        setError('');
+        onClose();
+    };
+
+    const nombreCompleto = `${usuario.nombre} ${usuario.apellidoPaterno} ${usuario.apellidoMaterno ?? ''}`.trim();
+
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
-            title={`Editar Usuario: ${usuario.nombre} ${usuario.apellido}`}
+            onClose={handleClose}
+            title={`Editar Usuario: ${nombreCompleto}`}
             maxWidth="4xl"
         >
             <div className="p-6">
@@ -146,11 +133,13 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
                     </div>
                 )}
 
+                {/* ✅ key={usuario.id} — React destruye y recrea el form cuando cambia el usuario */}
                 <UsuarioFormEdit
+                    key={usuario.id}
                     onSubmit={handleSubmit}
-                    onCancel={onClose}
+                    onCancel={handleClose}
                     isLoading={isLoading}
-                    initialData={getInitialData()}
+                    initialData={initialData}
                 />
             </div>
         </Modal>

@@ -11,24 +11,12 @@ import {
     DeleteAlumnoResponse
 } from '../../../types/escuela/alumnos/alumno.types';
 
-/**
- * SERVICIO CONSOLIDADO PARA GESTIÓN DE ALUMNOS
- * Maneja: Registro, Listado, Edición y Eliminación
- * 
- * Todas las rutas usan el token del director que contiene el idEscuela
- */
 class AlumnoService {
 
     // ========================================================================
     // REGISTRO DE ALUMNO
     // ========================================================================
 
-    /**
-     * Registrar un nuevo alumno en la escuela del director
-     * POST /personas/registro-alumno
-     * 
-     * El idEscuela se obtiene automáticamente del token del director
-     */
     async registrarAlumno(data: RegistroAlumnoPayload): Promise<RegistroAlumnoResponse> {
         try {
             const response = await api.post<RegistroAlumnoResponse>(
@@ -37,24 +25,16 @@ class AlumnoService {
             );
             return response.data;
         } catch (error: any) {
-            // Manejar errores específicos de la API
             if (error.response) {
                 const status = error.response.status;
                 const message = error.response.data?.message || error.response.data?.description;
-
                 switch (status) {
-                    case 403:
-                        throw new Error('No tienes permisos para realizar esta acción');
-                    case 409:
-                        throw new Error('El correo electrónico ya está registrado en el sistema');
-                    case 400:
-                        throw new Error(message || 'Datos inválidos. Verifica la información ingresada');
-                    default:
-                        throw new Error(message || 'Error al registrar el alumno');
+                    case 403: throw new Error('No tienes permisos para realizar esta acción');
+                    case 409: throw new Error('El correo electrónico ya está registrado en el sistema');
+                    case 400: throw new Error(message || 'Datos inválidos. Verifica la información ingresada');
+                    default:  throw new Error(message || 'Error al registrar el alumno');
                 }
             }
-
-            // Error de red u otro tipo
             throw new Error('Error de conexión. Verifica tu conexión a internet');
         }
     }
@@ -63,10 +43,6 @@ class AlumnoService {
     // LISTADO DE ALUMNOS
     // ========================================================================
 
-    /**
-     * Obtener todos los alumnos de la escuela del director
-     * GET /director/alumnos
-     */
     async obtenerAlumnos(): Promise<AlumnosResponse> {
         try {
             const response = await api.get<AlumnosResponse>('/director/alumnos');
@@ -77,10 +53,6 @@ class AlumnoService {
         }
     }
 
-    /**
-     * Obtener un alumno específico por ID
-     * GET /personas/alumnos/:id
-     */
     async obtenerAlumnoPorId(id: number): Promise<AlumnoEscuela> {
         try {
             const response = await api.get<{ data: AlumnoEscuela }>(`/personas/alumnos/${id}`);
@@ -95,22 +67,18 @@ class AlumnoService {
     // EDICIÓN DE ALUMNO
     // ========================================================================
 
-    /**
-     * Editar un alumno
-     * PATCH /personas/alumnos/:id
-     * 
-     * @param id - ID del alumno (registro alumno, no persona)
-     * @param data - Campos a actualizar (todos opcionales)
-     */
     async editarAlumno(id: number, data: EditAlumnoPayload): Promise<EditAlumnoResponse> {
         try {
-            // Limpiar campos vacíos/undefined antes de enviar
+            // ✅ FIX: Solo eliminar `undefined` — null es válido (ej: apellidoMaterno: null)
+            // y string vacío también se filtra porque no tiene sentido enviarlo
             const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
-                if (value !== undefined && value !== '' && value !== null) {
+                if (value !== undefined) {
                     acc[key] = value;
                 }
                 return acc;
             }, {} as any);
+
+            console.log('📤 Payload enviado a PATCH /personas/alumnos/' + id + ':', JSON.stringify(cleanedData, null, 2));
 
             const response = await api.patch<EditAlumnoResponse>(
                 `/personas/alumnos/${id}`,
@@ -118,17 +86,14 @@ class AlumnoService {
             );
             return response.data;
         } catch (error: any) {
-            console.error('Error al editar alumno:', error);
+            console.error('❌ Error al editar alumno:', error.response?.data || error);
 
-            // Manejo de errores específicos
-            if (error.response?.status === 409) {
-                throw new Error('El correo electrónico ya está registrado en el sistema');
-            }
-            if (error.response?.status === 404) {
-                throw new Error('Alumno no encontrado');
-            }
-            if (error.response?.status === 403) {
-                throw new Error('No tienes permisos para editar este alumno');
+            if (error.response?.status === 409) throw new Error('El correo electrónico ya está registrado en el sistema');
+            if (error.response?.status === 404) throw new Error('Alumno no encontrado');
+            if (error.response?.status === 403) throw new Error('No tienes permisos para editar este alumno');
+            if (error.response?.status === 400) {
+                const msg = error.response?.data?.message || error.response?.data?.description;
+                throw new Error(msg || 'Datos inválidos. Verifica la información ingresada');
             }
 
             throw this.handleError(error, 'Error al actualizar el alumno');
@@ -139,27 +104,14 @@ class AlumnoService {
     // ELIMINACIÓN DE ALUMNO
     // ========================================================================
 
-    /**
-     * Eliminar un alumno
-     * DELETE /personas/alumnos/:id
-     * 
-     * @param id - ID del alumno (registro alumno, no persona)
-     */
     async eliminarAlumno(id: number): Promise<DeleteAlumnoResponse> {
         try {
             const response = await api.delete<DeleteAlumnoResponse>(`/personas/alumnos/${id}`);
             return response.data;
         } catch (error: any) {
             console.error('Error al eliminar alumno:', error);
-
-            // Manejo de errores específicos
-            if (error.response?.status === 404) {
-                throw new Error('Alumno no encontrado');
-            }
-            if (error.response?.status === 403) {
-                throw new Error('No tienes permisos para eliminar este alumno');
-            }
-
+            if (error.response?.status === 404) throw new Error('Alumno no encontrado');
+            if (error.response?.status === 403) throw new Error('No tienes permisos para eliminar este alumno');
             throw this.handleError(error, 'Error al eliminar el alumno');
         }
     }
@@ -168,23 +120,12 @@ class AlumnoService {
     // MANEJO CENTRALIZADO DE ERRORES
     // ========================================================================
 
-    /**
-     * Manejo centralizado de errores
-     */
     private handleError(error: any, defaultMessage: string): Error {
         const apiMessage = error.response?.data?.message || error.response?.data?.description;
-
-        if (apiMessage) {
-            return new Error(apiMessage);
-        }
-
-        if (error.message) {
-            return new Error(error.message);
-        }
-
+        if (apiMessage) return new Error(apiMessage);
+        if (error.message) return new Error(error.message);
         return new Error(defaultMessage);
     }
 }
 
-// Exportar instancia única del servicio
 export const alumnoService = new AlumnoService();
