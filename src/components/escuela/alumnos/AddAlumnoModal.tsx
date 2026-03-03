@@ -48,8 +48,7 @@ export const AddAlumnoModal: React.FC<AddAlumnoModalProps> = ({
 
             // Mostrar notificación de éxito
             toast.success(
-                `¡Alumno ${response.data.nombre} ${response.data.apellido} registrado exitosamente!`,
-                5000
+`¡Alumno ${response.data.nombre} ${response.data.apellidoPaterno} ${response.data.apellidoMaterno ?? ''} registrado exitosamente!`,                5000
             );
 
             // Cerrar modal
