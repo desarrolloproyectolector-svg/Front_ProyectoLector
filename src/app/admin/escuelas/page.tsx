@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { AddEscuelaModal } from '../../../components/admin/escuelas/AddEscuelaModal';
-import { EditEscuelaModal } from '../../../components/admin/escuelas/EditEscuelaModal';
+import { EditEscuelaModal } from '../../../components/admin/escuelas/EditescuelaModal';
 import { EscuelaTable } from '../../../components/admin/escuelas/EscuelaTable';
 import { EscuelaService } from '../../../service/escuela.service';
 import type { EscuelaListItem, EscuelaStats } from '../../../types/admin/escuelas/escuela';
