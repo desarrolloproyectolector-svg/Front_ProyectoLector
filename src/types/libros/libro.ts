@@ -1,3 +1,7 @@
+// ======================================================
+// =================== TIPOS BASE =======================
+// ======================================================
+
 // Tipo para Materia
 export interface Materia {
     id: number;
@@ -14,7 +18,10 @@ export interface Pregunta {
     orden: number;
 }
 
-// Tipo para Segmento de Unidad
+// ======================================================
+// =================== UNIDADES =========================
+// ======================================================
+
 export interface LibroUnidadSegmento {
     id: number;
     libroId: number;
@@ -30,7 +37,6 @@ export interface LibroUnidadSegmento {
     };
 }
 
-// Tipo para Unidad
 export interface LibroUnidad {
     id: number;
     libroId: number;
@@ -39,13 +45,16 @@ export interface LibroUnidad {
     segmentos: LibroUnidadSegmento[];
 }
 
-// Tipo base para libro en listado
+// ======================================================
+// =================== LIBRO BASE =======================
+// ======================================================
+
 export interface Libro {
     id: number;
     titulo: string;
     codigo: string;
     grado: number;
-    descripcion?: string | null;
+    descripcion?: string | null; // ← UNIFICADO (evita conflicto)
     estado: 'listo' | 'procesando' | 'error';
     numPaginas: number;
     rutaPdf?: string | null;
@@ -54,12 +63,18 @@ export interface Libro {
     activo?: boolean;
 }
 
-// Tipo para detalle de libro (con unidades y segmentos)
+// ======================================================
+// =================== DETALLE LIBRO ====================
+// ======================================================
+
 export interface LibroDetail extends Libro {
     unidades: LibroUnidad[];
 }
 
-// Tipo para crear libro (form data)
+// ======================================================
+// =================== DTOs =============================
+// ======================================================
+
 export interface CreateLibroDTO {
     titulo: string;
     grado: number;
@@ -69,48 +84,30 @@ export interface CreateLibroDTO {
     pdf?: File;
 }
 
-// Tipo para respuesta al listar libros
+export interface AssignLibroToEscuelaDTO {
+    codigo: string;
+}
+
+export interface CanjeLibroDTO {
+    codigo: string;
+}
+
+// ======================================================
+// =================== RESPUESTAS API ===================
+// ======================================================
+
 export interface ListLibrosResponse {
     message: string;
     total: number;
     data: Libro[];
 }
 
-// Tipo para respuesta al crear/cargar libro
 export interface CreateLibroResponse {
     message: string;
     description?: string;
     data: LibroDetail;
 }
 
-// Tipo para libro asignado a escuela
-export interface LibroEscuela extends Libro {
-    fechaInicio?: string;
-    fechaFin?: string | null;
-    escuelaLibroId?: number;
-}
-
-// Tipo para respuesta de libros por escuela
-export interface EscuelaLibrosResponse {
-    message: string;
-    description?: string;
-    total: number;
-    data: LibroEscuela[];
-}
-
-// Tipo para escuelas asociadas a un libro (gestion desde libros)
-export interface LibroEscuelaAcceso {
-    escuelaLibroId: number;
-    escuelaId: number;
-    nombreEscuela: string;
-    ciudad?: string | null;
-    estadoRegion?: string | null;
-    activoEnEscuela: boolean;
-    fechaInicio?: string | null;
-    fechaFin?: string | null;
-}
-
-// Respuesta al listar escuelas de un libro
 export interface LibroEscuelasResponse {
     message: string;
     libro: {
@@ -122,13 +119,13 @@ export interface LibroEscuelasResponse {
     data: LibroEscuelaAcceso[];
 }
 
-// Tipo para libro pendiente de canjear
-export interface LibroPendiente extends Libro {
-    fechaOtorgado?: string;
-    pendienteId?: number;
+export interface EscuelaLibrosResponse {
+    message: string;
+    description?: string;
+    total: number;
+    data: LibroEscuela[];
 }
 
-// Tipo para respuesta de libros pendientes
 export interface EscuelaLibrosPendientesResponse {
     message: string;
     description?: string;
@@ -136,7 +133,6 @@ export interface EscuelaLibrosPendientesResponse {
     data: LibroPendiente[];
 }
 
-// Tipo para respuesta al otorgar libro a escuela
 export interface CreateLibroPendienteResponse {
     message: string;
     description?: string;
@@ -150,7 +146,6 @@ export interface CreateLibroPendienteResponse {
     };
 }
 
-// Tipo para respuesta al canjear libro
 export interface CanjeLibroResponse {
     message: string;
     description?: string;
@@ -164,149 +159,54 @@ export interface CanjeLibroResponse {
     };
 }
 
-// Tipo para asignar libro a escuela
-export interface AssignLibroToEscuelaDTO {
-    codigo: string;
+// ======================================================
+// =================== RELACIONES =======================
+// ======================================================
+
+export interface LibroEscuela extends Libro {
+    fechaInicio?: string;
+    fechaFin?: string | null;
+    escuelaLibroId?: number;
 }
 
-// Tipo para canjear libro
-export interface CanjeLibroDTO {
-    codigo: string;
-}
-
-export interface LibroApiItem {// Tipo base para libro en listado (alternativa) - DEPRECATED
-}    api?: LibroApiItem;    sample: string;    synopsis: string;    price: number;    publisher: string;    pages: number;    year: number;    owned: boolean;    progress: number;    coverColor: string;    author: string;    title: string;    id: number;export interface LibraryBook {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}    api?: LibroApiItem;    sample: string;    synopsis: string;    price: number;    publisher: string;    pages: number;    year: number;    owned: boolean;    progress: number;    coverColor: string;    author: string;    title: string;    id: number;export interface LibraryBook {}    materiaId?: number;    codigo?: string;    descripcion?: string;    grado: number;    titulo: string;    pdf: File;export interface CreateLibroDTO {}    unidades: LibroUnidad[];export interface LibroDetail extends LibroApiItem {}    segmentos: LibroUnidadSegmento[];    orden: number;    nombre: string;    libroId: number;    id: number;export interface LibroUnidad {}    idExterno: string;    orden: number;    numeroPagina: number;    contenido: string;    unidadId: number;    libroId: number;    id: number;export interface LibroUnidadSegmento {}    materia?: unknown | null;    materiaId?: number | null;    rutaPdf?: string | null;    numPaginas?: number | null;    estado?: string | null;    codigo?: string | null;    descripcion?: string | null;    grado: number;    titulo: string;    id: number;export interface Libro {
-    id: number;
-    titulo: string;
-    codigo: string;
-    grado: number;
-    descripcion: string;
-    estado: 'listo' | 'procesando' | 'error';
-    numPaginas: number;
-    materiaId: number | null;
-    materia: Materia | null;
-}
-
-// Tipo para crear libro (form data)
-export interface CreateLibroDTO {
-    titulo: string;
-    grado: number;
-    descripcion?: string;
-    codigo?: string;
-    materiaId?: number;
-}
-
-export interface AssignLibroToEscuelaDTO {
+export interface LibroEscuelaAcceso {
+    escuelaLibroId: number;
     escuelaId: number;
-    codigo: string;
+    nombreEscuela: string;
+    ciudad?: string | null;
+    estadoRegion?: string | null;
+    activoEnEscuela: boolean;
+    fechaInicio?: string | null;
+    fechaFin?: string | null;
 }
 
-// Tipo para respuesta de API - listar libros
-export interface ListLibrosResponse {
-    message: string;
-    total: number;
-    data: Libro[];
+export interface LibroPendiente extends Libro {
+    fechaOtorgado?: string;
+    pendienteId?: number;
 }
 
-// Tipo para respuesta de API - crear libro
-export interface CreateLibroResponse {
-    message: string;
-    data: {
-        id: number;
-        titulo: string;
-        codigo: string;
-        grado: number;
-        descripcion: string;
-        estado: string;
-        numPaginas: number;
-        unidades: Unidad[];
-    };
-}
+// ======================================================
+// =================== TIPOS OPCIONALES =================
+// ======================================================
 
-// Tipo para respuesta de API - ver detalle libro
-export interface LibroDetailResponse {
-    message: string;
-    data: Libro & {
-        unidades: Unidad[];
-    };
-}
-
-// Tipo para unidades (capítulos/bloques)
-export interface Unidad {
+// Si aún usas estos en algún lado del proyecto:
+export interface LibroApiItem {
     id: number;
-    numero: number;
-    titulo: string;
-    segmentos: Segmento[];
+    title: string;
+    author: string;
+    synopsis: string;
+    publisher: string;
+    pages: number;
+    year: number;
+    price: number;
+    coverColor: string;
+    owned: boolean;
+    progress: number;
+    sample: string;
 }
 
-// Tipo para segmento (contenido dentro de unidad)
-export interface Segmento {
+export interface LibraryBook {
     id: number;
-    numero: number;
-    contenido: string;
-}
-
-// Tipo para materia
-export interface Materia {
-    id: number;
-    nombre: string;
+    title: string;
+    author: string;
 }
