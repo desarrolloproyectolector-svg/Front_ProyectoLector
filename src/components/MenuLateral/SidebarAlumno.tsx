@@ -4,9 +4,10 @@ import MenuBase from './MenuBase';
 
 interface Props {
   isOpen: boolean;
+  onClose?: () => void;
 }
 
-export default function SidebarAlumno({ isOpen }: Props) {
+export default function SidebarAlumno({ isOpen, onClose }: Props) {
   const menuItems = [
     {
       label: 'Mi Biblioteca',

@@ -33,7 +33,7 @@ export default function TutorPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-8">
+        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-4 md:p-8">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
@@ -45,22 +45,22 @@ export default function TutorPage() {
             </div>
 
             {/* Student Info Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-                <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 bg-[#d4af37] rounded-full flex items-center justify-center">
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-8 text-center md:text-left">
+                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+                    <div className="w-20 h-20 bg-[#d4af37] rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-4xl font-bold text-[#2b1b17]">
                             {childInfo.name.charAt(0)}
                         </span>
                     </div>
                     <div className="flex-1">
                         <h2 className="text-2xl font-bold text-[#2b1b17]">{childInfo.name}</h2>
-                        <div className="flex gap-6 mt-2 text-sm text-[#5d4037]">
+                        <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-6 mt-2 text-sm text-[#5d4037]">
                             <span>📚 {childInfo.grade}</span>
                             <span>🏫 {childInfo.school}</span>
                             <span>👨‍🏫 {childInfo.teacher}</span>
                         </div>
                     </div>
-                    <button className="bg-[#d4af37] text-[#2b1b17] px-6 py-3 rounded-lg font-semibold hover:bg-[#c19b2f] transition-colors">
+                    <button className="mt-4 md:mt-0 w-full md:w-auto bg-[#d4af37] text-[#2b1b17] px-6 py-3 rounded-lg font-semibold hover:bg-[#c19b2f] transition-colors">
                         Contactar Profesor
                     </button>
                 </div>
@@ -132,9 +132,9 @@ export default function TutorPage() {
                         </h3>
                         <div className="h-48 flex items-end justify-between gap-2">
                             {[65, 70, 85, 90, 88, 92, 95].map((height, index) => (
-                                <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                                <div key={index} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
                                     <div className="w-full bg-[#d4af37] rounded-t hover:bg-[#c19b2f] transition-all cursor-pointer"
-                                         style={{ height: `${height}%` }}>
+                                        style={{ height: `${height}%` }}>
                                     </div>
                                     <span className="text-xs text-[#8d6e63]">S{index + 1}</span>
                                 </div>

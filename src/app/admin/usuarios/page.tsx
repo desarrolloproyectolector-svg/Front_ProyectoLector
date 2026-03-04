@@ -231,9 +231,9 @@ export default function UsuariosAdminPage() {
                             <p className="text-sm text-[#8d6e3f] mt-1">Administra todos los usuarios del sistema</p>
                         </div>
 
-                        <div className="flex gap-2 w-full md:w-auto">
+                        <div className="flex flex-col lg:flex-row gap-3 w-full md:w-auto">
                             {/* Buscador */}
-                            <div className="relative flex-1 md:w-80">
+                            <div className="relative w-full lg:w-80">
                                 <input
                                     type="text"
                                     placeholder="Buscar por nombre o email..."
@@ -259,10 +259,10 @@ export default function UsuariosAdminPage() {
                                 className="px-4 py-3 bg-gradient-to-r from-emerald-700 to-emerald-600 text-white rounded-xl font-bold hover:from-emerald-800 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
                                 title="Carga masiva desde Excel"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span className="hidden sm:inline">Carga Masiva</span>
+                                <span>Carga Masiva</span>
                             </button>
 
                             {/* Botón Nuevo Usuario */}
@@ -317,10 +317,10 @@ export default function UsuariosAdminPage() {
                             <p className="text-[#8d6e3f]">Cargando usuarios...</p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
-                                    <tr>
+                        <div className="w-full">
+                            <table className="w-full block md:table">
+                                <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
+                                    <tr className="block md:table-row">
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Usuario</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Rol</th>
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Contacto</th>
@@ -330,7 +330,7 @@ export default function UsuariosAdminPage() {
                                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#e3dac9]">
+                                <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
                                     {filteredUsuarios.map((usuario) => {
                                         const badge = getRoleBadge(usuario.tipoPersona);
                                         return (

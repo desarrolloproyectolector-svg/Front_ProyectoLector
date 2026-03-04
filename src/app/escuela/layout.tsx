@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarEscuela from '../../components/MenuLateral/SidebarEscuela';
 
@@ -12,15 +12,44 @@ export default function EscuelaLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
   const getTitle = () => {
     if (pathname.includes('/grupos')) return { title: 'Grupos', sub: 'Gestión escolar.' };
     return { title: 'Panel Escuela', sub: 'Administración institucional.' };
   };
 
   return (
-    <div className="flex min-h-screen">
-      <SidebarEscuela isOpen={isSidebarOpen} />
-      <main className="flex-1 md:ml-64 p-6">{children}</main>
+    <div className="flex min-h-screen bg-[#f5f5f5] relative">
+      <SidebarEscuela isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen transition-all">
+        <header className="flex items-center gap-4 mb-8">
+          <button
+            className="md:hidden text-[#2b1b17] p-2 hover:bg-black/5 rounded-lg"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <div>
+            <h1 className="text-2xl font-bold">{getTitle().title}</h1>
+            <p className="text-sm text-gray-600 hidden md:block">{getTitle().sub}</p>
+          </div>
+        </header>
+        {children}
+      </main>
     </div>
   );
 }

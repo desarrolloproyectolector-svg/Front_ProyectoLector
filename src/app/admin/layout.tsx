@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarAdmin from '../../components/MenuLateral/SidebarAdmin';
 
@@ -11,6 +11,11 @@ export default function AdminLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
+
+  // Cerrar sidebar al cambiar de ruta
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   const getTitle = () => {
     if (pathname.includes('/usuarios')) return { title: 'Usuarios', sub: 'Gestión general del sistema.' };
@@ -27,7 +32,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex relative">
 
-      <SidebarAdmin isOpen={isSidebarOpen} />
+      <SidebarAdmin isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       {isSidebarOpen && (
         <div
@@ -36,17 +41,22 @@ export default function AdminLayout({
         />
       )}
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8">
+      <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen transition-all">
 
-        <header className="flex justify-between items-center mb-8">
+        <header className="flex items-center gap-4 mb-8">
           <button
-            className="md:hidden p-2"
+            className="md:hidden text-[#2b1b17] p-2 hover:bg-black/5 rounded-lg"
             onClick={() => setIsSidebarOpen(true)}
           >
-            ☰
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
 
-          <h1 className="text-2xl font-bold">{currentTitle.title}</h1>
+          <div>
+            <h1 className="text-2xl font-bold">{currentTitle.title}</h1>
+            <p className="text-sm text-gray-600 hidden md:block">{currentTitle.sub}</p>
+          </div>
         </header>
 
         {children}

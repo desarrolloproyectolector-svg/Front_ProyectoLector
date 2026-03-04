@@ -18,9 +18,9 @@ const EscuelaRow: React.FC<{
     const [isExpanded, setIsExpanded] = useState(false);
 
     const estadoConfig = {
-        activa:     { color: 'bg-emerald-100 text-emerald-700', label: '✓ Activa' },
-        suspendida: { color: 'bg-red-100 text-red-700',         label: '✗ Suspendida' },
-        inactiva:   { color: 'bg-gray-100 text-gray-600',       label: '○ Inactiva' },
+        activa: { color: 'bg-emerald-100 text-emerald-700', label: '✓ Activa' },
+        suspendida: { color: 'bg-red-100 text-red-700', label: '✗ Suspendida' },
+        inactiva: { color: 'bg-gray-100 text-gray-600', label: '○ Inactiva' },
     };
 
     const estado = estadoConfig[escuela.estado] ?? estadoConfig.inactiva;
@@ -31,10 +31,11 @@ const EscuelaRow: React.FC<{
     return (
         <>
             {/* ── Fila principal ── */}
-            <tr className={`hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1]' : ''}`}>
+            <tr className={`block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-0 hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1] md:bg-[#fbf8f1]' : ''}`}>
 
                 {/* Escuela */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Escuela</span>
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#c19a2e] flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0">
                             {escuela.nombre.charAt(0)}
@@ -50,7 +51,8 @@ const EscuelaRow: React.FC<{
                 </td>
 
                 {/* Director */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Director</span>
                     {directorNombre ? (
                         <div>
                             <div className="font-medium text-[#2b1b17] text-sm">{directorNombre}</div>
@@ -62,7 +64,8 @@ const EscuelaRow: React.FC<{
                 </td>
 
                 {/* Ubicación */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Ubicación</span>
                     {escuela.ciudad || escuela.estadoRegion ? (
                         <div className="text-sm">
                             <div className="font-medium text-[#2b1b17] flex items-center gap-1">
@@ -80,21 +83,22 @@ const EscuelaRow: React.FC<{
                 </td>
 
                 {/* Estadísticas */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estadísticas</span>
                     <div className="flex gap-3">
-                        <div className="text-center">
+                        <div className="text-center flex-1 md:flex-none">
                             <div className="text-xs text-[#a1887f] font-bold uppercase">Alumnos</div>
                             <div className="text-base font-playfair font-bold text-blue-600">
                                 {escuela.estadisticas?.alumnos ?? 0}
                             </div>
                         </div>
-                        <div className="text-center border-l border-r border-[#e3dac9] px-3">
+                        <div className="text-center border-l border-r border-[#e3dac9] px-3 flex-1 md:flex-none">
                             <div className="text-xs text-[#a1887f] font-bold uppercase">Profes</div>
                             <div className="text-base font-playfair font-bold text-purple-600">
                                 {escuela.estadisticas?.profesores ?? 0}
                             </div>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center flex-1 md:flex-none">
                             <div className="text-xs text-[#a1887f] font-bold uppercase">Grupos</div>
                             <div className="text-base font-playfair font-bold text-emerald-600">
                                 {escuela.estadisticas?.grupos ?? 0}
@@ -104,23 +108,24 @@ const EscuelaRow: React.FC<{
                 </td>
 
                 {/* Estado */}
-                <td className="px-6 py-4">
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${estado.color}`}>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block ${estado.color}`}>
                         {estado.label}
                     </span>
                 </td>
 
                 {/* Acciones */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
                     <div className="flex items-center gap-2">
                         {/* Expandir */}
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
-                            className={`p-2 rounded-lg transition-all duration-200 ${
-                                isExpanded
-                                    ? 'bg-[#d4af37] text-white'
-                                    : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'
-                            }`}
+                            className={`p-2 rounded-lg transition-all duration-200 ${isExpanded
+                                ? 'bg-[#d4af37] text-white'
+                                : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'
+                                }`}
                             title="Ver detalles"
                         >
                             <svg
@@ -158,8 +163,8 @@ const EscuelaRow: React.FC<{
 
             {/* ── Fila expandible con detalle ── */}
             {isExpanded && (
-                <tr className="bg-[#fbf8f1]/30">
-                    <td colSpan={6} className="px-8 py-6">
+                <tr className="block md:table-row bg-[#fbf8f1]/30 -mt-2 md:mt-0 relative z-[-1] rounded-b-xl md:rounded-none">
+                    <td colSpan={6} className="block md:table-cell px-4 md:px-8 py-4 md:py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
 
@@ -286,10 +291,10 @@ export const EscuelaTable: React.FC<EscuelaTableProps> = ({
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
-                    <tr>
+        <div className="w-full">
+            <table className="w-full block md:table">
+                <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
+                    <tr className="block md:table-row">
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Escuela</th>
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Director</th>
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Ubicación</th>
@@ -298,7 +303,7 @@ export const EscuelaTable: React.FC<EscuelaTableProps> = ({
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e3dac9]">
+                <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
                     {escuelas.map((escuela) => (
                         <EscuelaRow
                             key={escuela.id}

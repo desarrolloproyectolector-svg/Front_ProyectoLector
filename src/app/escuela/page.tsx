@@ -21,7 +21,7 @@ export default function EscuelaPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-8">
+        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-4 md:p-8">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
@@ -59,17 +59,16 @@ export default function EscuelaPage() {
 
             {/* Tabs */}
             <div className="bg-white rounded-t-xl shadow-lg">
-                <div className="border-b border-gray-200">
-                    <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
+                    <nav className="flex space-x-6 md:space-x-8 px-4 md:px-6 min-w-max" aria-label="Tabs">
                         {['overview', 'groups', 'teachers', 'reports'].map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                                    activeTab === tab
-                                        ? 'border-[#d4af37] text-[#d4af37]'
-                                        : 'border-transparent text-[#8d6e63] hover:text-[#5d4037] hover:border-gray-300'
-                                }`}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab
+                                    ? 'border-[#d4af37] text-[#d4af37]'
+                                    : 'border-transparent text-[#8d6e63] hover:text-[#5d4037] hover:border-gray-300'
+                                    }`}
                             >
                                 {tab === 'overview' && 'Resumen'}
                                 {tab === 'groups' && 'Grupos'}
@@ -97,9 +96,8 @@ export default function EscuelaPage() {
                                         { action: 'Prof. García actualizó calificaciones', time: 'Ayer', type: 'success' },
                                     ].map((activity, index) => (
                                         <div key={index} className="flex items-start gap-4 p-4 bg-[#f5f1e8] rounded-lg">
-                                            <div className={`w-2 h-2 mt-2 rounded-full ${
-                                                activity.type === 'success' ? 'bg-green-500' : 'bg-blue-500'
-                                            }`}></div>
+                                            <div className={`w-2 h-2 mt-2 rounded-full ${activity.type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+                                                }`}></div>
                                             <div className="flex-1">
                                                 <p className="text-[#2b1b17] font-medium">{activity.action}</p>
                                                 <p className="text-[#8d6e63] text-sm">{activity.time}</p>
@@ -127,7 +125,7 @@ export default function EscuelaPage() {
                                                 <span className="text-[#d4af37] font-bold">{item.score}%</span>
                                             </div>
                                             <div className="w-full bg-gray-200 rounded-full h-3">
-                                                <div 
+                                                <div
                                                     className="bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] h-3 rounded-full transition-all duration-500"
                                                     style={{ width: `${item.score}%` }}
                                                 ></div>
@@ -141,11 +139,11 @@ export default function EscuelaPage() {
 
                     {activeTab === 'groups' && (
                         <div>
-                            <div className="flex justify-between items-center mb-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                                 <h3 className="text-xl font-playfair font-bold text-[#2b1b17]">
                                     Grupos Activos
                                 </h3>
-                                <button className="bg-[#d4af37] text-[#2b1b17] px-4 py-2 rounded-lg font-semibold hover:bg-[#c19b2f] transition-colors">
+                                <button className="bg-[#d4af37] text-[#2b1b17] w-full sm:w-auto px-4 py-2 rounded-lg font-semibold hover:bg-[#c19b2f] transition-colors">
                                     + Nuevo Grupo
                                 </button>
                             </div>

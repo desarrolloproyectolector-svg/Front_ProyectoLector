@@ -16,6 +16,7 @@ interface MenuBaseProps {
   menuItems: MenuItem[];
   userName?: string;
   userClass?: string;
+  onClose?: () => void;
 }
 
 export default function MenuBase({
@@ -24,6 +25,7 @@ export default function MenuBase({
   menuItems,
   userName = 'Usuario',
   userClass = 'Admin',
+  onClose,
 }: MenuBaseProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function MenuBase({
   const handleLogout = () => {
     // 1. Borrar la cookie 'token' (ajusta el nombre si es distinto)
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    
+
     // 2. Limpiar almacenamiento local por seguridad
     localStorage.clear();
     sessionStorage.clear();
@@ -77,9 +79,8 @@ export default function MenuBase({
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full w-64 bg-[#2b1b17] text-[#f0e6d2] flex flex-col py-8 shadow-2xl z-50 transition-transform duration-300 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-      }`}
+      className={`fixed left-0 top-0 h-full w-64 bg-[#2b1b17] text-[#f0e6d2] flex flex-col py-8 shadow-2xl z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
     >
       {/* Logo */}
       <div className="mb-10 px-6">
@@ -94,11 +95,13 @@ export default function MenuBase({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-4 p-3 rounded-lg transition-all ${
-                isActive
+              onClick={() => {
+                if (onClose) onClose();
+              }}
+              className={`flex items-center gap-4 p-3 rounded-lg transition-all ${isActive
                   ? 'bg-[#d4af37]/10 text-[#d4af37]'
                   : 'text-[#a1887f] hover:bg-[#d4af37]/5 hover:text-[#f0e6d2]'
-              }`}
+                }`}
             >
               <div className="w-6 h-6">{renderIcon(item.icon)}</div>
               <span className="font-medium text-sm">{item.label}</span>
@@ -113,7 +116,7 @@ export default function MenuBase({
           <p className="text-sm font-semibold text-[#f0e6d2]">{userName}</p>
           <p className="text-xs text-[#a1887f]">{userClass}</p>
         </div>
-        
+
         <button
           onClick={handleLogout}
           className="flex items-center gap-4 w-full p-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors group"

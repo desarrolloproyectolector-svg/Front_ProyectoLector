@@ -22,10 +22,11 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
     return (
         <>
             {/* Fila principal */}
-            <tr className={`hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1]' : ''}`}>
+            <tr className={`block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-0 hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1] md:bg-[#fbf8f1]' : ''}`}>
 
                 {/* Alumno */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Alumno</span>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-md">
                             {alumno.persona.nombre.charAt(0)}
@@ -38,14 +39,16 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
 
                 {/* Grupo */}
-                <td className="px-6 py-4">
-                    <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Grupo</span>
+                    <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700 inline-block">
                         📚 {grupo}
                     </span>
                 </td>
 
                 {/* Contacto */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Contacto</span>
                     <div className="text-sm text-[#5d4037] flex items-center gap-1">
                         {alumno.persona.telefono ? (
                             <><span className="text-[#d4af37]">📞</span> {alumno.persona.telefono}</>
@@ -56,7 +59,8 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
 
                 {/* Tutor */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Tutor</span>
                     {alumno.padre ? (
                         <div className="text-sm">
                             <div className="font-bold text-[#2b1b17]">
@@ -71,14 +75,16 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
 
                 {/* Ciclo Escolar */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Ciclo Escolar</span>
                     <span className="text-sm text-[#5d4037]">
                         {alumno.cicloEscolar || <span className="text-[#a1887f] italic">N/A</span>}
                     </span>
                 </td>
 
                 {/* Acciones */}
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
@@ -115,8 +121,8 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
 
             {/* Fila expandible */}
             {isExpanded && (
-                <tr className="bg-[#fbf8f1]/30">
-                    <td colSpan={6} className="px-8 py-6">
+                <tr className="block md:table-row bg-[#fbf8f1]/30 -mt-2 md:mt-0 relative z-[-1] rounded-b-xl md:rounded-none">
+                    <td colSpan={6} className="block md:table-cell px-4 md:px-8 py-4 md:py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
 

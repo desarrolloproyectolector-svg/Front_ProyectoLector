@@ -34,10 +34,10 @@ export const AlumnoTable: React.FC<AlumnoTableProps> = ({
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
-                    <tr>
+        <div className="w-full">
+            <table className="w-full block md:table">
+                <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
+                    <tr className="block md:table-row">
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Alumno
                         </th>
@@ -58,7 +58,7 @@ export const AlumnoTable: React.FC<AlumnoTableProps> = ({
                         </th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e3dac9]">
+                <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
                     {alumnos.map((alumno) => (
                         <AlumnoDetalleRow
                             key={alumno.id}

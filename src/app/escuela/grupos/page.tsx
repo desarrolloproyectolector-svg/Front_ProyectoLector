@@ -151,7 +151,7 @@ export default function GruposPage() {
             <p className="text-sm text-[#8d6e3f] mt-1">Administra los grupos y asignaciones</p>
           </div>
 
-          <div className="flex gap-2 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
             {/* Search */}
             <div className="relative flex-1 md:w-80">
               <input
@@ -176,10 +176,9 @@ export default function GruposPage() {
               )}
             </div>
 
-            {/* Botón Nuevo Grupo */}
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full sm:w-auto justify-center px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -200,11 +199,10 @@ export default function GruposPage() {
             <button
               key={filter.value}
               onClick={() => setFilterGrado(filter.value as any)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
-                filterGrado === filter.value
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${filterGrado === filter.value
                   ? `${filter.activeClass} shadow-md`
                   : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
-              }`}
+                }`}
             >
               {filter.label}
             </button>

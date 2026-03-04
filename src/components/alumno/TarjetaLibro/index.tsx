@@ -13,7 +13,7 @@ interface TarjetaLibroProps {
 
 export const TarjetaLibro: React.FC<TarjetaLibroProps> = ({ title, author, coverColor, progress, onClick }) => {
     return (
-        <div 
+        <div
             className="group relative flex flex-col bg-white rounded-xl p-4 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer border border-transparent hover:border-[#d4af37]/30 overflow-hidden"
             onClick={onClick}
         >
@@ -24,17 +24,17 @@ export const TarjetaLibro: React.FC<TarjetaLibroProps> = ({ title, author, cover
             <div className="relative aspect-[2/3] mb-4 rounded-lg shadow-lg overflow-hidden group-hover:shadow-xl transition-shadow duration-500">
                 <div
                     className="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
-                    style={{ 
+                    style={{
                         backgroundColor: coverColor,
                         boxShadow: 'inset -2px 0 8px rgba(0,0,0,0.2)'
                     }}
                 >
                     {/* Spine effect */}
                     <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-r from-black/30 to-transparent"></div>
-                    
+
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-black/0 via-black/5 to-black/20"></div>
-                    
+
                     {/* Book Title on Cover */}
                     <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                         <h3 className="text-white font-playfair font-bold text-base md:text-lg drop-shadow-lg leading-tight line-clamp-4">
@@ -46,8 +46,8 @@ export const TarjetaLibro: React.FC<TarjetaLibroProps> = ({ title, author, cover
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
                     {/* Overlay with button */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <button className="px-6 py-3 bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-[#2b1b17] font-bold font-playfair uppercase tracking-wider rounded-lg shadow-xl hover:shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-2">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center p-2">
+                        <button className="px-3 py-2 md:px-6 md:py-3 text-[10px] md:text-sm bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-[#2b1b17] font-bold font-playfair uppercase tracking-wider rounded-lg shadow-xl hover:shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1 md:gap-2">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path>
                             </svg>

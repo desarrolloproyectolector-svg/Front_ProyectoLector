@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import MenuBase from './MenuBase';
 
-export default function SidebarTutor({ isOpen }: { isOpen: boolean }) {
+export default function SidebarTutor({ isOpen, onClose }: { isOpen: boolean; onClose?: () => void; }) {
   return (
     <MenuBase
       isOpen={isOpen}
@@ -11,6 +11,7 @@ export default function SidebarTutor({ isOpen }: { isOpen: boolean }) {
       menuItems={[
         { href: '/tutor', icon: 'library', label: 'Inicio' },
       ]}
+      onClose={onClose}
     />
   );
 }

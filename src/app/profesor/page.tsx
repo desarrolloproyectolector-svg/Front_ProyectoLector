@@ -25,7 +25,7 @@ export default function ProfesorPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-8">
+        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-4 md:p-8">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
@@ -44,11 +44,10 @@ export default function ProfesorPage() {
                         <button
                             key={group.id}
                             onClick={() => setSelectedGroup(group.id)}
-                            className={`p-4 rounded-lg border-2 transition-all ${
-                                selectedGroup === group.id
+                            className={`p-4 rounded-lg border-2 transition-all ${selectedGroup === group.id
                                     ? 'border-[#d4af37] bg-[#d4af37]/10'
                                     : 'border-gray-200 hover:border-[#d4af37]/50'
-                            }`}
+                                }`}
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-2xl font-bold text-[#2b1b17]">{group.name}</h3>
@@ -105,11 +104,10 @@ export default function ProfesorPage() {
                                         <p className="text-2xl font-bold text-[#2b1b17]">{student.progress}%</p>
                                         <p className="text-[#8d6e63] text-xs">Progreso</p>
                                     </div>
-                                    <div className={`w-3 h-3 rounded-full ${
-                                        student.status === 'active' ? 'bg-green-500' :
-                                        student.status === 'warning' ? 'bg-yellow-500' :
-                                        'bg-red-500'
-                                    }`}></div>
+                                    <div className={`w-3 h-3 rounded-full ${student.status === 'active' ? 'bg-green-500' :
+                                            student.status === 'warning' ? 'bg-yellow-500' :
+                                                'bg-red-500'
+                                        }`}></div>
                                     <button className="text-[#d4af37] hover:text-[#c19b2f]">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />

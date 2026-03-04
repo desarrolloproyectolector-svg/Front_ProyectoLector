@@ -2,9 +2,9 @@ import Link from 'next/link';
 
 export default function RegisterPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
-            <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full">
-                <h1 className="text-3xl font-playfair font-bold text-[#2b1b17] mb-6 text-center">Registro</h1>
+        <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5] p-4">
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-md">
+                <h1 className="text-2xl md:text-3xl font-playfair font-bold text-[#2b1b17] mb-6 text-center">Registro</h1>
                 <form className="space-y-4">
                     <div>
                         <label className="block text-[#5d4037] mb-1">Nombre Completo</label>

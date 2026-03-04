@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import MenuBase from './MenuBase';
 
-export default function SidebarEscuela({ isOpen }: { isOpen: boolean }) {
+export default function SidebarEscuela({ isOpen, onClose }: { isOpen: boolean; onClose?: () => void; }) {
   return (
     <MenuBase
       isOpen={isOpen}
@@ -15,6 +15,7 @@ export default function SidebarEscuela({ isOpen }: { isOpen: boolean }) {
         { href: '/escuela/grupos', icon: 'calendar', label: 'Grupos' },
         { href: '/escuela/profesores', icon: 'users', label: 'Profesores' },
       ]}
+      onClose={onClose}
     />
   );
 }

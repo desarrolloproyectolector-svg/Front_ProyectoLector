@@ -6,37 +6,42 @@ interface Props {
 
 export default function CompraRow({ compra }: Props) {
   return (
-    <tr className="border-b border-[#e3dac9]/50 hover:bg-[#faf8f5] transition-colors duration-200">
-      <td className="py-4 px-4">
-        <span className="font-lora font-semibold text-[#2b1b17]">
+    <tr className="block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-b md:border-transparent hover:bg-[#faf8f5] transition-colors duration-200">
+      <td className="block md:table-cell py-3 md:py-4 px-4 md:px-4 border-b border-[#e3dac9]/30 md:border-0 relative">
+        <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Producto</span>
+        <span className="font-lora font-semibold text-[#2b1b17] block md:inline">
           {compra.nombre}
         </span>
       </td>
-      <td className="py-4 px-4">
-        <span className="px-3 py-1 bg-gradient-to-r from-[#d4af37]/10 to-[#d4af37]/5 text-[#2b1b17] text-xs font-bold rounded-full border border-[#d4af37]/20 capitalize">
+      <td className="block md:table-cell py-3 md:py-4 px-4 md:px-4 border-b border-[#e3dac9]/30 md:border-0">
+        <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Tipo</span>
+        <span className="px-3 py-1 bg-gradient-to-r from-[#d4af37]/10 to-[#d4af37]/5 text-[#2b1b17] text-xs font-bold rounded-full border border-[#d4af37]/20 capitalize inline-block">
           {compra.tipo}
         </span>
       </td>
-      <td className="py-4 px-4 text-[#5d4037] font-lora">
-        {compra.cantidad} unidades
+      <td className="block md:table-cell py-3 md:py-4 px-4 md:px-4 border-b border-[#e3dac9]/30 md:border-0 text-[#5d4037] font-lora">
+        <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Cantidad</span>
+        <span className="block md:inline">{compra.cantidad} unidades</span>
       </td>
-      <td className="py-4 px-4">
-        <span className="font-playfair font-bold text-[#2b1b17] text-lg">
+      <td className="block md:table-cell py-3 md:py-4 px-4 md:px-4 border-b border-[#e3dac9]/30 md:border-0">
+        <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Total</span>
+        <span className="font-playfair font-bold text-[#2b1b17] text-lg block md:inline">
           ${compra.total.toLocaleString('es-MX')}
         </span>
       </td>
-      <td className="py-4 px-4">
+      <td className="block md:table-cell py-3 md:py-4 px-4 md:px-4 border-b border-[#e3dac9]/30 md:border-0">
+        <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-bold ${
-            compra.estado === 'activa'
+          className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${compra.estado === 'activa'
               ? 'bg-emerald-100 text-emerald-700'
               : 'bg-gray-100 text-gray-700'
-          }`}
+            }`}
         >
           {compra.estado === 'activa' ? 'Activa' : 'Inactiva'}
         </span>
       </td>
-      <td className="py-4 px-4">
+      <td className="block md:table-cell py-3 md:py-4 px-4 md:px-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
+        <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
         <div className="flex gap-2 justify-end">
           <button className="px-4 py-2 bg-white border-2 border-[#e3dac9] hover:border-[#d4af37] hover:bg-[#fbf8f1] text-[#2b1b17] rounded-lg font-bold text-sm transition-all duration-300 flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

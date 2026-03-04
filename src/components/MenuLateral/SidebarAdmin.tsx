@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import MenuBase from './MenuBase';
 
-export default function SidebarAdmin({ isOpen }: { isOpen: boolean }) {
+export default function SidebarAdmin({ isOpen, onClose }: { isOpen: boolean; onClose?: () => void; }) {
   return (
     <MenuBase
       isOpen={isOpen}
@@ -14,6 +14,7 @@ export default function SidebarAdmin({ isOpen }: { isOpen: boolean }) {
         { href: '/admin/usuarios', icon: 'users', label: 'Usuarios' },
         { href: '/admin/libros', icon: 'library', label: 'Libros' },
       ]}
+      onClose={onClose}
     />
   );
 }

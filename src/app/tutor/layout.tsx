@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarTutor from '../../components/MenuLateral/SidebarTutor';
 
@@ -12,15 +12,40 @@ export default function TutorLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
   const getTitle = () => {
     if (pathname.includes('/hijos')) return { title: 'Mis Hijos', sub: 'Seguimiento académico.' };
     return { title: 'Panel Tutor', sub: 'Resumen educativo.' };
   };
 
   return (
-    <div className="flex min-h-screen">
-      <SidebarTutor isOpen={isSidebarOpen} />
-      <main className="flex-1 md:ml-64 p-6">{children}</main>
+    <div className="flex min-h-screen bg-[#f5f5f5] relative">
+      <SidebarTutor isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen transition-all">
+        <header className="flex items-center gap-4 mb-8">
+          <button
+            className="md:hidden text-[#2b1b17] p-2 hover:bg-black/5 rounded-lg"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold">{getTitle().title}</h1>
+        </header>
+        {children}
+      </main>
     </div>
   );
 }

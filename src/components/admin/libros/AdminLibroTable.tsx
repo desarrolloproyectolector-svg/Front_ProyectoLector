@@ -37,10 +37,10 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
-                    <tr>
+        <div className="w-full">
+            <table className="w-full block md:table">
+                <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
+                    <tr className="block md:table-row">
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Título</th>
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Código</th>
                         <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Grado</th>
@@ -51,27 +51,33 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                         <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e3dac9]">
+                <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
                     {libros.map(libro => (
-                        <tr key={libro.id} className="hover:bg-[#f9f7f4] transition-colors">
-                            <td className="px-6 py-4">
-                                <span className="font-semibold text-[#2b1b17] hover:text-[#d4af37] cursor-pointer transition-colors" onClick={() => onView(libro)}>
+                        <tr key={libro.id} className="block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-b md:border-transparent hover:bg-[#f9f7f4] transition-colors relative">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Título</span>
+                                <span className="font-semibold text-[#2b1b17] hover:text-[#d4af37] cursor-pointer transition-colors block md:inline" onClick={() => onView(libro)}>
                                     {libro.titulo}
                                 </span>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className="text-[#5d4037] text-sm font-mono">{libro.codigo}</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Código</span>
+                                <span className="text-[#5d4037] text-sm font-mono block md:inline">{libro.codigo}</span>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className="text-[#5d4037]">{libro.grado}°</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Grado</span>
+                                <span className="text-[#5d4037] block md:inline">{libro.grado}°</span>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className="text-[#5d4037] text-sm">{libro.materia?.nombre || '—'}</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Materia</span>
+                                <span className="text-[#5d4037] text-sm block md:inline">{libro.materia?.nombre || '—'}</span>
                             </td>
-                            <td className="px-6 py-4">
-                                <span className="text-[#5d4037]">{libro.numPaginas}</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Páginas</span>
+                                <span className="text-[#5d4037] block md:inline">{libro.numPaginas}</span>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
                                 {libro.estado === 'listo' && (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                         <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
@@ -91,7 +97,8 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                                     </span>
                                 )}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Activo</span>
                                 {libro.activo !== false ? (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                                         <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
@@ -104,8 +111,9 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                                     </span>
                                 )}
                             </td>
-                            <td className="px-6 py-4">
-                                <div className="flex justify-center gap-2">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#f9f7f4]/50 md:bg-transparent rounded-b-xl md:rounded-none">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
+                                <div className="flex justify-end gap-2">
                                     <button
                                         onClick={() => onView(libro)}
                                         className="p-2 hover:bg-blue-100 rounded-lg transition-colors text-blue-600 disabled:opacity-50"
@@ -140,11 +148,10 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                                     {onToggleActivo && (
                                         <button
                                             onClick={() => onToggleActivo(libro, libro.activo !== false ? false : true)}
-                                            className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${
-                                                libro.activo !== false
-                                                    ? 'hover:bg-purple-100 text-purple-600'
-                                                    : 'hover:bg-purple-100 text-purple-400'
-                                            }`}
+                                            className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${libro.activo !== false
+                                                ? 'hover:bg-purple-100 text-purple-600'
+                                                : 'hover:bg-purple-100 text-purple-400'
+                                                }`}
                                             title={libro.activo !== false ? 'Desactivar libro' : 'Activar libro'}
                                             disabled={isLoading}
                                         >
@@ -169,6 +176,6 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                     ))}
                 </tbody>
             </table>
-        </div>
+        </div >
     );
 };

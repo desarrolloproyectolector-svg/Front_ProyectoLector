@@ -11,7 +11,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-lora overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-lora overflow-hidden flex flex-col">
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a1a2e] to-[#16213e]"></div>
@@ -22,7 +22,7 @@ export default function LandingPage() {
       </div>
 
       {/* Navbar */}
-      <nav className="relative z-50 flex justify-between items-center p-6 backdrop-blur-md bg-white/5 border-b border-white/10">
+      <nav className="relative z-50 flex flex-wrap justify-between items-center p-4 md:p-6 backdrop-blur-md bg-white/5 border-b border-white/10">
         <div className="flex items-center gap-3 group">
           <div className="relative">
             <div className="absolute inset-0 bg-[#d4af37] rounded-full blur-lg opacity-50 group-hover:opacity-100 transition-opacity"></div>
@@ -32,21 +32,21 @@ export default function LandingPage() {
               </svg>
             </div>
           </div>
-          <span className="font-playfair text-2xl font-bold tracking-widest bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
+          <span className="font-playfair text-xl md:text-2xl font-bold tracking-widest bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
             ACADEMIA
           </span>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-2 md:gap-4 mt-4 sm:mt-0 w-full sm:w-auto justify-end sm:justify-start">
           <Link
             href="/login"
-            className="px-6 py-2 text-white/80 hover:text-white transition-colors font-bold relative group"
+            className="px-4 md:px-6 py-2 text-white/80 hover:text-white transition-colors font-bold relative group text-sm md:text-base"
           >
             <span className="relative z-10">Iniciar Sesión</span>
             <div className="absolute inset-0 bg-white/5 rounded-lg scale-0 group-hover:scale-100 transition-transform"></div>
           </Link>
           <Link
             href="/registro"
-            className="px-6 py-2 bg-gradient-to-r from-[#d4af37] to-[#c19b2f] text-[#0a0a0a] rounded-lg font-bold shadow-lg hover:shadow-[#d4af37]/50 transition-all transform hover:scale-105 relative overflow-hidden group"
+            className="px-4 md:px-6 py-2 bg-gradient-to-r from-[#d4af37] to-[#c19b2f] text-[#0a0a0a] rounded-lg font-bold shadow-lg hover:shadow-[#d4af37]/50 transition-all transform hover:scale-105 relative overflow-hidden group text-sm md:text-base"
           >
             <span className="relative z-10">Registrarse</span>
             <div className="absolute inset-0 bg-gradient-to-r from-[#f0e6d2] to-[#d4af37] opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -55,11 +55,10 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <header className="relative z-10 flex flex-col items-center justify-center text-center py-32 px-4">
+      <header className="relative z-10 flex flex-col items-center justify-center text-center py-20 md:py-32 px-4 flex-grow">
         <div
-          className={`max-w-5xl transition-all duration-1000 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
+          className={`max-w-5xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
         >
           {/* Floating badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-md border border-[#d4af37]/30 rounded-full mb-8">
@@ -67,7 +66,7 @@ export default function LandingPage() {
             <span className="text-sm text-[#d4af37] font-semibold">Plataforma Educativa del Futuro</span>
           </div>
 
-          <h1 className="font-playfair text-6xl md:text-8xl font-bold mb-6 leading-tight">
+          <h1 className="font-playfair text-5xl sm:text-6xl md:text-8xl font-bold mb-4 md:mb-6 leading-tight">
             <span className="bg-gradient-to-r from-white via-[#d4af37] to-white bg-clip-text text-transparent">
               El Conocimiento
             </span>
@@ -77,16 +76,16 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-xl text-white/70 mb-12 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-white/70 mb-8 md:mb-12 leading-relaxed max-w-2xl mx-auto">
             Plataforma educativa integral con{' '}
             <span className="text-[#d4af37] font-semibold">IA avanzada</span> para alumnos,
             profesores y escuelas. Gestione el aprendizaje y potencie el futuro.
           </p>
 
-          <div className="flex gap-6 justify-center flex-wrap">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center w-full max-w-xs sm:max-w-none mx-auto">
             <Link
               href="/login"
-              className="group relative px-8 py-4 bg-gradient-to-r from-[#d4af37] to-[#c19b2f] rounded-full font-bold text-lg text-[#0a0a0a] overflow-hidden transform hover:scale-105 transition-all shadow-lg hover:shadow-[#d4af37]/50"
+              className="group relative px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-[#d4af37] to-[#c19b2f] rounded-full font-bold text-base md:text-lg text-[#0a0a0a] overflow-hidden transform hover:scale-105 transition-all shadow-lg hover:shadow-[#d4af37]/50 w-full sm:w-auto flex justify-center"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Comenzar Ahora
@@ -103,7 +102,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/registro"
-              className="group relative px-8 py-4 bg-white/5 backdrop-blur-md border-2 border-[#d4af37] rounded-full font-bold text-lg text-white overflow-hidden transform hover:scale-105 transition-all"
+              className="group relative px-6 md:px-8 py-3 md:py-4 bg-white/5 backdrop-blur-md border-2 border-[#d4af37] rounded-full font-bold text-base md:text-lg text-white overflow-hidden transform hover:scale-105 transition-all w-full sm:w-auto flex justify-center"
             >
               <span className="relative z-10">Crear Cuenta</span>
               <div className="absolute inset-0 bg-gradient-to-r from-[#d4af37]/20 to-[#c19b2f]/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -111,7 +110,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 mt-20 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8 mt-16 md:mt-20 max-w-3xl mx-auto w-full">
             {[
               { value: '10K+', label: 'Estudiantes' },
               { value: '500+', label: 'Profesores' },
@@ -119,9 +118,9 @@ export default function LandingPage() {
             ].map((stat, index) => (
               <div
                 key={index}
-                className="p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/10 transition-all transform hover:scale-105"
+                className="p-4 md:p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl hover:bg-white/10 transition-all transform hover:scale-105"
               >
-                <div className="text-4xl font-bold bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
                   {stat.value}
                 </div>
                 <div className="text-white/60 text-sm mt-2">{stat.label}</div>
@@ -139,12 +138,12 @@ export default function LandingPage() {
       </header>
 
       {/* Features Section */}
-      <section className="relative z-10 py-32 px-6 max-w-7xl mx-auto">
+      <section className="relative z-10 py-20 md:py-32 px-4 md:px-6 max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <span className="inline-block px-4 py-2 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full text-[#d4af37] text-sm font-semibold mb-4">
             SERVICIOS
           </span>
-          <h2 className="font-playfair text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
+          <h2 className="font-playfair text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
             Tecnología de Vanguardia
           </h2>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
@@ -152,7 +151,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           <FeatureCard
             title="Para Alumnos"
             desc="Biblioteca digital inteligente con IA, seguimiento de progreso en tiempo real y gamificación del aprendizaje."
@@ -174,9 +173,9 @@ export default function LandingPage() {
         </div>
 
         {/* Tech Features */}
-        <div className="mt-32 grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
-            <h3 className="font-playfair text-4xl font-bold">
+        <div className="mt-20 md:mt-32 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6 md:space-y-8 order-2 lg:order-1">
+            <h3 className="font-playfair text-3xl md:text-4xl font-bold text-center lg:text-left">
               Impulsado por{' '}
               <span className="bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
                 Inteligencia Artificial
@@ -215,7 +214,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative order-1 lg:order-2 max-w-md mx-auto w-full">
             <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/20 to-transparent rounded-3xl blur-3xl"></div>
             <div className="relative p-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl">
               <div className="aspect-square bg-gradient-to-br from-[#1a1a2e] to-[#16213e] rounded-2xl flex items-center justify-center relative overflow-hidden">
@@ -230,23 +229,23 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-32 px-6">
+      <section className="relative z-10 py-20 md:py-32 px-4 md:px-6">
         <div className="max-w-4xl mx-auto text-center relative">
           <div className="absolute inset-0 bg-gradient-to-r from-[#d4af37]/20 via-transparent to-[#d4af37]/20 blur-3xl"></div>
           <div className="relative p-12 bg-white/5 backdrop-blur-md border border-[#d4af37]/30 rounded-3xl">
-            <h2 className="font-playfair text-5xl font-bold mb-6">
+            <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight">
               ¿Listo para Transformar{' '}
               <span className="bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
                 la Educación
               </span>
               ?
             </h2>
-            <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-white/70 text-base md:text-lg mb-8 max-w-2xl mx-auto">
               Únete a miles de instituciones que ya están revolucionando el aprendizaje con nuestra plataforma
             </p>
             <Link
               href="/registro"
-              className="inline-flex items-center gap-2 px-10 py-4 bg-gradient-to-r from-[#d4af37] to-[#c19b2f] rounded-full font-bold text-lg text-[#0a0a0a] transform hover:scale-105 transition-all shadow-lg hover:shadow-[#d4af37]/50"
+              className="inline-flex items-center justify-center gap-2 px-6 md:px-10 py-3 md:py-4 bg-gradient-to-r from-[#d4af37] to-[#c19b2f] rounded-full font-bold text-base md:text-lg text-[#0a0a0a] transform hover:scale-105 transition-all shadow-lg hover:shadow-[#d4af37]/50 w-full sm:w-auto"
             >
               Empezar Gratis
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,33 +256,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-     {/* Footer */}
-<footer className="relative z-10 border-t border-white/10 bg-white/5 backdrop-blur-md py-12 text-center">
-  <div className="max-w-6xl mx-auto px-6">
-    <div className="flex items-center justify-center gap-3 mb-6">
-      <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f0e6d2] rounded-full flex items-center justify-center">
-        <svg className="w-6 h-6 text-[#0a0a0a]" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" />
-        </svg>
-      </div>
-      <span className="font-playfair text-2xl font-bold bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
-        ACADEMIA
-      </span>
-    </div>
-    <p className="text-white/50">© 2026 Academia Lector. Todos los derechos reservados.</p>
-    <div className="flex justify-center gap-6 mt-6">
-      {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
-        <Link
-          key={social}
-          href="#"
-          className="text-white/50 hover:text-[#d4af37] transition-colors"
-        >
-          {social}
-        </Link>
-      ))}
-    </div>
-  </div>
-</footer>
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/10 bg-white/5 backdrop-blur-md py-8 md:py-12 text-center mt-auto">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#f0e6d2] rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#0a0a0a]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" />
+              </svg>
+            </div>
+            <span className="font-playfair text-2xl font-bold bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
+              ACADEMIA
+            </span>
+          </div>
+          <p className="text-white/50">© 2026 Academia Lector. Todos los derechos reservados.</p>
+          <div className="flex justify-center gap-6 mt-6">
+            {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
+              <Link
+                key={social}
+                href="#"
+                className="text-white/50 hover:text-[#d4af37] transition-colors"
+              >
+                {social}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -326,7 +325,7 @@ function FeatureCard({
               />
             </svg>
           )}
-         
+
         </div>
         <h3 className="font-playfair text-2xl font-bold mb-3 text-white group-hover:text-[#d4af37] transition-colors">
           {title}

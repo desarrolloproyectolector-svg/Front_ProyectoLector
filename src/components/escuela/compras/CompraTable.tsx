@@ -7,10 +7,10 @@ interface Props {
 
 export default function CompraTable({ compras }: Props) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b-2 border-[#e3dac9]">
+    <div className="w-full">
+      <table className="w-full block md:table">
+        <thead className="hidden md:table-header-group">
+          <tr className="border-b-2 border-[#e3dac9] block md:table-row">
             <th className="text-left py-4 px-4 font-playfair font-bold text-[#2b1b17] text-sm uppercase tracking-wider">
               Producto
             </th>
@@ -32,7 +32,7 @@ export default function CompraTable({ compras }: Props) {
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="block md:table-row-group space-y-4 md:space-y-0 p-4 md:p-0">
           {compras.map((c) => (
             <CompraRow key={c.id} compra={c} />
           ))}

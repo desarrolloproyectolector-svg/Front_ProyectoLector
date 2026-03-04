@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarAlumno from '../../components/MenuLateral/SidebarAlumno';
 
@@ -11,6 +11,11 @@ export default function DashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
+
+  // Cerrar sidebar al cambiar de ruta
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   // 🔹 Titles por ruta
   const getTitle = () => {
@@ -40,7 +45,7 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex relative">
       {/* Sidebar */}
-      <SidebarAlumno isOpen={isSidebarOpen} />
+      <SidebarAlumno isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       {/* Mobile overlay */}
       {isSidebarOpen && (

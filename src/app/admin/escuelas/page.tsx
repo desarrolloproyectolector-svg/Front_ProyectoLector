@@ -11,25 +11,25 @@ type FiltroEstado = 'todos' | 'activa' | 'suspendida' | 'inactiva';
 
 export default function EscuelasAdminPage() {
     // ── Datos ────────────────────────────────────────────────
-    const [stats, setStats]         = useState<EscuelaStats | null>(null);
+    const [stats, setStats] = useState<EscuelaStats | null>(null);
 
     // ── UI state ─────────────────────────────────────────────
-    const [searchTerm, setSearchTerm]       = useState('');
-    const [filterEstado, setFilterEstado]   = useState<FiltroEstado>('todos');
-    const [isLoading, setIsLoading]         = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterEstado, setFilterEstado] = useState<FiltroEstado>('todos');
+    const [isLoading, setIsLoading] = useState(true);
     const [isLoadingStats, setIsLoadingStats] = useState(true);
-    const [error, setError]                 = useState('');
+    const [error, setError] = useState('');
 
     // ── Modales ──────────────────────────────────────────────
-    const [showAddModal, setShowAddModal]         = useState(false);
-    const [showEditModal, setShowEditModal]       = useState(false);
-    const [selectedEscuela, setSelectedEscuela]   = useState<EscuelaListItem | null>(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedEscuela, setSelectedEscuela] = useState<EscuelaListItem | null>(null);
 
     // ── Modal de confirmación de eliminación ─────────────────
-    const [showDeleteModal, setShowDeleteModal]   = useState(false);
-    const [escuelaToDelete, setEscuelaToDelete]   = useState<EscuelaListItem | null>(null);
-    const [isDeleting, setIsDeleting]             = useState(false);
-    const [deleteError, setDeleteError]           = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [escuelaToDelete, setEscuelaToDelete] = useState<EscuelaListItem | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
 
     // ── Cargar estadísticas ──────────────────────────────────
     const loadStats = useCallback(async () => {
@@ -123,8 +123,8 @@ export default function EscuelasAdminPage() {
             loadStats();
         } catch (err: any) {
             console.error('❌ Error al eliminar escuela:', err);
-            const status     = err.response?.status;
-            const raw        = err.response?.data?.message;
+            const status = err.response?.status;
+            const raw = err.response?.data?.message;
             // El backend puede mandar message como string o como array
             const apiMessage = Array.isArray(raw) ? raw[0] : raw;
 
@@ -150,12 +150,12 @@ export default function EscuelasAdminPage() {
     };
 
     // ── Valores para las tarjetas ────────────────────────────
-    const totalEscuelas    = stats?.totalEscuelas   ?? 0;
-    const escuelasActivas  = stats?.escuelasActivas  ?? 0;
-    const totalAlumnos     = stats?.totalAlumnos     ?? 0;
-    const totalProfesores  = stats?.totalProfesores  ?? 0;
-    const licencias        = stats?.licencias        ?? 0;
-    const loadingVal       = isLoadingStats ? '...' : undefined;
+    const totalEscuelas = stats?.totalEscuelas ?? 0;
+    const escuelasActivas = stats?.escuelasActivas ?? 0;
+    const totalAlumnos = stats?.totalAlumnos ?? 0;
+    const totalProfesores = stats?.totalProfesores ?? 0;
+    const licencias = stats?.licencias ?? 0;
+    const loadingVal = isLoadingStats ? '...' : undefined;
 
     return (
         <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8">
@@ -268,7 +268,7 @@ export default function EscuelasAdminPage() {
                             <p className="text-sm text-[#8d6e3f] mt-1">Administra las instituciones educativas</p>
                         </div>
 
-                        <div className="flex gap-2 w-full md:w-auto">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
                             {/* Buscador */}
                             <div className="relative flex-1 md:w-80">
                                 <input
@@ -296,7 +296,7 @@ export default function EscuelasAdminPage() {
                             {/* Nueva escuela */}
                             <button
                                 onClick={() => setShowAddModal(true)}
-                                className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
+                                className="w-full sm:w-auto justify-center px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -309,19 +309,18 @@ export default function EscuelasAdminPage() {
                     {/* Filtros de estado */}
                     <div className="flex flex-wrap gap-3 mt-6">
                         {([
-                            { key: 'todos',      label: 'Todas',       active: 'bg-[#d4af37] text-[#2b1b17]' },
-                            { key: 'activa',     label: 'Activas',     active: 'bg-emerald-500 text-white' },
+                            { key: 'todos', label: 'Todas', active: 'bg-[#d4af37] text-[#2b1b17]' },
+                            { key: 'activa', label: 'Activas', active: 'bg-emerald-500 text-white' },
                             { key: 'suspendida', label: 'Suspendidas', active: 'bg-red-500 text-white' },
-                            { key: 'inactiva',   label: 'Inactivas',   active: 'bg-gray-500 text-white' },
+                            { key: 'inactiva', label: 'Inactivas', active: 'bg-gray-500 text-white' },
                         ] as { key: FiltroEstado; label: string; active: string }[]).map(({ key, label, active }) => (
                             <button
                                 key={key}
                                 onClick={() => setFilterEstado(key)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 shadow-sm ${
-                                    filterEstado === key
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 shadow-sm ${filterEstado === key
                                         ? `${active} shadow-md`
                                         : 'bg-[#fbf8f1] text-[#5d4037] hover:bg-[#e3dac9]'
-                                }`}
+                                    }`}
                             >
                                 {label}
                             </button>

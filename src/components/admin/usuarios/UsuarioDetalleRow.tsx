@@ -65,8 +65,9 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
     return (
         <>
             {/* Fila principal */}
-            <tr className={`hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1]' : ''}`}>
-                <td className="px-6 py-4">
+            <tr className={`block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-0 hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1] md:bg-[#fbf8f1]' : ''}`}>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Usuario</span>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#d4af37] to-[#c19a2e] flex items-center justify-center text-white font-bold shadow-md">
                             {usuario.nombre.charAt(0)}
@@ -77,12 +78,14 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                         </div>
                     </div>
                 </td>
-                <td className="px-6 py-4">
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${badgeColor}`}>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Rol</span>
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block ${badgeColor}`}>
                         {badgeIcon} {badgeLabel}
                     </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Contacto</span>
                     <div className="text-sm text-[#5d4037] flex items-center gap-1">
                         {usuario.telefono ? (
                             <><span className="text-[#d4af37]">📞</span> {usuario.telefono}</>
@@ -91,7 +94,8 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                         )}
                     </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Escuela</span>
                     {usuario.escuela ? (
                         <div className="text-sm">
                             <div className="font-bold text-[#2b1b17]">{usuario.escuela.nombre}</div>
@@ -101,18 +105,20 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                         <span className="text-sm text-[#a1887f]">N/A</span>
                     )}
                 </td>
-                <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'
-                        }`}>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'}`}>
                         {usuario.activo ? '✓ Activo' : '○ Inactivo'}
                     </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Últ. Conexión</span>
                     <span className="text-sm text-[#5d4037]">
                         {formatUltimaConexion(usuario.ultimaConexion)}
                     </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
@@ -138,8 +144,8 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
 
             {/* Fila expandible organizada */}
             {isExpanded && (
-                <tr className="bg-[#fbf8f1]/30">
-                    <td colSpan={7} className="px-8 py-6">
+                <tr className="block md:table-row bg-[#fbf8f1]/30 -mt-2 md:mt-0 relative z-[-1] rounded-b-xl md:rounded-none">
+                    <td colSpan={7} className="block md:table-cell px-4 md:px-8 py-4 md:py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
 
