@@ -35,7 +35,7 @@ export const AlumnoFields: React.FC<AlumnoFieldsProps> = ({
                     </svg>
                     Información del Alumno
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                         label="Nombre"
@@ -74,6 +74,7 @@ export const AlumnoFields: React.FC<AlumnoFieldsProps> = ({
                         onChange={(e) => onChange('apellidoMaterno', e.target.value)}
                         placeholder="Ej: García"
                         error={errors.apellidoMaterno}
+                        required
                         icon={
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -159,11 +160,10 @@ export const AlumnoFields: React.FC<AlumnoFieldsProps> = ({
                                 name="grado"
                                 value={data.grado || ''}
                                 onChange={(e) => onChange('grado', e.target.value ? parseInt(e.target.value) : '')}
-                                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-                                    errors.grado 
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10' 
+                                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.grado
+                                        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
                                         : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
-                                }`}
+                                    }`}
                             >
                                 <option value="">Selecciona un grado</option>
                                 <option value="1">1° (Primero)</option>

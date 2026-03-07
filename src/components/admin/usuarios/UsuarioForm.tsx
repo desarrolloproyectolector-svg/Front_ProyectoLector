@@ -7,6 +7,7 @@ import { AlumnoFields } from './AlumnoFields';
 import { ProfesorFields } from './ProfesorFields';
 import { TutorFields } from './TutorFields';
 import { DirectorFields } from './DirectorFields';
+import { isValidEmail, sanitizeText, sanitizeEmail, focusFirstError, hasUppercase } from '../../../utils/formValidation';
 
 type UserRole = 'alumno' | 'profesor' | 'tutor' | 'director' | null;
 
@@ -52,30 +53,88 @@ export const UsuarioForm: React.FC<UsuarioFormProps> = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        let hasErrors = false;
+        const newErrors: Record<string, string> = {};
+
         if (!selectedRole) {
-            setErrors({ role: 'Debes seleccionar un rol' });
-            return;
+            newErrors.role = 'Debes seleccionar un rol';
+            hasErrors = true;
+        }
+
+        // Sanitización y validación de campos comunes
+        const sNombre = formData.nombre ? sanitizeText(formData.nombre) : '';
+        const sPaterno = formData.apellidoPaterno ? sanitizeText(formData.apellidoPaterno) : '';
+        const sMaterno = formData.apellidoMaterno ? sanitizeText(formData.apellidoMaterno) : '';
+        const sEmail = formData.email ? sanitizeEmail(formData.email) : '';
+        const sTelefono = formData.telefono ? sanitizeText(formData.telefono) : '';
+
+        if (!sNombre) {
+            newErrors.nombre = 'El nombre es requerido';
+            hasErrors = true;
+        }
+
+        if (!sPaterno) {
+            newErrors.apellidoPaterno = 'El apellido paterno es requerido';
+            hasErrors = true;
+        }
+
+        if (!sMaterno) {
+            newErrors.apellidoMaterno = 'El apellido materno es requerido';
+            hasErrors = true;
+        }
+
+        if (!sEmail) {
+            newErrors.email = 'El correo electrónico es requerido';
+            hasErrors = true;
+        } else if (hasUppercase(formData.email || '')) {
+            newErrors.email = 'El correo electrónico debe escribirse solo con minúsculas';
+            hasErrors = true;
+        } else if (!isValidEmail(sEmail)) {
+            newErrors.email = 'El formato del correo es inválido';
+            hasErrors = true;
         }
 
         // ✅ Validación de contraseña:
         // - Al CREAR: obligatoria (mínimo 6 caracteres)
         // - Al EDITAR: solo validar si escribió algo
-        if (!isEditing && (!formData.password || formData.password.trim().length < 6)) {
-            setErrors(prev => ({ ...prev, password: 'La contraseña debe tener al menos 6 caracteres' }));
-            return;
+        const passwordValue = formData.password || '';
+        if (!isEditing && passwordValue.trim().length < 6) {
+            newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+            hasErrors = true;
         }
-        if (isEditing && formData.password && formData.password.trim().length > 0 && formData.password.trim().length < 6) {
-            setErrors(prev => ({ ...prev, password: 'La contraseña debe tener al menos 6 caracteres' }));
+        if (isEditing && passwordValue.trim().length > 0 && passwordValue.trim().length < 6) {
+            newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+            hasErrors = true;
+        }
+
+        // ✅ Validación de campos específicos por rol
+        if (!isEditing) {
+            if (['alumno', 'director', 'profesor'].includes(selectedRole as string)) {
+                if (!formData.idEscuela) {
+                    newErrors.idEscuela = 'Debes seleccionar una escuela';
+                    hasErrors = true;
+                }
+            }
+        }
+
+        if (hasErrors) {
+            setErrors(newErrors);
+            focusFirstError(newErrors);
             return;
         }
 
-        // ✅ Construir payload: si es edición y la contraseña está vacía, no incluirla
+        // ✅ Construir payload con TODOS los campos que se hayan llenado en los subformularios
         const dataToSubmit: any = {
+            ...formData, // Asegurar que todo lo capturado en los subformularios (como idEscuela, grado, etc) se incluya
             role: selectedRole,
-            ...formData,
+            nombre: sNombre,
+            apellidoPaterno: sPaterno,
+            apellidoMaterno: sMaterno,
+            email: sEmail,
+            telefono: sTelefono,
         };
 
-        if (isEditing && (!formData.password || formData.password.trim() === '')) {
+        if (isEditing && passwordValue.trim() === '') {
             delete dataToSubmit.password;
         }
 
@@ -95,9 +154,9 @@ export const UsuarioForm: React.FC<UsuarioFormProps> = ({
                         <p className="text-sm text-gray-600 mb-2">Tipo de usuario (no editable):</p>
                         <div className="flex items-center gap-2">
                             <span className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold">
-                                {selectedRole === 'alumno'   && '📚 Alumno'}
+                                {selectedRole === 'alumno' && '📚 Alumno'}
                                 {selectedRole === 'profesor' && '👨‍🏫 Profesor'}
-                                {selectedRole === 'tutor'    && '👥 Tutor'}
+                                {selectedRole === 'tutor' && '👥 Tutor'}
                                 {selectedRole === 'director' && '⭐ Director'}
                             </span>
                         </div>
@@ -176,7 +235,7 @@ export const UsuarioForm: React.FC<UsuarioFormProps> = ({
                         }
                     >
                         {isLoading
-                            ? (isEditing ? 'Guardando...'   : 'Registrando...')
+                            ? (isEditing ? 'Guardando...' : 'Registrando...')
                             : (isEditing ? 'Guardar Cambios' : 'Registrar Usuario')
                         }
                     </Button>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { isValidEmail, sanitizeText, sanitizeEmail, focusFirstError, hasUppercase } from '../../../utils/formValidation';
 
 export interface UsuarioFormEditData {
     nombre: string;
@@ -43,26 +44,48 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
     const validate = (): boolean => {
         const newErrors: Record<string, string> = {};
 
-        if (!nombre.trim())
+        const sNombre = sanitizeText(nombre);
+        const sPaterno = sanitizeText(apellidoPaterno);
+        const sEmail = sanitizeEmail(email);
+
+        if (!sNombre)
             newErrors.nombre = 'El nombre es requerido';
 
-        if (!apellidoPaterno.trim())
+        if (!sPaterno)
             newErrors.apellidoPaterno = 'El apellido paterno es requerido';
 
-        if (!email.trim())
+        if (!sEmail) {
             newErrors.email = 'El correo es requerido';
+        } else if (hasUppercase(email)) {
+            newErrors.email = 'Escribe tu correo usando solo minúsculas';
+        } else if (!isValidEmail(sEmail)) {
+            newErrors.email = 'El formato del correo es inválido';
+        }
 
         if (password.length > 0 && password.length < 6)
             newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            focusFirstError(newErrors);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
-        onSubmit({ nombre, apellidoPaterno, apellidoMaterno, email, telefono, fechaNacimiento, genero, password });
+
+        onSubmit({
+            nombre: sanitizeText(nombre),
+            apellidoPaterno: sanitizeText(apellidoPaterno),
+            apellidoMaterno: sanitizeText(apellidoMaterno),
+            email: sanitizeEmail(email),
+            telefono: sanitizeText(telefono),
+            fechaNacimiento,
+            genero,
+            password
+        });
     };
 
     const inputClass = (field: string) =>

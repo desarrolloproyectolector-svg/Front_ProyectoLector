@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { profesorService } from '../../../service/escuela/profesor/profesor.service';
 import { ProfesorFormData, ProfesorFormErrors, RegistroProfesorPayload } from '../../../types/escuela/profesor/profesor.types';
 import { toast } from '@/utils/toast';
+import { sanitizeText, sanitizeEmail, isValidEmail, focusFirstError, hasUppercase } from '../../../utils/formValidation';
 
 interface Props {
     open: boolean;
@@ -55,13 +56,20 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
     const validate = (): boolean => {
         const newErrors: ProfesorFormErrors = {};
 
-        if (!formData.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
-        if (!formData.apellidoPaterno.trim()) newErrors.apellidoPaterno = 'El apellido paterno es requerido';
-        if (!formData.apellidoMaterno.trim()) newErrors.apellidoMaterno = 'El apellido materno es requerido';
+        const sNombre = sanitizeText(formData.nombre);
+        const sPaterno = sanitizeText(formData.apellidoPaterno);
+        const sMaterno = sanitizeText(formData.apellidoMaterno);
+        const sEmail = sanitizeEmail(formData.email);
 
-        if (!formData.email.trim()) {
+        if (!sNombre) newErrors.nombre = 'El nombre es requerido';
+        if (!sPaterno) newErrors.apellidoPaterno = 'El apellido paterno es requerido';
+        if (!sMaterno) newErrors.apellidoMaterno = 'El apellido materno es requerido';
+
+        if (!sEmail) {
             newErrors.email = 'El correo es requerido';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        } else if (hasUppercase(formData.email)) {
+            newErrors.email = 'Escribe tu correo electrónico solo con minúsculas';
+        } else if (!isValidEmail(sEmail)) {
             newErrors.email = 'Correo inválido';
         }
 
@@ -78,6 +86,9 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
         }
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            focusFirstError(newErrors as Record<string, string | undefined>);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -90,14 +101,14 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
 
             // Construir payload — solo campos con valor
             const payload: RegistroProfesorPayload = {
-                nombre: formData.nombre.trim(),
-                apellidoPaterno: formData.apellidoPaterno.trim(),
-                apellidoMaterno: formData.apellidoMaterno.trim(),
-                email: formData.email.trim().toLowerCase(),
+                nombre: sanitizeText(formData.nombre),
+                apellidoPaterno: sanitizeText(formData.apellidoPaterno),
+                apellidoMaterno: sanitizeText(formData.apellidoMaterno),
+                email: sanitizeEmail(formData.email),
                 password: formData.password,
             };
 
-            if (formData.telefono?.trim()) payload.telefono = formData.telefono.trim();
+            if (formData.telefono?.trim()) payload.telefono = sanitizeText(formData.telefono);
             if (formData.fechaNacimiento) payload.fechaNacimiento = formData.fechaNacimiento;
             if (formData.especialidad) payload.especialidad = formData.especialidad;
             if (formData.fechaIngreso) payload.fechaIngreso = formData.fechaIngreso;
@@ -112,7 +123,16 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
             handleClose();
             onSuccess?.();
         } catch (error: any) {
-            toast.error(error.message || 'Error al registrar el profesor.', 6000);
+            const errorMsg = error.response?.data?.message || error.response?.data?.description;
+            let displayMessage = error.message || 'Error al registrar el profesor.';
+
+            if (Array.isArray(errorMsg)) {
+                displayMessage = `Faltan datos o son incorrectos: ${errorMsg.join(' | ')}`;
+            } else if (typeof errorMsg === 'string') {
+                displayMessage = errorMsg;
+            }
+
+            toast.error(displayMessage, 6000);
         } finally {
             setIsLoading(false);
         }
@@ -137,10 +157,9 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
     };
 
     const inputClass = (field: keyof ProfesorFormErrors) =>
-        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-            errors[field]
-                ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors[field]
+            ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+            : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
         }`;
 
     const labelClass = 'block text-sm font-bold text-[#2b1b17] mb-2';
@@ -174,6 +193,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="text"
+                                name="nombre"
                                 placeholder="Ej: Ana"
                                 value={formData.nombre}
                                 onChange={handleChange('nombre')}
@@ -190,6 +210,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="text"
+                                name="apellidoPaterno"
                                 placeholder="Ej: Rodríguez"
                                 value={formData.apellidoPaterno}
                                 onChange={handleChange('apellidoPaterno')}
@@ -206,6 +227,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="text"
+                                name="apellidoMaterno"
                                 placeholder="Ej: Fernández"
                                 value={formData.apellidoMaterno}
                                 onChange={handleChange('apellidoMaterno')}
@@ -222,6 +244,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="email"
+                                name="email"
                                 placeholder="Ej: ana@escuela.edu"
                                 value={formData.email}
                                 onChange={handleChange('email')}
@@ -239,6 +262,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="tel"
+                                name="telefono"
                                 placeholder="Ej: +52 55 1234 5678"
                                 value={formData.telefono || ''}
                                 onChange={handleChange('telefono')}
@@ -256,6 +280,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="date"
+                                name="fechaNacimiento"
                                 value={formData.fechaNacimiento || ''}
                                 onChange={handleChange('fechaNacimiento')}
                                 disabled={isLoading}
@@ -280,6 +305,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                                 <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
                             </label>
                             <select
+                                name="especialidad"
                                 value={formData.especialidad || ''}
                                 onChange={handleChange('especialidad')}
                                 disabled={isLoading}
@@ -300,6 +326,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                             </label>
                             <input
                                 type="date"
+                                name="fechaIngreso"
                                 value={formData.fechaIngreso || ''}
                                 onChange={handleChange('fechaIngreso')}
                                 disabled={isLoading}
@@ -322,6 +349,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                         </label>
                         <input
                             type={showPassword ? 'text' : 'password'}
+                            name="password"
                             placeholder="Mínimo 6 caracteres"
                             value={formData.password}
                             onChange={handleChange('password')}

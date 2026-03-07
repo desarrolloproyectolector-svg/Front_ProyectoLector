@@ -11,6 +11,7 @@ import {
     getNombreCompletoProfesor,
 } from '../../../types/escuela/profesor/profesor.types';
 import { toast } from '@/utils/toast';
+import { sanitizeText, sanitizeEmail, isValidEmail, focusFirstError, hasUppercase } from '../../../utils/formValidation';
 
 interface Props {
     open: boolean;
@@ -23,15 +24,15 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
     // ✅ FIX: Sin useEffect — los useState se inicializan una sola vez con los datos
     // del profesor. El reset se controla desde afuera con key={profesor.id}
     const [formData, setFormData] = useState<ProfesorEditFormData>({
-        nombre:          profesor.persona.nombre          ?? '',
+        nombre: profesor.persona.nombre ?? '',
         apellidoPaterno: profesor.persona.apellidoPaterno ?? '',
         apellidoMaterno: profesor.persona.apellidoMaterno ?? '',
-        correo:          profesor.persona.correo          ?? '',
-        telefono:        profesor.persona.telefono        ?? '',
+        correo: profesor.persona.correo ?? '',
+        telefono: profesor.persona.telefono ?? '',
         fechaNacimiento: profesor.persona.fechaNacimiento ?? '',
-        genero:          profesor.persona.genero          ?? '',
-        password:        '',
-        activo:          profesor.persona.activo !== false,
+        genero: profesor.persona.genero ?? '',
+        password: '',
+        activo: profesor.persona.activo !== false,
     });
 
     const [errors, setErrors] = useState<ProfesorEditFormErrors>({});
@@ -52,12 +53,18 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
     const validate = (): boolean => {
         const newErrors: ProfesorEditFormErrors = {};
 
-        if (!formData.nombre.trim())          newErrors.nombre = 'El nombre es requerido';
-        if (!formData.apellidoPaterno.trim()) newErrors.apellidoPaterno = 'El apellido paterno es requerido';
+        const sNombre = sanitizeText(formData.nombre);
+        const sPaterno = sanitizeText(formData.apellidoPaterno);
+        const sEmail = sanitizeEmail(formData.correo);
 
-        if (!formData.correo.trim()) {
+        if (!sNombre) newErrors.nombre = 'El nombre es requerido';
+        if (!sPaterno) newErrors.apellidoPaterno = 'El apellido paterno es requerido';
+
+        if (!sEmail) {
             newErrors.correo = 'El correo es requerido';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
+        } else if (hasUppercase(formData.correo)) {
+            newErrors.correo = 'Escribe tu correo usando solo minúsculas';
+        } else if (!isValidEmail(sEmail)) {
             newErrors.correo = 'Correo inválido';
         }
 
@@ -68,6 +75,9 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
             newErrors.telefono = 'Formato de teléfono inválido';
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            focusFirstError(newErrors as Record<string, string | undefined>);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -79,17 +89,17 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
             setIsLoading(true);
 
             const payload: EditProfesorPayload = {
-                nombre:          formData.nombre.trim(),
-                apellidoPaterno: formData.apellidoPaterno.trim(),
-                apellidoMaterno: formData.apellidoMaterno?.trim() || null,
-                correo:          formData.correo.trim().toLowerCase(),
-                activo:          formData.activo,
+                nombre: sanitizeText(formData.nombre),
+                apellidoPaterno: sanitizeText(formData.apellidoPaterno),
+                apellidoMaterno: formData.apellidoMaterno ? sanitizeText(formData.apellidoMaterno) : null,
+                correo: sanitizeEmail(formData.correo),
+                activo: formData.activo,
             };
 
-            if (formData.telefono?.trim())        payload.telefono        = formData.telefono.trim();
+            if (formData.telefono?.trim()) payload.telefono = sanitizeText(formData.telefono);
             if (formData.fechaNacimiento?.trim()) payload.fechaNacimiento = formData.fechaNacimiento.trim();
-            if (formData.genero?.trim())          payload.genero          = formData.genero.trim();
-            if (formData.password?.trim().length) payload.password        = formData.password.trim();
+            if (formData.genero?.trim()) payload.genero = formData.genero.trim();
+            if (formData.password?.trim().length) payload.password = formData.password.trim();
 
             const response = await profesorService.editarProfesor(profesor.id, payload);
 
@@ -101,7 +111,16 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
             onClose();
             onSuccess();
         } catch (error: any) {
-            toast.error(error.message || 'Error al actualizar el profesor.', 6000);
+            const errorMsg = error.response?.data?.message || error.response?.data?.description;
+            let displayMessage = error.message || 'Error al actualizar el profesor.';
+
+            if (Array.isArray(errorMsg)) {
+                displayMessage = `Faltan datos o son incorrectos: ${errorMsg.join(' | ')}`;
+            } else if (typeof errorMsg === 'string') {
+                displayMessage = errorMsg;
+            }
+
+            toast.error(displayMessage, 6000);
         } finally {
             setIsLoading(false);
         }
@@ -115,10 +134,9 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
     };
 
     const inputClass = (field: keyof ProfesorEditFormErrors) =>
-        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-            errors[field]
-                ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors[field]
+            ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+            : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
         }`;
 
     const labelClass = 'block text-sm font-bold text-[#2b1b17] mb-2';
@@ -159,6 +177,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                             </label>
                             <input
                                 type="text"
+                                name="nombre"
                                 value={formData.nombre}
                                 onChange={handleChange('nombre')}
                                 disabled={isLoading}
@@ -174,6 +193,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                             </label>
                             <input
                                 type="text"
+                                name="apellidoPaterno"
                                 value={formData.apellidoPaterno}
                                 onChange={handleChange('apellidoPaterno')}
                                 disabled={isLoading}
@@ -190,6 +210,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                             </label>
                             <input
                                 type="text"
+                                name="apellidoMaterno"
                                 value={formData.apellidoMaterno ?? ''}
                                 onChange={handleChange('apellidoMaterno')}
                                 disabled={isLoading}
@@ -204,6 +225,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                             </label>
                             <input
                                 type="email"
+                                name="correo"
                                 value={formData.correo}
                                 onChange={handleChange('correo')}
                                 disabled={isLoading}
@@ -220,6 +242,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                             </label>
                             <input
                                 type="tel"
+                                name="telefono"
                                 value={formData.telefono || ''}
                                 onChange={handleChange('telefono')}
                                 disabled={isLoading}
@@ -236,6 +259,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                             </label>
                             <input
                                 type="date"
+                                name="fechaNacimiento"
                                 value={formData.fechaNacimiento || ''}
                                 onChange={handleChange('fechaNacimiento')}
                                 disabled={isLoading}
@@ -250,6 +274,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                                 <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
                             </label>
                             <select
+                                name="genero"
                                 value={formData.genero || ''}
                                 onChange={handleChange('genero')}
                                 disabled={isLoading}
@@ -266,6 +291,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                         <div>
                             <label className={labelClass}>Estado</label>
                             <select
+                                name="activo"
                                 value={formData.activo ? 'true' : 'false'}
                                 onChange={handleChange('activo')}
                                 disabled={isLoading}
@@ -302,6 +328,7 @@ export default function EditarProfesorModal({ open, onClose, onSuccess, profesor
                         </label>
                         <input
                             type={showPassword ? 'text' : 'password'}
+                            name="password"
                             placeholder="Mínimo 6 caracteres"
                             value={formData.password || ''}
                             onChange={handleChange('password')}

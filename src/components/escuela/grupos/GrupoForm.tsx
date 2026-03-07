@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Input } from "../../ui/Input";
 import { Button } from "../../ui/Button";
+import { sanitizeText, focusFirstError } from "../../../utils/formValidation";
 
 export default function GrupoForm({
   onCancel,
@@ -38,12 +39,20 @@ export default function GrupoForm({
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!form.nombre.trim()) newErrors.nombre = "El nombre del grupo es requerido";
+    const sNombre = sanitizeText(form.nombre);
+    const sProfesor = sanitizeText(form.profesor);
+    const sAula = sanitizeText(form.aula);
+    const sHorario = sanitizeText(form.horario);
+
+    if (!sNombre) newErrors.nombre = "El nombre del grupo es requerido";
     if (!form.grado) newErrors.grado = "Selecciona un grado";
-    if (!form.profesor.trim()) newErrors.profesor = "El profesor es requerido";
-    if (!form.aula.trim()) newErrors.aula = "El aula es requerida";
-    if (!form.horario.trim()) newErrors.horario = "El horario es requerido";
+    if (!sProfesor) newErrors.profesor = "El profesor es requerido";
+    if (!sAula) newErrors.aula = "El aula es requerida";
+    if (!sHorario) newErrors.horario = "El horario es requerido";
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      focusFirstError(newErrors);
+    }
     return Object.keys(newErrors).length === 0;
   };
 
@@ -52,7 +61,13 @@ export default function GrupoForm({
     if (!validate()) return;
     setIsLoading(true);
     setTimeout(() => {
-      onSave(form);
+      onSave({
+        ...form,
+        nombre: sanitizeText(form.nombre),
+        profesor: sanitizeText(form.profesor),
+        aula: sanitizeText(form.aula),
+        horario: sanitizeText(form.horario)
+      });
       setIsLoading(false);
       onCancel();
     }, 1200);
@@ -102,11 +117,10 @@ export default function GrupoForm({
                 value={form.grado}
                 onChange={handleChange}
                 required
-                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-                  errors.grado
-                    ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
-                    : "border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10"
-                }`}
+                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.grado
+                  ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
+                  : "border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10"
+                  }`}
               >
                 <option value="">Selecciona un grado</option>
                 <option value="1">1er Grado</option>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import { AlumnoFormData, AlumnoFormErrors } from '../../../types/escuela/alumnos/alumno.types';
+import { sanitizeText, sanitizeEmail, isValidEmail, focusFirstError, hasUppercase } from '../../../utils/formValidation';
 interface AlumnoFormProps {
     initialData?: AlumnoFormData;
     onSubmit: (data: AlumnoFormData) => void;
@@ -37,15 +38,15 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        
+
         // Si es grado, convertir a número
         const finalValue = name === 'grado' ? (value ? parseInt(value) : undefined) : value;
-        
+
         setFormData(prev => ({
             ...prev,
             [name]: finalValue
         }));
-        
+
         // Limpiar error cuando el usuario empieza a escribir
         if (errors[name as keyof AlumnoFormErrors]) {
             setErrors(prev => ({
@@ -58,22 +59,29 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
     const validate = (): boolean => {
         const newErrors: AlumnoFormErrors = {};
 
+        const sNombre = sanitizeText(formData.nombre);
+        const sPaterno = sanitizeText(formData.apellidoPaterno);
+        const sMaterno = sanitizeText(formData.apellidoMaterno);
+        const sEmail = sanitizeEmail(formData.email);
+
         // Validaciones obligatorias
-        if (!formData.nombre.trim()) {
+        if (!sNombre) {
             newErrors.nombre = 'El nombre es requerido';
         }
 
-        if (!formData.apellidoPaterno.trim()) {
+        if (!sPaterno) {
             newErrors.apellidoPaterno = 'El apellido paterno es requerido';
         }
 
-        if (!formData.apellidoMaterno.trim()) {
+        if (!sMaterno) {
             newErrors.apellidoMaterno = 'El apellido materno es requerido';
         }
 
-        if (!formData.email.trim()) {
+        if (!sEmail) {
             newErrors.email = 'El email es requerido';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        } else if (hasUppercase(formData.email)) {
+            newErrors.email = 'El correo electrónico debe estar en minúsculas';
+        } else if (!isValidEmail(sEmail)) {
             newErrors.email = 'Email inválido';
         }
 
@@ -92,14 +100,24 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
         }
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            focusFirstError(newErrors as Record<string, string | undefined>);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (validate()) {
-            onSubmit(formData);
+            onSubmit({
+                ...formData,
+                nombre: sanitizeText(formData.nombre),
+                apellidoPaterno: sanitizeText(formData.apellidoPaterno),
+                apellidoMaterno: sanitizeText(formData.apellidoMaterno),
+                email: sanitizeEmail(formData.email),
+                telefono: formData.telefono ? sanitizeText(formData.telefono) : '',
+            });
         }
     };
 
@@ -108,12 +126,12 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
-        
+
         // Si estamos entre agosto y diciembre, el ciclo es año-actual/año-siguiente
         // Si estamos entre enero y julio, el ciclo es año-anterior/año-actual
         const startYear = month >= 7 ? year : year - 1;
         const endYear = startYear + 1;
-        
+
         return `${startYear}-${endYear}`;
     };
 
@@ -135,7 +153,7 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full"></div>
                     Información Personal
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
                         label="Nombre(s)"
@@ -221,11 +239,10 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
                                 placeholder="Mínimo 6 caracteres"
                                 required
                                 disabled={isLoading}
-                                className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-                                    errors.password 
-                                        ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10' 
-                                        : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
-                                }`}
+                                className={`w-full pl-12 pr-12 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.password
+                                    ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                                    : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+                                    }`}
                             />
                             <button
                                 type="button"
@@ -293,7 +310,7 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full"></div>
                     Información Académica
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="w-full">
                         <label className="block text-sm font-bold text-[#2b1b17] mb-2">

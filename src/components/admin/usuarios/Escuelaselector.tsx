@@ -38,18 +38,18 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
     const handleSearch = async () => {
         setIsSearching(true);
         setSearchError('');
-        
+
         try {
             const response = await EscuelaService.search(searchTerm.trim());
-            
+
             let escuelasData: EscuelaBusqueda[] = [];
-            
+
             if (response && response.data && Array.isArray(response.data)) {
                 escuelasData = response.data;
             } else if (Array.isArray(response)) {
                 escuelasData = response;
             }
-            
+
             setEscuelas(escuelasData);
             setShowResults(true);
         } catch (error: any) {
@@ -130,12 +130,12 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
                         <div className="relative">
                             <input
                                 type="text"
+                                name="idEscuela"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Escribe el nombre de la escuela..."
-                                className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${
-                                    error ? 'border-red-300' : 'border-[#e3dac9]'
-                                } bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300`}
+                                className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${error ? 'border-red-300' : 'border-[#e3dac9]'
+                                    } bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300`}
                             />
                             <svg className="w-5 h-5 text-[#a1887f] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>

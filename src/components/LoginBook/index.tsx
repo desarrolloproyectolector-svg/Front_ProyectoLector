@@ -179,7 +179,7 @@ export const LoginBook: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white flex items-center justify-center overflow-hidden perspective-[2500px] relative font-sans" id="scene">
-            <div className="scale-[0.85] sm:scale-100 relative items-center justify-center flex w-full h-full">
+            <div className="scale-[0.85] md:scale-105 relative items-center justify-center flex w-full h-full">
                 {/* Floor Shadow */}
                 <div className="absolute w-[600px] h-[60px] bg-black/5 blur-2xl rounded-[100%] top-[75%] pointer-events-none md:top-[75%] mt-10 md:mt-0"></div>
 

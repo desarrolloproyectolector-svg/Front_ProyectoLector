@@ -13,6 +13,8 @@ interface Usuario {
     tipoPersona: 'administrador' | 'director' | 'maestro' | 'alumno' | 'padre';
     activo: boolean;
     rolId: number;
+    genero?: string | null;
+    fechaNacimiento?: string | null;
     escuela?: {
         id: number;
         nombre: string;
@@ -45,6 +47,25 @@ const formatUltimaConexion = (fecha?: string | null): string => {
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
+    });
+};
+
+const formatFechaNacimiento = (fecha?: string | null): string => {
+    if (!fecha) return '—';
+    const parsedDate = new Date(fecha);
+    if (Number.isNaN(parsedDate.getTime())) return fecha;
+
+    // Si viene solo como YYYY-MM-DD sin timestamp, evitar que la zona horaria lo mueva al dia anterior
+    const isIsoDate = fecha.includes('T') || fecha.includes('Z');
+    let finalDate = parsedDate;
+    if (!isIsoDate && fecha.length === 10) {
+        finalDate = new Date(fecha + 'T12:00:00');
+    }
+
+    return finalDate.toLocaleDateString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
     });
 };
 
@@ -144,7 +165,7 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
 
             {/* Fila expandible organizada */}
             {isExpanded && (
-                <tr className="block md:table-row bg-[#fbf8f1]/30 -mt-2 md:mt-0 relative z-[-1] rounded-b-xl md:rounded-none">
+                <tr className="block md:table-row bg-[#fbf8f1]/30 rounded-b-xl md:rounded-none">
                     <td colSpan={7} className="block md:table-cell px-4 md:px-8 py-4 md:py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
@@ -159,7 +180,7 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                                             <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nombre(s)</p>
                                             <p className="text-sm text-[#2b1b17]">{usuario.nombre}</p>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">A. Paterno</p>
                                                 <p className="text-sm text-[#2b1b17]">{paterno || '—'}</p>
@@ -167,6 +188,14 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">A. Materno</p>
                                                 <p className="text-sm text-[#2b1b17]">{materno || '—'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Género</p>
+                                                <p className="text-sm text-[#2b1b17] capitalize">{usuario.genero || '—'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">F. Nacimiento</p>
+                                                <p className="text-sm text-[#2b1b17]">{formatFechaNacimiento(usuario.fechaNacimiento)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -182,7 +211,7 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                                             <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Correo Electrónico</p>
                                             <p className="text-sm text-[#2b1b17] break-all">{usuario.correo}</p>
                                         </div>
-                                        <div className="flex justify-between">
+                                        <div className="flex justify-between gap-2 flex-wrap">
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">ID Usuario</p>
                                                 <p className="text-sm text-[#2b1b17]">#{usuario.id}</p>
@@ -210,7 +239,7 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nombre de Escuela</p>
                                                 <p className="text-sm text-[#2b1b17]">{usuario.escuela.nombre}</p>
                                             </div>
-                                            <div className="flex justify-between">
+                                            <div className="flex justify-between gap-2 flex-wrap">
                                                 <div>
                                                     <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nivel</p>
                                                     <p className="text-sm text-[#2b1b17]">{usuario.escuela.nivel}</p>

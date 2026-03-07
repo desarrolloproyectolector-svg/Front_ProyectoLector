@@ -7,6 +7,7 @@ import { AlumnoService } from '../../../service/admin/usuarios/alumno.service';
 import { ProfesorService } from '../../../service/admin/usuarios/profesor.service';
 import { TutorService } from '../../../service/admin/usuarios/tutor.service';
 import { DirectorService } from '../../../service/admin/usuarios/director.service';
+import { toast } from '../../../utils/toast';
 
 interface AddUsuarioModalProps {
     isOpen: boolean;
@@ -23,10 +24,10 @@ export const AddUsuarioModal: React.FC<AddUsuarioModalProps> = ({
 
     const handleSubmit = async (data: any) => {
         setIsLoading(true);
-        
+
         try {
             const { role, ...userData } = data;
-            
+
             // Llamar al servicio correspondiente según el rol
             switch (role) {
                 case 'alumno':
@@ -44,14 +45,23 @@ export const AddUsuarioModal: React.FC<AddUsuarioModalProps> = ({
                 default:
                     throw new Error('Rol no válido');
             }
-            
+
             // Simular delay
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             onSuccess();
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al crear usuario:', error);
+            // 🛑 Extraer mensaje preciso de error
+            const apiMessage = error.response?.data?.message || error.response?.data?.description;
+            if (Array.isArray(apiMessage)) {
+                toast.error(`Error en los datos: ${apiMessage.join(' | ')}`);
+            } else if (typeof apiMessage === 'string') {
+                toast.error(`Aviso: ${apiMessage}`);
+            } else {
+                toast.error('Ocurrió un error inesperado al registrar el usuario.');
+            }
         } finally {
             setIsLoading(false);
         }

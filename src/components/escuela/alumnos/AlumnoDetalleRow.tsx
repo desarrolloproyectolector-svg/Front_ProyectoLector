@@ -121,7 +121,7 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
 
             {/* Fila expandible */}
             {isExpanded && (
-                <tr className="block md:table-row bg-[#fbf8f1]/30 -mt-2 md:mt-0 relative z-[-1] rounded-b-xl md:rounded-none">
+                <tr className="block md:table-row bg-[#fbf8f1]/30 rounded-b-xl md:rounded-none">
                     <td colSpan={6} className="block md:table-cell px-4 md:px-8 py-4 md:py-6">
                         <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">

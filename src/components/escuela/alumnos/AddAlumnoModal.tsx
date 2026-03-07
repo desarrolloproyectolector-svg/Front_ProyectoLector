@@ -23,7 +23,7 @@ export const AddAlumnoModal: React.FC<AddAlumnoModalProps> = ({
 
     const handleSubmit = async (data: AlumnoFormData) => {
         setIsLoading(true);
-        
+
         try {
             // Preparar payload para la API
             const payload = {
@@ -43,28 +43,34 @@ export const AddAlumnoModal: React.FC<AddAlumnoModalProps> = ({
 
             // Llamar al servicio
             const response = await alumnoService.registrarAlumno(payload);
-            
+
             console.log('✅ Respuesta del backend:', response);
 
             // Mostrar notificación de éxito
             toast.success(
-`¡Alumno ${response.data.nombre} ${response.data.apellidoPaterno} ${response.data.apellidoMaterno ?? ''} registrado exitosamente!`,                5000
+                `¡Alumno ${response.data.nombre} ${response.data.apellidoPaterno} ${response.data.apellidoMaterno ?? ''} registrado exitosamente!`, 5000
             );
 
             // Cerrar modal
             onClose();
-            
+
             // Ejecutar callback de éxito (refrescar lista)
             onSuccess();
 
         } catch (error: any) {
             console.error('❌ Error al crear alumno:', error);
-            
+            // Manejar mensaje de error (posible Array desde NestJS)
+            const errorMsg = error.response?.data?.message || error.response?.data?.description;
+            let displayMessage = error.message || 'Error al registrar el alumno. Por favor, intenta de nuevo.';
+
+            if (Array.isArray(errorMsg)) {
+                displayMessage = `Faltan datos o son incorrectos: ${errorMsg.join(' | ')}`;
+            } else if (typeof errorMsg === 'string') {
+                displayMessage = errorMsg;
+            }
+
             // Mostrar notificación de error
-            toast.error(
-                error.message || 'Error al registrar el alumno. Por favor, intenta nuevamente.',
-                6000
-            );
+            toast.error(displayMessage, 6000);
         } finally {
             setIsLoading(false);
         }

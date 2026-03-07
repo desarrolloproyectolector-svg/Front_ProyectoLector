@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { CreateLibroDTO } from '../../../types/libros/libro';
+import { sanitizeText, focusFirstError } from '../../../utils/formValidation';
 
 interface LibroFormProps {
     onSubmit: (data: CreateLibroDTO & { pdf: File }) => Promise<void>;
@@ -26,6 +27,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
 
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const [pdfError, setPdfError] = useState('');
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [gradualesAvailables] = useState<number[]>([1, 2, 3, 4, 5, 6]);
 
     const handleInputChange = (
@@ -36,6 +38,9 @@ export const LibroForm: React.FC<LibroFormProps> = ({
             ...prev,
             [name]: name === 'grado' || name === 'materiaId' ? Number(value) : value,
         }));
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,20 +69,36 @@ export const LibroForm: React.FC<LibroFormProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        let hasErrors = false;
+        const newErrors: Record<string, string> = {};
+
         if (!pdfFile) {
             setPdfError('Debes seleccionar un archivo PDF');
-            return;
+            hasErrors = true;
         }
 
-        if (!formData.titulo.trim()) {
-            alert('El título es obligatorio');
+        const sTitulo = sanitizeText(formData.titulo);
+        const sCodigo = formData.codigo ? sanitizeText(formData.codigo) : '';
+        const sDescripcion = formData.descripcion ? sanitizeText(formData.descripcion) : '';
+
+        if (!sTitulo) {
+            newErrors.titulo = 'El título es obligatorio';
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            setErrors(newErrors);
+            focusFirstError(newErrors);
             return;
         }
 
         try {
             await onSubmit({
                 ...formData,
-                pdf: pdfFile,
+                titulo: sTitulo,
+                codigo: sCodigo,
+                descripcion: sDescripcion,
+                pdf: pdfFile!,
             });
             // Limpiar formulario después de éxito
             setFormData({
@@ -117,6 +138,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
                     className="w-full px-4 py-2 border border-[#d4af37] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
                     disabled={isLoading}
                 />
+                {errors.titulo && <p className="mt-1 text-sm text-red-600">{errors.titulo}</p>}
             </div>
 
             {/* Grado y Materia */}

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Input } from '../../ui/Input';
 import { Button } from '../../ui/Button';
 import type { CreateEscuelaDTO } from '../../../types/admin/escuelas/escuela';
+import { sanitizeText, focusFirstError } from '../../../utils/formValidation';
 
 interface EscuelaFormData {
     nombre: string;
@@ -86,6 +87,9 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
             newErrors.estadoRegion = 'Máximo 100 caracteres';
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            focusFirstError(newErrors as Record<string, string | undefined>);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -94,16 +98,16 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
         if (!validate()) return;
 
         const payload: CreateEscuelaDTO = {
-            nombre: formData.nombre.trim(),
-            nivel: formData.nivel.trim(),
+            nombre: sanitizeText(formData.nombre),
+            nivel: sanitizeText(formData.nivel),
         };
 
-        if (formData.clave?.trim())        payload.clave        = formData.clave.trim();
-        if (formData.direccion?.trim())    payload.direccion    = formData.direccion.trim();
-        if (formData.telefono?.trim())     payload.telefono     = formData.telefono.trim();
-        if (formData.ciudad?.trim())       payload.ciudad       = formData.ciudad.trim();
-        if (formData.estadoRegion?.trim()) payload.estadoRegion = formData.estadoRegion.trim();
-        if (isEdit)                        payload.estado       = formData.estado;
+        if (formData.clave?.trim()) payload.clave = sanitizeText(formData.clave);
+        if (formData.direccion?.trim()) payload.direccion = sanitizeText(formData.direccion);
+        if (formData.telefono?.trim()) payload.telefono = sanitizeText(formData.telefono);
+        if (formData.ciudad?.trim()) payload.ciudad = sanitizeText(formData.ciudad);
+        if (formData.estadoRegion?.trim()) payload.estadoRegion = sanitizeText(formData.estadoRegion);
+        if (isEdit) payload.estado = formData.estado;
 
         onSubmit(payload);
     };
@@ -155,11 +159,10 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                                 value={formData.nivel}
                                 onChange={handleChange}
                                 required
-                                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-                                    errors.nivel
-                                        ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                                        : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
-                                }`}
+                                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.nivel
+                                    ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+                                    : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+                                    }`}
                             >
                                 <option value="">Selecciona un nivel</option>
                                 <option value="Preescolar">Preescolar</option>
@@ -282,9 +285,9 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                     <div className="flex gap-3">
                         {(['activa', 'suspendida', 'inactiva'] as const).map((est) => {
                             const config = {
-                                activa:     { color: 'border-emerald-500 bg-emerald-50 text-emerald-700',  dot: 'bg-emerald-500',  label: 'Activa' },
-                                suspendida: { color: 'border-red-500 bg-red-50 text-red-700',              dot: 'bg-red-500',      label: 'Suspendida' },
-                                inactiva:   { color: 'border-gray-400 bg-gray-50 text-gray-600',           dot: 'bg-gray-400',     label: 'Inactiva' },
+                                activa: { color: 'border-emerald-500 bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500', label: 'Activa' },
+                                suspendida: { color: 'border-red-500 bg-red-50 text-red-700', dot: 'bg-red-500', label: 'Suspendida' },
+                                inactiva: { color: 'border-gray-400 bg-gray-50 text-gray-600', dot: 'bg-gray-400', label: 'Inactiva' },
                             };
                             const c = config[est];
                             const isSelected = formData.estado === est;
@@ -293,9 +296,8 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                                     key={est}
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, estado: est }))}
-                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all duration-200 ${
-                                        isSelected ? c.color : 'border-[#e3dac9] bg-white text-[#8d6e3f] hover:bg-[#fbf8f1]'
-                                    }`}
+                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all duration-200 ${isSelected ? c.color : 'border-[#e3dac9] bg-white text-[#8d6e3f] hover:bg-[#fbf8f1]'
+                                        }`}
                                 >
                                     <span className={`w-2.5 h-2.5 rounded-full ${isSelected ? c.dot : 'bg-[#a1887f]'}`} />
                                     {c.label}

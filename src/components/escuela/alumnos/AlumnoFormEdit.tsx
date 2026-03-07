@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { AlumnoEditFormData, AlumnoEditFormErrors } from '../../../types/escuela/alumnos/alumno.types';
+import { sanitizeText, sanitizeEmail, isValidEmail, focusFirstError } from '../../../utils/formValidation';
 
 interface AlumnoFormEditProps {
     initialData?: AlumnoEditFormData;
@@ -40,25 +41,29 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
         const { name, value } = e.target;
         const finalValue = name === 'grado' ? (value ? parseInt(value) : undefined) : value;
 
-        setFormData(prev => ({ ...prev, [name]: finalValue }));
+        setFormData((prev: AlumnoEditFormData) => ({ ...prev, [name]: finalValue }));
 
         if (errors[name as keyof AlumnoEditFormErrors]) {
-            setErrors(prev => ({ ...prev, [name]: undefined }));
+            setErrors((prev: AlumnoEditFormErrors) => ({ ...prev, [name]: undefined }));
         }
     };
 
     const validate = (): boolean => {
         const newErrors: AlumnoEditFormErrors = {};
 
-        if (!formData.nombre.trim())
+        const sNombre = sanitizeText(formData.nombre);
+        const sPaterno = sanitizeText(formData.apellidoPaterno);
+        const sCorreo = sanitizeEmail(formData.correo);
+
+        if (!sNombre)
             newErrors.nombre = 'El nombre es requerido';
 
-        if (!formData.apellidoPaterno.trim())
+        if (!sPaterno)
             newErrors.apellidoPaterno = 'El apellido paterno es requerido';
 
-        if (!formData.correo.trim()) {
+        if (!sCorreo) {
             newErrors.correo = 'El correo es requerido';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
+        } else if (!isValidEmail(sCorreo)) {
             newErrors.correo = 'Correo inválido';
         }
 
@@ -72,19 +77,30 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
         }
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            focusFirstError(newErrors as Record<string, string | undefined>);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (validate()) onSubmit(formData);
+        if (validate()) {
+            onSubmit({
+                ...formData,
+                nombre: sanitizeText(formData.nombre),
+                apellidoPaterno: sanitizeText(formData.apellidoPaterno),
+                apellidoMaterno: formData.apellidoMaterno ? sanitizeText(formData.apellidoMaterno) : '',
+                correo: sanitizeEmail(formData.correo),
+                telefono: formData.telefono ? sanitizeText(formData.telefono) : '',
+            });
+        }
     };
 
     const inputClass = (field: keyof AlumnoEditFormErrors) =>
-        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
-            errors[field]
-                ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+        `w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors[field]
+            ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
+            : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
         }`;
 
     const labelClass = 'block text-sm font-bold text-[#2b1b17] mb-2';
