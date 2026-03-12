@@ -33,7 +33,7 @@ export default function LandingPage() {
             </div>
           </div>
           <span className="font-playfair text-xl md:text-2xl font-bold tracking-widest bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
-            ACADEMIA
+            PROYECTO LECTOR
           </span>
         </div>
         <div className="flex gap-2 md:gap-4 mt-4 sm:mt-0 w-full sm:w-auto justify-end sm:justify-start">
@@ -266,10 +266,10 @@ export default function LandingPage() {
               </svg>
             </div>
             <span className="font-playfair text-2xl font-bold bg-gradient-to-r from-[#d4af37] to-[#f0e6d2] bg-clip-text text-transparent">
-              ACADEMIA
+              PROYECTO LECTOR
             </span>
           </div>
-          <p className="text-white/50">© 2026 Academia Lector. Todos los derechos reservados.</p>
+          <p className="text-white/50">© 2026 Proyecto Lector. Todos los derechos reservados.</p>
           <div className="flex justify-center gap-6 mt-6">
             {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
               <Link

@@ -38,22 +38,22 @@ export const AlumnoTable: React.FC<AlumnoTableProps> = ({
             <table className="w-full block md:table">
                 <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
                     <tr className="block md:table-row">
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Alumno
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Grupo
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Contacto
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Tutor
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Ciclo Escolar
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">
                             Acciones
                         </th>
                     </tr>

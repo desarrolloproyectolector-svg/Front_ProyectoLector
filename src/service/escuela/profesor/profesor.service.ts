@@ -43,11 +43,9 @@ class ProfesorService {
     // LISTADO (GET /escuelas/:id/maestros)
     // ========================================================================
 
-    async obtenerProfesores(escuelaId: number): Promise<ProfesoresResponse> {
+    async obtenerProfesores(): Promise<ProfesoresResponse> {
         try {
-            const response = await api.get<ProfesoresResponse>(
-                `/escuelas/${escuelaId}/maestros`
-            );
+            const response = await api.get<ProfesoresResponse>('/director/maestros');
             return response.data;
         } catch (error: any) {
             console.error('Error al obtener profesores:', error);

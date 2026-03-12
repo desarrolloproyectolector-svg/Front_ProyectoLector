@@ -39,7 +39,6 @@ const adaptarProfesor = (p: ProfesorEscuela): ProfesorCardShape => ({
     fechaIngreso: p.fechaIngreso ?? null,
 });
 
-const ESCUELA_ID_PLACEHOLDER = 1;
 
 export default function ProfesoresPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -59,8 +58,8 @@ export default function ProfesoresPage() {
         try {
             setIsLoading(true);
             setError('');
-            const response = await profesorService.obtenerProfesores(ESCUELA_ID_PLACEHOLDER);
-            console.log('✅ Profesores cargados:', response);
+            const response = await profesorService.obtenerProfesores();
+            console.log(`✅ Profesores cargados:`, response);
             setProfesores(response.data);
         } catch (error: any) {
             console.error('Error al cargar profesores:', error);

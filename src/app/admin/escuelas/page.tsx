@@ -115,7 +115,7 @@ export default function EscuelasAdminPage() {
         try {
             setIsDeleting(true);
             setDeleteError('');
-            await EscuelaService.delete(escuelaToDelete.id);
+            await EscuelaService.delete(Number(escuelaToDelete.id));
             console.log('✅ Escuela eliminada:', escuelaToDelete.id);
             setShowDeleteModal(false);
             setEscuelaToDelete(null);
@@ -159,7 +159,7 @@ export default function EscuelasAdminPage() {
 
     return (
         <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8">
-            <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+            <div className="space-y-6 animate-fade-in">
 
                 {/* Header */}
                 <div className="mb-8">

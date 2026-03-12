@@ -41,13 +41,13 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
             <table className="w-full block md:table">
                 <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
                     <tr className="block md:table-row">
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Título</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Código</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Grado</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Materia</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Páginas</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Activo</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Título</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Código</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Grado</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Materia</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Páginas</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Activo</th>
                         <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
@@ -60,52 +60,52 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                                     {libro.titulo}
                                 </span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Código</span>
                                 <span className="text-[#5d4037] text-sm font-mono block md:inline">{libro.codigo}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Grado</span>
                                 <span className="text-[#5d4037] block md:inline">{libro.grado}°</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Materia</span>
                                 <span className="text-[#5d4037] text-sm block md:inline">{libro.materia?.nombre || '—'}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Páginas</span>
                                 <span className="text-[#5d4037] block md:inline">{libro.numPaginas}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
                                 {libro.estado === 'listo' && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
                                         Listo
                                     </span>
                                 )}
                                 {libro.estado === 'procesando' && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-yellow-600 rounded-full mr-2 animate-pulse"></span>
                                         Procesando
                                     </span>
                                 )}
                                 {libro.estado === 'error' && (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-red-600 rounded-full mr-2"></span>
                                         Error
                                     </span>
                                 )}
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Activo</span>
                                 {libro.activo !== false ? (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
                                         Activo
                                     </span>
                                 ) : (
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-gray-600 rounded-full mr-2"></span>
                                         Inactivo
                                     </span>
@@ -113,7 +113,7 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                             </td>
                             <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#f9f7f4]/50 md:bg-transparent rounded-b-xl md:rounded-none">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
-                                <div className="flex justify-end gap-2">
+                                <div className="flex justify-end md:justify-center gap-2">
                                     <button
                                         onClick={() => onView(libro)}
                                         className="p-2 hover:bg-blue-100 rounded-lg transition-colors text-blue-600 disabled:opacity-50"

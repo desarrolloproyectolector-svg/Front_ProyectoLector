@@ -37,21 +37,21 @@ export const LibroTable: React.FC<LibroTableProps> = ({
             <table className="w-full block md:table">
                 <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
                     <tr className="block md:table-row">
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Título</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Autor</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Año</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Páginas</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Editorial</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Precio</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Título</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Autor</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Año</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Páginas</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Editorial</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Precio</th>
                         <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
                     {libros.map((libro) => (
                         <tr key={libro.id} className="block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-b md:border-transparent hover:bg-[#f9f7f4] transition-colors relative">
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center relative">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Título</span>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 md:justify-center">
                                     <div
                                         className="w-10 h-12 rounded flex-shrink-0"
                                         style={{ backgroundColor: libro.coverColor }}
@@ -61,31 +61,31 @@ export const LibroTable: React.FC<LibroTableProps> = ({
                                     </span>
                                 </div>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Autor</span>
                                 <span className="text-[#5d4037] block md:inline">{libro.author}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Año</span>
                                 <span className="text-[#5d4037] block md:inline">{libro.year}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Páginas</span>
                                 <span className="text-[#5d4037] block md:inline">{libro.pages}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Editorial</span>
                                 <span className="text-[#5d4037] text-sm block md:inline">{libro.publisher}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Precio</span>
-                                <span className="bg-[#d4af37]/10 text-[#d4af37] px-3 py-1 rounded-full text-sm font-semibold inline-block">
+                                <span className="bg-[#d4af37]/10 text-[#d4af37] px-3 py-1 rounded-full text-sm font-semibold inline-block whitespace-nowrap">
                                     {libro.price === 0 ? 'Gratis' : `$${libro.price}`}
                                 </span>
                             </td>
                             <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex justify-between md:table-cell items-center bg-[#f9f7f4]/50 md:bg-transparent rounded-b-xl md:rounded-none">
                                 <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
-                                <div className="flex justify-end gap-2">
+                                <div className="flex justify-end md:justify-center gap-2">
                                     <button
                                         onClick={() => onView(libro)}
                                         className="p-2 hover:bg-blue-100 rounded-lg transition-colors text-blue-600"

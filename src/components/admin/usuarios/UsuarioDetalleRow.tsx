@@ -99,13 +99,13 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                         </div>
                     </div>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Rol</span>
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block ${badgeColor}`}>
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block whitespace-nowrap ${badgeColor}`}>
                         {badgeIcon} {badgeLabel}
                     </span>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Contacto</span>
                     <div className="text-sm text-[#5d4037] flex items-center gap-1">
                         {usuario.telefono ? (
@@ -126,13 +126,13 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                         <span className="text-sm text-[#a1887f]">N/A</span>
                     )}
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block whitespace-nowrap ${usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'}`}>
                         {usuario.activo ? '✓ Activo' : '○ Inactivo'}
                     </span>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Últ. Conexión</span>
                     <span className="text-sm text-[#5d4037]">
                         {formatUltimaConexion(usuario.ultimaConexion)}
@@ -140,7 +140,7 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                 </td>
                 <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 md:justify-center">
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
                             className={`p-2 rounded-lg transition-all duration-200 ${isExpanded ? 'bg-[#d4af37] text-white' : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'}`}

@@ -90,8 +90,11 @@ export const LoginBook: React.FC = () => {
             const userName = user?.nombre || username.split('@')[0];
             const tipoPersona = user?.tipoPersona || 'alumno';
 
-            // Save Token
+            // Save Token and User Data
             localStorage.setItem('token', access_token);
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user));
+            }
             Cookies.set('token', access_token, { expires: 7 }); // expires in 7 days
 
             // --- SUCCESS SEQUENCE ---
@@ -119,9 +122,10 @@ export const LoginBook: React.FC = () => {
             if (pages) {
                 Array.from(pages).forEach((page, index) => {
                     setTimeout(() => {
-                        const angle = -150 - (Math.random() * 10);
-                        (page as HTMLElement).style.transform = `rotateY(${angle}deg)`;
-                    }, 400 + (index * 100));
+                        // Spread out pages gently to see individual flips distinctly
+                        const angle = -155 - (index * 5);
+                        (page as HTMLElement).style.transform = `translateZ(${index + 1}px) rotateY(${angle}deg)`;
+                    }, 400 + (index * 150)); // Slower stagger interval (150ms instead of 45ms)
                 });
             }
 
@@ -179,7 +183,7 @@ export const LoginBook: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-white flex items-center justify-center overflow-hidden perspective-[2500px] relative font-sans" id="scene">
-            <div className="scale-[0.85] md:scale-105 relative items-center justify-center flex w-full h-full">
+            <div className="scale-75 sm:scale-90 md:scale-100 lg:scale-105 relative items-center justify-center flex w-full h-full transition-transform duration-500">
                 {/* Floor Shadow */}
                 <div className="absolute w-[600px] h-[60px] bg-black/5 blur-2xl rounded-[100%] top-[75%] pointer-events-none md:top-[75%] mt-10 md:mt-0"></div>
 
@@ -229,12 +233,16 @@ export const LoginBook: React.FC = () => {
 
                     {/* ANIMATED PAGES */}
                     <div id="pagesContainer" ref={pagesContainerRef} className="absolute inset-0 z-40 transform-style-3d pointer-events-none">
-                        {[1, 2, 3, 4, 5].map(i => (
+                        {[1, 2, 3, 4, 5, 6, 7].map(i => (
                             <div
                                 key={i}
-                                className="page absolute inset-0 bg-[#fbf8f1] rounded-r-xl rounded-l-md border-l border-[#e3dac9] shadow-sm origin-left transform-style-3d transition-transform duration-[800ms] ease-in-out pointer-events-none"
-                                style={{ transform: `translateZ(${i}px)` }}
-                            ></div>
+                                className="page absolute inset-0 bg-[#fbf8f1] rounded-r-xl rounded-l-md border-y border-r border-l-2 border-[#d4af37]/30 border-l-[#a1887f] shadow-[2px_0_10px_rgba(0,0,0,0.15)] origin-left transform-style-3d transition-transform duration-[1400ms] pointer-events-none"
+                                style={{ transform: `translateZ(${i}px)`, transitionTimingFunction: 'cubic-bezier(0.3, 0.1, 0.3, 1)' }}
+                            >
+                                {/* Inner texture/gradient to give pages more depth as they flip */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/5 rounded-r-xl pointer-events-none"></div>
+                                <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white/40 to-transparent rounded-r-xl pointer-events-none"></div>
+                            </div>
                         ))}
                     </div>
 

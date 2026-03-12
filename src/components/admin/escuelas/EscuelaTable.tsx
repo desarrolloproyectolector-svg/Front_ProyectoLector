@@ -24,9 +24,9 @@ const EscuelaRow: React.FC<{
     };
 
     const estado = estadoConfig[escuela.estado] ?? estadoConfig.inactiva;
-    const directorNombre = escuela.director
-        ? `${escuela.director.nombre} ${escuela.director.apellido}`
-        : null;
+    const directoresTexto = escuela.directores && escuela.directores.length > 0
+        ? escuela.directores.join(', ')
+        : (escuela.director ? `${escuela.director.nombre} ${escuela.director.apellido}` : null);
 
     return (
         <>
@@ -53,10 +53,12 @@ const EscuelaRow: React.FC<{
                 {/* Director */}
                 <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Director</span>
-                    {directorNombre ? (
+                    {directoresTexto ? (
                         <div>
-                            <div className="font-medium text-[#2b1b17] text-sm">{directorNombre}</div>
-                            <div className="text-xs text-[#8d6e3f]">{escuela.director!.correo}</div>
+                            <div className="font-medium text-[#2b1b17] text-sm">{directoresTexto}</div>
+                            {escuela.director?.correo && (
+                                <div className="text-xs text-[#8d6e3f]">{escuela.director.correo}</div>
+                            )}
                         </div>
                     ) : (
                         <span className="text-sm text-[#a1887f] italic">Sin director asignado</span>
@@ -89,28 +91,28 @@ const EscuelaRow: React.FC<{
                         <div className="text-center flex-1 md:flex-none">
                             <div className="text-xs text-[#a1887f] font-bold uppercase">Alumnos</div>
                             <div className="text-base font-playfair font-bold text-blue-600">
-                                {escuela.estadisticas?.alumnos ?? 0}
+                                {escuela.alumnosRegistrados ?? escuela.estadisticas?.alumnos ?? 0}
                             </div>
                         </div>
                         <div className="text-center border-l border-r border-[#e3dac9] px-3 flex-1 md:flex-none">
                             <div className="text-xs text-[#a1887f] font-bold uppercase">Profes</div>
                             <div className="text-base font-playfair font-bold text-purple-600">
-                                {escuela.estadisticas?.profesores ?? 0}
+                                {escuela.profesores ?? escuela.estadisticas?.profesores ?? 0}
                             </div>
                         </div>
                         <div className="text-center flex-1 md:flex-none">
                             <div className="text-xs text-[#a1887f] font-bold uppercase">Grupos</div>
                             <div className="text-base font-playfair font-bold text-emerald-600">
-                                {escuela.estadisticas?.grupos ?? 0}
+                                {escuela.grupos ?? escuela.estadisticas?.grupos ?? 0}
                             </div>
                         </div>
                     </div>
                 </td>
 
                 {/* Estado */}
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block ${estado.color}`}>
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block whitespace-nowrap ${estado.color}`}>
                         {estado.label}
                     </span>
                 </td>
@@ -118,7 +120,7 @@ const EscuelaRow: React.FC<{
                 {/* Acciones */}
                 <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 md:justify-center">
                         {/* Expandir */}
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
@@ -228,16 +230,18 @@ const EscuelaRow: React.FC<{
                                         👤 Director y Estadísticas
                                     </h4>
                                     <div className="space-y-3">
-                                        {directorNombre ? (
+                                        {directoresTexto ? (
                                             <>
                                                 <div>
-                                                    <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Director</p>
-                                                    <p className="text-sm text-[#2b1b17]">{directorNombre}</p>
+                                                    <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Director(es)</p>
+                                                    <p className="text-sm text-[#2b1b17]">{directoresTexto}</p>
                                                 </div>
-                                                <div>
-                                                    <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Correo Director</p>
-                                                    <p className="text-sm text-[#2b1b17] break-all">{escuela.director!.correo}</p>
-                                                </div>
+                                                {escuela.director?.correo && (
+                                                    <div>
+                                                        <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Correo Director</p>
+                                                        <p className="text-sm text-[#2b1b17] break-all">{escuela.director.correo}</p>
+                                                    </div>
+                                                )}
                                             </>
                                         ) : (
                                             <p className="text-sm text-[#a1887f] italic">Sin director asignado</p>
@@ -246,15 +250,15 @@ const EscuelaRow: React.FC<{
                                             <div className="grid grid-cols-3 gap-2 text-center">
                                                 <div>
                                                     <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Alumnos</p>
-                                                    <p className="text-lg font-playfair font-bold text-blue-600">{escuela.estadisticas?.alumnos ?? 0}</p>
+                                                    <p className="text-lg font-playfair font-bold text-blue-600">{escuela.alumnosRegistrados ?? escuela.estadisticas?.alumnos ?? 0}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Profes</p>
-                                                    <p className="text-lg font-playfair font-bold text-purple-600">{escuela.estadisticas?.profesores ?? 0}</p>
+                                                    <p className="text-lg font-playfair font-bold text-purple-600">{escuela.profesores ?? escuela.estadisticas?.profesores ?? 0}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Grupos</p>
-                                                    <p className="text-lg font-playfair font-bold text-emerald-600">{escuela.estadisticas?.grupos ?? 0}</p>
+                                                    <p className="text-lg font-playfair font-bold text-emerald-600">{escuela.grupos ?? escuela.estadisticas?.grupos ?? 0}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -295,12 +299,12 @@ export const EscuelaTable: React.FC<EscuelaTableProps> = ({
             <table className="w-full block md:table">
                 <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
                     <tr className="block md:table-row">
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Escuela</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Director</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Ubicación</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estadísticas</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
-                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Escuela</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Director</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Ubicación</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estadísticas</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
                 <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">

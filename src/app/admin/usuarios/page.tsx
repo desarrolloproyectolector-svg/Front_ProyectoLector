@@ -13,6 +13,8 @@ type UserRole = 'todos' | 'alumno' | 'profesor' | 'tutor' | 'director';
 export default function UsuariosAdminPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRole, setFilterRole] = useState<UserRole>('todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCargaMasivaModal, setShowCargaMasivaModal] = useState(false);
@@ -62,6 +64,17 @@ export default function UsuariosAdminPage() {
         const matchRole = filterRole === 'todos' || uiRole === filterRole;
         return matchSearch && matchRole;
     });
+
+    // Reset page on search or filter change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterRole]);
+
+    const totalPages = Math.ceil(filteredUsuarios.length / ITEMS_PER_PAGE);
+    const paginatedUsuarios = filteredUsuarios.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const totalUsuarios = totales.total;
     const totalAlumnos = totales.alumno;
@@ -129,7 +142,7 @@ export default function UsuariosAdminPage() {
 
     return (
         <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8">
-            <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+            <div className="space-y-6 animate-fade-in">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
@@ -310,28 +323,28 @@ export default function UsuariosAdminPage() {
                 </div>
 
                 {/* Usuarios Table */}
-                <div className="bg-white rounded-xl shadow-lg border border-[#e3dac9]/50 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-lg border border-[#e3dac9]/50 overflow-hidden min-h-[650px] flex flex-col justify-between">
                     {isLoading ? (
-                        <div className="text-center py-12">
+                        <div className="text-center py-12 m-auto">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37] mx-auto mb-4"></div>
                             <p className="text-[#8d6e3f]">Cargando usuarios...</p>
                         </div>
                     ) : (
-                        <div className="w-full">
+                        <div className="w-full flex-grow">
                             <table className="w-full block md:table">
                                 <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
                                     <tr className="block md:table-row">
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Usuario</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Rol</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Contacto</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Escuela</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Últ. Conexión</th>
-                                        <th className="px-6 py-4 text-left text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Usuario</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Rol</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Contacto</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Escuela</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Últ. Conexión</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
-                                    {filteredUsuarios.map((usuario) => {
+                                    {paginatedUsuarios.map((usuario) => {
                                         const badge = getRoleBadge(usuario.tipoPersona);
                                         return (
                                             <UsuarioDetalleRow
@@ -351,7 +364,7 @@ export default function UsuariosAdminPage() {
                     )}
 
                     {!isLoading && filteredUsuarios.length === 0 && (
-                        <div className="text-center py-12">
+                        <div className="text-center py-12 m-auto">
                             <div className="w-20 h-20 bg-[#fbf8f1] rounded-full mx-auto mb-4 flex items-center justify-center">
                                 <svg className="w-10 h-10 text-[#a1887f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -359,6 +372,79 @@ export default function UsuariosAdminPage() {
                             </div>
                             <h3 className="font-playfair text-xl font-bold text-[#2b1b17] mb-2">No se encontraron usuarios</h3>
                             <p className="text-[#8d6e3f]">Intenta con otros términos de búsqueda o filtros</p>
+                        </div>
+                    )}
+
+                    {/* Pagination Controls */}
+                    {!isLoading && filteredUsuarios.length > 0 && totalPages > 1 && (
+                        <div className="flex items-center justify-between px-6 py-4 border-t border-[#e3dac9]/50 bg-white">
+                            <div className="flex flex-1 justify-between sm:hidden">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="relative inline-flex items-center px-4 py-2 border border-[#e3dac9] text-sm font-medium rounded-md text-[#5d4037] bg-white hover:bg-[#fbf8f1] disabled:opacity-50"
+                                >
+                                    Anterior
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="relative inline-flex items-center px-4 py-2 border border-[#e3dac9] text-sm font-medium rounded-md text-[#5d4037] bg-white hover:bg-[#fbf8f1] disabled:opacity-50"
+                                >
+                                    Siguiente
+                                </button>
+                            </div>
+                            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-[#5d4037]">
+                                        Mostrando <span className="font-bold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> a <span className="font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, filteredUsuarios.length)}</span> de <span className="font-bold">{filteredUsuarios.length}</span> resultados
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <button
+                                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                            disabled={currentPage === 1}
+                                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-[#e3dac9] bg-white text-sm font-medium text-[#8d6e3f] hover:bg-[#fbf8f1] disabled:opacity-50"
+                                        >
+                                            <span className="sr-only">Anterior</span>
+                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                            .filter(p => p === 1 || p === totalPages || Math.abs(currentPage - p) <= 1)
+                                            .map((p, i, arr) => (
+                                                <React.Fragment key={p}>
+                                                    {i > 0 && arr[i - 1] !== p - 1 && (
+                                                        <span className="relative inline-flex items-center px-4 py-2 border border-[#e3dac9] bg-white text-sm font-medium text-[#5d4037]">
+                                                            ...
+                                                        </span>
+                                                    )}
+                                                    <button
+                                                        onClick={() => setCurrentPage(p)}
+                                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === p
+                                                            ? 'z-10 bg-[#fbf8f1] border-[#d4af37] text-[#d4af37] font-bold'
+                                                            : 'bg-white border-[#e3dac9] text-[#5d4037] hover:bg-gray-50'
+                                                            }`}
+                                                    >
+                                                        {p}
+                                                    </button>
+                                                </React.Fragment>
+                                            ))}
+                                        <button
+                                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={currentPage === totalPages}
+                                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-[#e3dac9] bg-white text-sm font-medium text-[#8d6e3f] hover:bg-[#fbf8f1] disabled:opacity-50"
+                                        >
+                                            <span className="sr-only">Siguiente</span>
+                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

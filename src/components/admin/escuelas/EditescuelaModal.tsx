@@ -32,7 +32,7 @@ export const EditEscuelaModal: React.FC<EditEscuelaModalProps> = ({
             setIsLoading(true);
             setError('');
 
-            await EscuelaService.update(escuela.id, data);
+            await EscuelaService.update(Number(escuela.id), data);
             console.log('✅ Escuela actualizada:', escuela.id);
 
             onSuccess();

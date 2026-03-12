@@ -32,7 +32,7 @@ export interface EscuelaEstadisticas {
 
 // ── Escuela en la tabla (GET /escuelas) ──────────────────────
 export interface EscuelaListItem {
-    id: number;
+    id: number | string;
     nombre: string;
     nivel: string;
     clave: string | null;
@@ -41,16 +41,20 @@ export interface EscuelaListItem {
     estado: 'activa' | 'suspendida' | 'inactiva';
     ciudad: string | null;
     estadoRegion: string | null;
-    director: DirectorResumen | null;
-    ubicacion: {
+    director?: DirectorResumen | null;
+    ubicacion?: {
         ciudad: string | null;
         estadoRegion: string | null;
     };
     estadisticas?: EscuelaEstadisticas;
+    directores?: string[];
+    alumnosRegistrados?: number;
+    profesores?: number;
+    grupos?: number;
 }
 
 // ── Escuela detalle (GET /escuelas/:id) ──────────────────────
-export interface EscuelaDetalle extends Omit<EscuelaListItem, 'director'> {
+export interface EscuelaDetalle extends Omit<EscuelaListItem, 'director' | 'directores'> {
     directores: DirectorDetalle[];
 }
 

@@ -39,17 +39,17 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
 
                 {/* Grupo */}
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Grupo</span>
-                    <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700 inline-block">
+                    <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700 inline-block whitespace-nowrap">
                         📚 {grupo}
                     </span>
                 </td>
 
                 {/* Contacto */}
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Contacto</span>
-                    <div className="text-sm text-[#5d4037] flex items-center gap-1">
+                    <div className="text-sm text-[#5d4037] flex items-center md:justify-center gap-1">
                         {alumno.persona.telefono ? (
                             <><span className="text-[#d4af37]">📞</span> {alumno.persona.telefono}</>
                         ) : (
@@ -59,7 +59,7 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
 
                 {/* Tutor */}
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Tutor</span>
                     {alumno.padre ? (
                         <div className="text-sm">
@@ -75,7 +75,7 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 </td>
 
                 {/* Ciclo Escolar */}
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Ciclo Escolar</span>
                     <span className="text-sm text-[#5d4037]">
                         {alumno.cicloEscolar || <span className="text-[#a1887f] italic">N/A</span>}
@@ -85,7 +85,7 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 {/* Acciones */}
                 <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 md:justify-center">
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
                             className={`p-2 rounded-lg transition-all duration-200 ${isExpanded ? 'bg-[#d4af37] text-white' : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'}`}

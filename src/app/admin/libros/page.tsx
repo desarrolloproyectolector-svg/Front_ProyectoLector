@@ -121,14 +121,14 @@ export default function AdminLibrosPage() {
         <div className="min-h-screen bg-[#fefdfb]">
             {/* Header */}
             <div className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2] border-b border-[#e3dac9] p-6">
-                <div className="max-w-7xl mx-auto">
+                <div className="w-full">
                     <h1 className="font-playfair text-3xl font-bold text-[#2b1b17] mb-2">Gestión de Libros</h1>
                     <p className="text-[#8d6e3f]">Carga, gestiona y asigna libros a las escuelas</p>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto p-6">
+            <div className="w-full p-6">
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div className="bg-white border border-[#e3dac9] rounded-lg p-4">
