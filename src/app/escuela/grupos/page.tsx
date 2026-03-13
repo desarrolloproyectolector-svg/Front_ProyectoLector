@@ -42,6 +42,7 @@ export default function GruposDirectorPage() {
             setIsLoading(true);
             setError('');
             const data = await GrupoService.getAll();
+            console.log('🔍 [GruposPage] Data received from service:', data);
             setTodosGrupos(data);
         } catch (err: any) {
             console.error('Error al cargar grupos:', err);

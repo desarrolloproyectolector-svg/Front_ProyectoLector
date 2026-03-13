@@ -33,6 +33,7 @@ export const EditAlumnoModal: React.FC<EditAlumnoModalProps> = ({
         password:        '',
         grado:           alumno.grado                  ?? undefined,
         grupo:           alumno.grupo                  ?? '',
+        grupoId:         alumno.grupoId                ?? null,
         cicloEscolar:    alumno.cicloEscolar            ?? '',
     };
 
@@ -52,6 +53,7 @@ export const EditAlumnoModal: React.FC<EditAlumnoModalProps> = ({
             if (data.fechaNacimiento?.trim()) payload.fechaNacimiento = data.fechaNacimiento.trim();
             if (data.genero?.trim())          payload.genero          = data.genero.trim();
             if (data.password?.trim().length) payload.password        = data.password.trim();
+            if (data.grupoId !== undefined)   payload.grupoId         = data.grupoId;
 
             const response = await alumnoService.editarAlumno(alumno.id, payload);
 

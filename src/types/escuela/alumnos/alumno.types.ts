@@ -27,6 +27,7 @@ export interface RegistroAlumnoPayload {
     fechaNacimiento?: string;
     grado?: number;
     grupo?: string;
+    grupoId?: number;
     cicloEscolar?: string;
 }
 
@@ -104,6 +105,7 @@ export interface AlumnoEscuela {
     personaId: number;
     escuelaId: number;
     padreId: number | null;
+    grupoId?: number | null;
     grado: number | null;
     grupo: string | null;
     cicloEscolar: string | null;
@@ -134,6 +136,7 @@ export interface AlumnoEditFormData {
     grado?: number;
     grupo?: string;
     cicloEscolar?: string;
+    grupoId?: number | null;
 }
 
 export interface EditAlumnoPayload {
@@ -146,6 +149,7 @@ export interface EditAlumnoPayload {
     genero?: string;
     password?: string;
     activo?: boolean;
+    grupoId?: number | null;
 }
 
 export interface EditAlumnoResponse {

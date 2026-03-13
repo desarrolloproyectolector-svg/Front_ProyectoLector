@@ -5,9 +5,9 @@
 // src/components/director/grupos/AddGrupoModal.tsx
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GrupoService } from '../../../service/escuela/grupos/grupo.service';
-import type { CreateGrupoDTO } from '../../../types/escuela/grupos/grupo';
+import type { CreateGrupoDTO, MaestroListItem } from '../../../types/escuela/grupos/grupo';
 
 interface AddGrupoModalProps {
     isOpen: boolean;
@@ -15,20 +15,37 @@ interface AddGrupoModalProps {
     onSuccess: () => void;
 }
 
-const EMPTY_FORM: CreateGrupoDTO = {
-    grado: 1,
-    nombre: '',
-};
+const EMPTY_FORM = { grado: 1, nombre: '' };
 
-export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
-    isOpen,
-    onClose,
-    onSuccess,
-}) => {
-    const [formData, setFormData] = useState<CreateGrupoDTO>(EMPTY_FORM);
-    const [errors, setErrors] = useState<Partial<Record<keyof CreateGrupoDTO, string>>>({});
+export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, onSuccess }) => {
+    const [formData, setFormData] = useState(EMPTY_FORM);
+    const [maestroSeleccionado, setMaestroSeleccionado] = useState<number | null>(null);
+    const [maestros, setMaestros] = useState<MaestroListItem[]>([]);
+    const [loadingMaestros, setLoadingMaestros] = useState(false);
+    const [errors, setErrors] = useState<Partial<Record<'grado' | 'nombre', string>>>({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState('');
+
+    // Cargar maestros al abrir
+    useEffect(() => {
+        if (!isOpen) return;
+        setFormData(EMPTY_FORM);
+        setMaestroSeleccionado(null);
+        setErrors({});
+        setApiError('');
+        const fetchMaestros = async () => {
+            setLoadingMaestros(true);
+            try {
+                const data = await GrupoService.getMaestros();
+                setMaestros(data);
+            } catch {
+                // No bloquear el modal si falla
+            } finally {
+                setLoadingMaestros(false);
+            }
+        };
+        fetchMaestros();
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -36,24 +53,21 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'grado' ? Number(value) : value,
+            [name]: name === 'grado' ? parseInt(value, 10) : value,
         }));
-        if (errors[name as keyof CreateGrupoDTO]) {
+        if (errors[name as 'grado' | 'nombre']) {
             setErrors(prev => ({ ...prev, [name]: undefined }));
         }
     };
 
     const validate = (): boolean => {
-        const newErrors: Partial<Record<keyof CreateGrupoDTO, string>> = {};
-
+        const newErrors: Partial<Record<'grado' | 'nombre', string>> = {};
         if (!formData.grado || formData.grado < 1)
             newErrors.grado = 'El grado debe ser un número entero ≥ 1';
-
         if (!formData.nombre.trim())
             newErrors.nombre = 'El nombre es requerido';
         else if (formData.nombre.length > 20)
             newErrors.nombre = 'Máximo 20 caracteres';
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -61,52 +75,47 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
-
         try {
             setIsLoading(true);
             setApiError('');
-            await GrupoService.create({
-                grado: formData.grado,
+            // 1. Crear grupo
+            const nuevoGrupo = await GrupoService.create({
+                grado: parseInt(String(formData.grado), 10),
                 nombre: formData.nombre.trim().toUpperCase(),
             });
-            console.log('✅ Grupo creado');
-            setFormData(EMPTY_FORM);
+            console.log('✅ Grupo creado:', nuevoGrupo);
+
+            // 2. Asignar maestro si se seleccionó uno — PATCH con maestroIds
+            if (maestroSeleccionado && nuevoGrupo.id) {
+                try {
+                    await GrupoService.update(Number(nuevoGrupo.id), {
+                        maestroIds: [Number(maestroSeleccionado)],
+                    });
+                    console.log('✅ Maestro asignado al grupo');
+                } catch (err) {
+                    console.warn('⚠️ Grupo creado pero no se pudo asignar el maestro:', err);
+                }
+            }
+
             onSuccess();
             onClose();
         } catch (err: any) {
             const status = err.response?.status;
             const raw = err.response?.data?.message;
             const msg = Array.isArray(raw) ? raw[0] : raw;
-
-            if (status === 409) {
-                setApiError('Ya existe un grupo con ese grado y nombre.');
-            } else if (status === 400) {
-                setApiError(msg || 'Datos inválidos. Revisa los campos.');
-            } else {
-                setApiError(msg || 'Error al crear el grupo. Intenta de nuevo.');
-            }
+            if (status === 409) setApiError('Ya existe un grupo con ese grado y nombre.');
+            else if (status === 400) setApiError(msg || 'Datos inválidos. Revisa los campos.');
+            else setApiError(msg || 'Error al crear el grupo. Intenta de nuevo.');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleClose = () => {
-        setFormData(EMPTY_FORM);
-        setErrors({});
-        setApiError('');
-        onClose();
-    };
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={handleClose}
-            />
-
-            {/* Modal */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fade-in">
+
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-[#e3dac9]">
                     <div className="flex items-center gap-3">
@@ -120,10 +129,7 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
                             <p className="text-xs text-[#8d6e3f]">Agrega un grupo a tu escuela</p>
                         </div>
                     </div>
-                    <button
-                        onClick={handleClose}
-                        className="p-2 hover:bg-[#fbf8f1] rounded-lg text-[#a1887f] hover:text-[#2b1b17] transition-colors"
-                    >
+                    <button onClick={onClose} className="p-2 hover:bg-[#fbf8f1] rounded-lg text-[#a1887f] hover:text-[#2b1b17] transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -132,7 +138,6 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
 
                 {/* Body */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    {/* API Error */}
                     {apiError && (
                         <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-r-lg flex items-center gap-2">
                             <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,15 +165,7 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
                                     : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
                             }`}
                         />
-                        {errors.grado && (
-                            <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {errors.grado}
-                            </p>
-                        )}
-                        <p className="mt-1 text-xs text-[#8d6e3f]">Número entero mayor o igual a 1</p>
+                        {errors.grado && <p className="mt-1.5 text-xs text-red-600">{errors.grado}</p>}
                     </div>
 
                     {/* Nombre */}
@@ -189,15 +186,71 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
                                     : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
                             }`}
                         />
-                        {errors.nombre && (
-                            <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {errors.nombre}
-                            </p>
-                        )}
+                        {errors.nombre && <p className="mt-1.5 text-xs text-red-600">{errors.nombre}</p>}
                         <p className="mt-1 text-xs text-[#8d6e3f]">Máximo 20 caracteres (Ej: A, B, C...)</p>
+                    </div>
+
+                    {/* Selector de Maestro */}
+                    <div>
+                        <label className="block text-sm font-bold text-[#2b1b17] mb-2">
+                            Asignar Profesor <span className="text-[#a1887f] font-normal">(opcional)</span>
+                        </label>
+                        {loadingMaestros ? (
+                            <div className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-[#fbf8f1] flex items-center gap-2 text-sm text-[#8d6e3f]">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#d4af37]" />
+                                Cargando profesores...
+                            </div>
+                        ) : maestros.length === 0 ? (
+                            <div className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-[#fbf8f1] text-sm text-[#a1887f] italic">
+                                No hay profesores registrados aún
+                            </div>
+                        ) : (
+                            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                {/* Opción "Sin profesor" */}
+                                <button
+                                    type="button"
+                                    onClick={() => setMaestroSeleccionado(null)}
+                                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 text-sm transition-all duration-200 ${
+                                        maestroSeleccionado === null
+                                            ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#2b1b17]'
+                                            : 'border-[#e3dac9] bg-white text-[#8d6e3f] hover:bg-[#fbf8f1]'
+                                    }`}
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-[#e3dac9] flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-4 h-4 text-[#a1887f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                        </svg>
+                                    </div>
+                                    <span className="font-medium italic">Sin profesor asignado</span>
+                                </button>
+
+                                {maestros.map(maestro => (
+                                    <button
+                                        key={maestro.id}
+                                        type="button"
+                                        onClick={() => setMaestroSeleccionado(maestro.id)}
+                                        className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 text-sm transition-all duration-200 ${
+                                            maestroSeleccionado === maestro.id
+                                                ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#2b1b17]'
+                                                : 'border-[#e3dac9] bg-white text-[#5d4037] hover:bg-[#fbf8f1]'
+                                        }`}
+                                    >
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                            {(maestro.nombre ?? maestro.correo ?? "?").charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="text-left min-w-0">
+                                            <p className="font-bold truncate">{maestro.nombre ?? "Sin nombre"}</p>
+                                            <p className="text-xs text-[#8d6e3f] truncate">{maestro.correo}</p>
+                                        </div>
+                                        {maestroSeleccionado === maestro.id && (
+                                            <svg className="w-4 h-4 text-[#d4af37] ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Preview */}
@@ -211,6 +264,11 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
                                 <p className="font-playfair font-bold text-[#2b1b17] text-lg">
                                     {formData.grado}° {formData.nombre.trim().toUpperCase()}
                                 </p>
+                                {maestroSeleccionado && (
+                                    <p className="text-xs text-[#8d6e3f]">
+                                        Prof. {maestros.find(m => m.id === maestroSeleccionado)?.nombre ?? maestros.find(m => m.id === maestroSeleccionado)?.correo}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     )}
@@ -219,7 +277,7 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({
                     <div className="flex gap-3 pt-2">
                         <button
                             type="button"
-                            onClick={handleClose}
+                            onClick={onClose}
                             disabled={isLoading}
                             className="flex-1 px-4 py-3 rounded-xl border-2 border-[#e3dac9] text-[#5d4037] font-bold hover:bg-[#fbf8f1] transition-colors disabled:opacity-50"
                         >

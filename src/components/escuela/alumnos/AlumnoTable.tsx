@@ -3,15 +3,18 @@
 import React from 'react';
 import { AlumnoDetalleRow } from './AlumnoDetalleRow';
 import { AlumnoEscuela } from '../../../types/escuela/alumnos/alumno.types';
+import { GrupoListItem } from '../../../types/escuela/grupos/grupo';
 
 interface AlumnoTableProps {
     alumnos: AlumnoEscuela[];
+    grupos: GrupoListItem[];
     onEdit: (alumno: AlumnoEscuela) => void;
     onDelete: (alumno: AlumnoEscuela) => void;
 }
 
 export const AlumnoTable: React.FC<AlumnoTableProps> = ({
     alumnos,
+    grupos,
     onEdit,
     onDelete
 }) => {
@@ -63,6 +66,7 @@ export const AlumnoTable: React.FC<AlumnoTableProps> = ({
                         <AlumnoDetalleRow
                             key={alumno.id}
                             alumno={alumno}
+                            grupos={grupos}
                             onEdit={onEdit}
                             onDelete={onDelete}
                         />

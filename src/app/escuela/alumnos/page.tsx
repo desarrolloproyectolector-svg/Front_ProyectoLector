@@ -6,8 +6,10 @@ import { EditAlumnoModal } from '../../../components/escuela/alumnos/EditAlumnoM
 import { CargaMasivaModal } from '../../../components/escuela/alumnos/CargaMasivaModal';
 import { AlumnoTable } from '../../../components/escuela/alumnos/AlumnoTable';
 import { alumnoService } from '../../../service/escuela/alumnos/alumno.service';
+import { GrupoService } from '../../../service/escuela/grupos/grupo.service';
 import { toast } from '@/utils/toast';
 import { AlumnoEscuela, getNombreCompletoAlumno, formatGrupo } from '../../../types/escuela/alumnos/alumno.types';
+import { GrupoListItem } from '../../../types/escuela/grupos/grupo';
 
 export default function AlumnosPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -19,6 +21,7 @@ export default function AlumnosPage() {
     const [selectedAlumno, setSelectedAlumno] = useState<AlumnoEscuela | null>(null);
     const [alumnoToDelete, setAlumnoToDelete] = useState<AlumnoEscuela | null>(null);
     const [alumnos, setAlumnos] = useState<AlumnoEscuela[]>([]);
+    const [grupos, setGrupos] = useState<GrupoListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState<string>('');
@@ -27,9 +30,14 @@ export default function AlumnosPage() {
     const cargarAlumnos = async () => {
         try {
             setIsLoading(true);
-            const response = await alumnoService.obtenerAlumnos();
-            console.log('✅ Alumnos cargados:', response);
-            setAlumnos(response.data);
+            const [alumnosRes, gruposRes] = await Promise.all([
+                alumnoService.obtenerAlumnos(),
+                GrupoService.getAll()
+            ]);
+            console.log('✅ Alumnos cargados:', alumnosRes);
+            console.log('✅ Grupos cargados:', gruposRes);
+            setAlumnos(alumnosRes.data);
+            setGrupos(gruposRes);
         } catch (error: any) {
             console.error('Error al cargar alumnos:', error);
             toast.error('Error al cargar la lista de alumnos');
@@ -45,14 +53,24 @@ export default function AlumnosPage() {
 
     const filteredAlumnos = alumnos.filter(alumno => {
         const nombreCompleto = getNombreCompletoAlumno(alumno);
+        
+        // Resolver grado y grupo para el filtrado
+        const resolvedGrupo = alumno.grupoId ? grupos.find(g => g.id === alumno.grupoId) : null;
+        const currentGrado = resolvedGrupo ? resolvedGrupo.grado : alumno.grado;
+
         const matchSearch = nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           alumno.persona.correo.toLowerCase().includes(searchTerm.toLowerCase());
+        
         const matchGrado = filterGrado === 'todos' ||
-                          (alumno.grado && alumno.grado.toString() === filterGrado);
+                          (currentGrado && currentGrado.toString() === filterGrado);
+        
         return matchSearch && matchGrado;
     });
 
-    const gradosUnicos = Array.from(new Set(alumnos.map(a => a.grado).filter(Boolean)));
+    const gradosUnicos = Array.from(new Set(alumnos.map(a => {
+        const resolvedGrupo = a.grupoId ? grupos.find(g => g.id === a.grupoId) : null;
+        return resolvedGrupo ? resolvedGrupo.grado : a.grado;
+    }).filter(Boolean)));
     const conTutor = alumnos.filter(a => a.padre !== null).length;
 
     const handleAddSuccess = () => {
@@ -279,6 +297,7 @@ export default function AlumnosPage() {
                 ) : (
                     <AlumnoTable
                         alumnos={filteredAlumnos}
+                        grupos={grupos}
                         onEdit={handleEdit}
                         onDelete={handleDeleteRequest}
                     />

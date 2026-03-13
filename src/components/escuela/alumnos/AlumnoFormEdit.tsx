@@ -1,8 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlumnoEditFormData, AlumnoEditFormErrors } from '../../../types/escuela/alumnos/alumno.types';
 import { sanitizeText, sanitizeEmail, isValidEmail, focusFirstError } from '../../../utils/formValidation';
+import { GrupoService } from '../../../service/escuela/grupos/grupo.service';
+import { GrupoListItem } from '../../../types/escuela/grupos/grupo';
+import { toast } from '../../../utils/toast';
+
+// Colores por grado
+const gradoColors: Record<number, { bg: string; text: string; border: string; dot: string }> = {
+    1: { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-300',   dot: 'bg-blue-500' },
+    2: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-300', dot: 'bg-emerald-500' },
+    3: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-300', dot: 'bg-violet-500' },
+    4: { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-300',  dot: 'bg-amber-500' },
+    5: { bg: 'bg-rose-50',   text: 'text-rose-700',   border: 'border-rose-300',   dot: 'bg-rose-500' },
+    6: { bg: 'bg-cyan-50',   text: 'text-cyan-700',   border: 'border-cyan-300',   dot: 'bg-cyan-500' },
+};
+const defaultColor = { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-300', dot: 'bg-gray-400' };
 
 interface AlumnoFormEditProps {
     initialData?: AlumnoEditFormData;
@@ -30,9 +44,48 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
             password: '',
             grado: undefined,
             grupo: '',
+            grupoId: null,
             cicloEscolar: ''
         }
     );
+
+    // ── Grupos ─────────────────────────────────────────────────────────────
+    const [grupos, setGrupos] = useState<GrupoListItem[]>([]);
+    const [loadingGrupos, setLoadingGrupos] = useState(false);
+    const [filtroGrado, setFiltroGrado] = useState<number | null>(null);
+
+    useEffect(() => {
+        const fetchGrupos = async () => {
+            setLoadingGrupos(true);
+            try {
+                const data = await GrupoService.getAll();
+                setGrupos(data.filter(g => g.activo));
+            } catch (error) {
+                toast.error('No se pudieron cargar los grupos');
+            } finally {
+                setLoadingGrupos(false);
+            }
+        };
+        fetchGrupos();
+    }, []);
+
+    const gradosExistentes = Array.from(new Set(grupos.map(g => g.grado))).sort((a, b) => a - b);
+    const gruposFiltrados = filtroGrado ? grupos.filter(g => g.grado === filtroGrado) : grupos;
+
+    const handleSelectGrupo = (grupo: GrupoListItem) => {
+        const isSelected = formData.grupoId === grupo.id;
+        if (isSelected) {
+            // Deseleccionar (opcional, según requerimiento)
+            setFormData(prev => ({ ...prev, grupoId: null, grado: undefined, grupo: '' }));
+        } else {
+            setFormData(prev => ({ 
+                ...prev, 
+                grupoId: grupo.id, 
+                grado: grupo.grado, 
+                grupo: grupo.nombre 
+            }));
+        }
+    };
 
     const [errors, setErrors] = useState<AlumnoEditFormErrors>({});
     const [showPassword, setShowPassword] = useState(false);
@@ -249,43 +302,133 @@ export const AlumnoFormEdit: React.FC<AlumnoFormEditProps> = ({
                     Información Académica
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label className={labelClass}>Grado</label>
-                        <select
-                            name="grado"
-                            value={formData.grado || ''}
-                            onChange={handleChange}
-                            disabled={isLoading}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm transition-all duration-300 focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10"
-                        >
-                            <option value="">Selecciona un grado</option>
-                            <option value="1">1° (Primero)</option>
-                            <option value="2">2° (Segundo)</option>
-                            <option value="3">3° (Tercero)</option>
-                            <option value="4">4° (Cuarto)</option>
-                            <option value="5">5° (Quinto)</option>
-                            <option value="6">6° (Sexto)</option>
-                        </select>
+                <div className="bg-[#fbf8f1] rounded-2xl p-6 border-2 border-[#e3dac9]/50 mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <label className="text-sm font-bold text-[#2b1b17] flex items-center gap-2">
+                            <svg className="w-5 h-5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Asignación de Grupo
+                            <span className="font-normal text-[#a1887f] text-xs">(Selecciona para cambiar)</span>
+                        </label>
+                        {formData.grupoId && (
+                            <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, grupoId: null, grado: undefined, grupo: '' }))}
+                                className="text-xs text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 font-bold"
+                            >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                Quitar de grupo
+                            </button>
+                        )}
                     </div>
 
-                    <div>
-                        <label className={labelClass}>Grupo</label>
-                        <select
-                            name="grupo"
-                            value={formData.grupo || ''}
-                            onChange={handleChange}
-                            disabled={isLoading}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm transition-all duration-300 focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10"
-                        >
-                            <option value="">Selecciona un grupo</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                        </select>
-                    </div>
+                    {loadingGrupos ? (
+                        <div className="flex items-center gap-3 py-8 justify-center">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#d4af37]" />
+                            <span className="text-sm text-[#8d6e3f] font-medium">Cargando grupos...</span>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {/* Filtros de Grado */}
+                            {gradosExistentes.length > 1 && (
+                                <div className="flex flex-wrap gap-2 pb-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFiltroGrado(null)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                            filtroGrado === null
+                                                ? 'bg-[#2b1b17] text-[#fbf8f1]'
+                                                : 'bg-white text-[#5d4037] border-2 border-[#e3dac9] hover:border-[#d4af37]'
+                                        }`}
+                                    >
+                                        Todos
+                                    </button>
+                                    {gradosExistentes.map(g => {
+                                        const c = gradoColors[g] ?? defaultColor;
+                                        return (
+                                            <button
+                                                key={g}
+                                                type="button"
+                                                onClick={() => setFiltroGrado(g)}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${
+                                                    filtroGrado === g
+                                                        ? `${c.bg} ${c.text} ${c.border}`
+                                                        : 'bg-white text-[#5d4037] border-[#e3dac9] hover:border-[#d4af37]'
+                                                }`}
+                                            >
+                                                {g}° Grado
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
 
+                            {/* Grid de Grupos */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                                {gruposFiltrados.map(grupo => {
+                                    const c = gradoColors[grupo.grado] ?? defaultColor;
+                                    const isSelected = formData.grupoId === grupo.id;
+                                    const maestro = grupo.maestros?.[0];
+
+                                    return (
+                                        <button
+                                            key={grupo.id}
+                                            type="button"
+                                            onClick={() => handleSelectGrupo(grupo)}
+                                            className={`relative flex flex-col items-start gap-1 p-3 rounded-2xl border-2 text-left transition-all duration-300 ${
+                                                isSelected
+                                                    ? `${c.bg} ${c.border} shadow-md scale-[1.02]`
+                                                    : 'border-[#e3dac9] bg-white hover:border-[#d4af37]/50 hover:bg-[#fbf8f1]/50'
+                                            }`}
+                                        >
+                                            {isSelected && (
+                                                <div className={`absolute top-2 right-2 w-5 h-5 rounded-full ${c.dot} flex items-center justify-center shadow-sm`}>
+                                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${c.bg} ${c.text} border ${c.border.replace('border-', 'border-')}`}>
+                                                    {grupo.grado}
+                                                </span>
+                                                <span className={`font-black text-lg ${isSelected ? c.text : 'text-[#2b1b17]'}`}>
+                                                    {grupo.nombre}
+                                                </span>
+                                            </div>
+                                            <span className="text-[10px] text-[#a1887f] truncate w-full font-medium italic">
+                                                {maestro ? `👤 ${maestro.nombre?.split(' ')[0]}` : 'Sin maestro'}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Info de Selección Actual */}
+                            <div className="pt-2">
+                                {formData.grupoId ? (
+                                    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 ${(gradoColors[formData.grado as number] ?? defaultColor).bg} ${(gradoColors[formData.grado as number] ?? defaultColor).border}`}>
+                                        <div className={`w-2 h-2 rounded-full animate-pulse ${(gradoColors[formData.grado as number] ?? defaultColor).dot}`} />
+                                        <span className={`text-sm font-bold ${(gradoColors[formData.grado as number] ?? defaultColor).text}`}>
+                                            El alumno se moverá al grupo: <span className="underline decoration-wavy underline-offset-4">{formData.grado}°{formData.grupo}</span>
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="px-4 py-3 rounded-xl border-2 border-dashed border-[#e3dac9] bg-[#fbf8f1]/50 text-center">
+                                        <span className="text-sm text-[#a1887f] italic font-medium">
+                                            Sin grupo asignado (el alumno se quitará del grupo actual si lo tiene)
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <div>
                         <label className={labelClass}>Ciclo Escolar</label>
                         <input

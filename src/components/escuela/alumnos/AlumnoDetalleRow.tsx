@@ -2,22 +2,30 @@
 
 import React, { useState } from 'react';
 import { AlumnoEscuela, getNombreCompletoAlumno, formatGrupo } from '../../../types/escuela/alumnos/alumno.types';
+import { GrupoListItem } from '../../../types/escuela/grupos/grupo';
 
 interface AlumnoDetalleRowProps {
     alumno: AlumnoEscuela;
+    grupos: GrupoListItem[];
     onEdit: (alumno: AlumnoEscuela) => void;
     onDelete: (alumno: AlumnoEscuela) => void;
 }
 
 export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
     alumno,
+    grupos,
     onEdit,
     onDelete
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
+    // Resolución dinámica del grupo
+    const resolvedGrupo = alumno.grupoId ? grupos.find(g => g.id === alumno.grupoId) : null;
+    const currentGrado = resolvedGrupo ? resolvedGrupo.grado : alumno.grado;
+    const currentGrupoName = resolvedGrupo ? resolvedGrupo.nombre : alumno.grupo;
+
     const nombreCompleto = getNombreCompletoAlumno(alumno);
-    const grupo = formatGrupo(alumno.grado, alumno.grupo);
+    const grupoDisplay = formatGrupo(currentGrado, currentGrupoName);
 
     return (
         <>
@@ -42,7 +50,7 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                 <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
                     <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Grupo</span>
                     <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-purple-100 text-purple-700 inline-block whitespace-nowrap">
-                        📚 {grupo}
+                        📚 {grupoDisplay}
                     </span>
                 </td>
 
@@ -168,11 +176,11 @@ export const AlumnoDetalleRow: React.FC<AlumnoDetalleRowProps> = ({
                                         <div className="grid grid-cols-2 gap-2">
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Grado</p>
-                                                <p className="text-sm text-[#2b1b17]">{alumno.grado ? `${alumno.grado}°` : '—'}</p>
+                                                <p className="text-sm text-[#2b1b17]">{currentGrado ? `${currentGrado}°` : '—'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Grupo</p>
-                                                <p className="text-sm text-[#2b1b17]">{alumno.grupo || '—'}</p>
+                                                <p className="text-sm text-[#2b1b17]">{currentGrupoName || '—'}</p>
                                             </div>
                                         </div>
                                         <div>

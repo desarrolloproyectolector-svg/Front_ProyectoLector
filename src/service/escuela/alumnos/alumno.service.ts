@@ -19,9 +19,17 @@ class AlumnoService {
 
     async registrarAlumno(data: RegistroAlumnoPayload): Promise<RegistroAlumnoResponse> {
         try {
+            // NestJS valida tipos estrictamente — grupoId debe llegar como integer
+            const payload = {
+                ...data,
+                ...(data.grupoId !== undefined && {
+                    grupoId: parseInt(String(data.grupoId), 10),
+                }),
+            };
+
             const response = await api.post<RegistroAlumnoResponse>(
                 '/personas/registro-alumno',
-                data
+                payload
             );
             return response.data;
         } catch (error: any) {
@@ -31,7 +39,7 @@ class AlumnoService {
                 switch (status) {
                     case 403: throw new Error('No tienes permisos para realizar esta acción');
                     case 409: throw new Error('El correo electrónico ya está registrado en el sistema');
-                    case 400: throw new Error(message || 'Datos inválidos. Verifica la información ingresada');
+                    case 400: throw new Error(Array.isArray(message) ? message.join(' | ') : message || 'Datos inválidos. Verifica la información ingresada');
                     default:  throw new Error(message || 'Error al registrar el alumno');
                 }
             }
@@ -69,14 +77,15 @@ class AlumnoService {
 
     async editarAlumno(id: number, data: EditAlumnoPayload): Promise<EditAlumnoResponse> {
         try {
-            // ✅ FIX: Solo eliminar `undefined` — null es válido (ej: apellidoMaterno: null)
-            // y string vacío también se filtra porque no tiene sentido enviarlo
             const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
-                if (value !== undefined) {
-                    acc[key] = value;
-                }
+                if (value !== undefined) acc[key] = value;
                 return acc;
             }, {} as any);
+
+            // NestJS valida tipos estrictamente — grupoId debe llegar como integer o null
+            if (cleanedData.grupoId !== undefined && cleanedData.grupoId !== null) {
+                cleanedData.grupoId = parseInt(String(cleanedData.grupoId), 10);
+            }
 
             console.log('📤 Payload enviado a PATCH /personas/alumnos/' + id + ':', JSON.stringify(cleanedData, null, 2));
 
@@ -87,16 +96,32 @@ class AlumnoService {
             return response.data;
         } catch (error: any) {
             console.error('❌ Error al editar alumno:', error.response?.data || error);
-
             if (error.response?.status === 409) throw new Error('El correo electrónico ya está registrado en el sistema');
             if (error.response?.status === 404) throw new Error('Alumno no encontrado');
             if (error.response?.status === 403) throw new Error('No tienes permisos para editar este alumno');
             if (error.response?.status === 400) {
-                const msg = error.response?.data?.message || error.response?.data?.description;
-                throw new Error(msg || 'Datos inválidos. Verifica la información ingresada');
+            const msg = error.response?.data?.message || error.response?.data?.description;
+                throw new Error(Array.isArray(msg) ? msg.join(' | ') : msg || 'Datos inválidos.');
             }
-
             throw this.handleError(error, 'Error al actualizar el alumno');
+        }
+    }
+
+    // ========================================================================
+    // ASIGNAR ALUMNO A GRUPO
+    // ========================================================================
+
+    async asignarGrupo(alumnoId: number, grupoId: number | null): Promise<any> {
+        try {
+            const payload = { 
+                grupoId: grupoId !== null ? parseInt(String(grupoId), 10) : null 
+            };
+            console.log(`📤 Asignando alumno ${alumnoId} al grupo ${grupoId}:`, payload);
+            const response = await api.patch(`/director/alumnos/${alumnoId}`, payload);
+            return response.data;
+        } catch (error: any) {
+            console.error('❌ Error al asignar grupo al alumno:', error.response?.data || error);
+            throw this.handleError(error, 'Error al reasignar grupo al alumno');
         }
     }
 
@@ -122,7 +147,7 @@ class AlumnoService {
 
     private handleError(error: any, defaultMessage: string): Error {
         const apiMessage = error.response?.data?.message || error.response?.data?.description;
-        if (apiMessage) return new Error(apiMessage);
+        if (apiMessage) return new Error(Array.isArray(apiMessage) ? apiMessage.join(' | ') : apiMessage);
         if (error.message) return new Error(error.message);
         return new Error(defaultMessage);
     }
