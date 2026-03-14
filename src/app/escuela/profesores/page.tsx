@@ -20,8 +20,9 @@ interface ProfesorCardShape {
     nombre: string;
     email: string;
     especialidad: string;
-    gruposAsignados: string[];
-    alumnosTotales: number;
+    cantidadGrupos: number;
+    cantidadAlumnos: number;
+    grupos: { id: number; grado: number; nombre: string; cantidadAlumnos: number }[];
     estado: 'activo' | 'inactivo';
     telefono: string;
     fechaIngreso?: string | null;
@@ -32,8 +33,9 @@ const adaptarProfesor = (p: ProfesorEscuela): ProfesorCardShape => ({
     nombre: getNombreCompletoProfesor(p),
     email: p.persona.correo,
     especialidad: p.especialidad ?? 'Sin especificar',
-    gruposAsignados: p.gruposAsignados ?? [],
-    alumnosTotales: p.alumnosTotales ?? 0,
+    cantidadGrupos: p.cantidadGrupos ?? 0,
+    cantidadAlumnos: p.cantidadAlumnos ?? 0,
+    grupos: p.grupos ?? [],
     estado: getEstadoProfesor(p),
     telefono: p.persona.telefono ?? '',
     fechaIngreso: p.fechaIngreso ?? null,
@@ -134,8 +136,8 @@ export default function ProfesoresPage() {
     );
 
     const totalActivos          = profesoresAdaptados.filter(p => p.estado === 'activo').length;
-    const totalAlumnosAtendidos = profesoresAdaptados.reduce((acc, p) => acc + p.alumnosTotales, 0);
-    const totalGrupos           = profesoresAdaptados.reduce((acc, p) => acc + p.gruposAsignados.length, 0);
+    const totalAlumnosAtendidos = profesoresAdaptados.reduce((acc, p) => acc + p.cantidadAlumnos, 0);
+    const totalGrupos           = profesoresAdaptados.reduce((acc, p) => acc + p.cantidadGrupos, 0);
 
     return (
         <div className="space-y-6 animate-fade-in">

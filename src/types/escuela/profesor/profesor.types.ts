@@ -91,8 +91,14 @@ export interface ProfesorEscuela {
     especialidad: string | null;
     fechaIngreso: string | null;
     persona: PersonaProfesor;
-    gruposAsignados?: string[];
-    alumnosTotales?: number;
+    cantidadGrupos?: number;
+    cantidadAlumnos?: number;
+    grupos?: {
+        id: number;
+        grado: number;
+        nombre: string;
+        cantidadAlumnos: number;
+    }[];
 }
 
 export interface ProfesoresResponse {
