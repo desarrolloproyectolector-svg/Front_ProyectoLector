@@ -8,7 +8,6 @@ import { GrupoService } from '../../../service/escuela/grupos/grupo.service';
 import { toast } from '../../../utils/toast';
 import { AlumnoFormData } from '../../../types/escuela/alumnos/alumno.types';
 import type { GrupoListItem } from '../../../types/escuela/grupos/grupo';
-
 interface AddAlumnoModalProps {
     isOpen: boolean;
     onClose: () => void;

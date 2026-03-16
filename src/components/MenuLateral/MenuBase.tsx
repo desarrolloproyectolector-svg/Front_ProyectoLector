@@ -83,8 +83,9 @@ export default function MenuBase({
         }`}
     >
       {/* Logo */}
-      <div className="mb-10 px-6">
-        <span className="text-[#d4af37] font-bold tracking-widest text-xl">ACADEMIA</span>
+      <div className="mb-10 px-6 flex flex-col items-center text-center">
+        <span className="text-[#d4af37] font-black tracking-[0.2em] text-xl leading-none">PROYECTO</span>
+        <span className="text-[#d4af37] font-bold tracking-[0.3em] text-xl mt-1 leading-none">LECTOR</span>
       </div>
 
       {/* Navigation */}

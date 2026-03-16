@@ -100,7 +100,7 @@ export default function ProfesorCard({ profesor, onEdit, onDelete }: Props) {
                         </p>
                     </div>
                     <div className="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-4 border border-purple-100 shadow-sm text-center">
-                        <p className="text-[10px] text-purple-600 font-black uppercase tracking-widest mb-1">Alumnos</p>
+                        <p className="text-[10px] text-purple-600 font-black uppercase tracking-widest mb-1">Estudiantes</p>
                         <p className="text-3xl font-playfair font-black text-purple-700 leading-none">
                             {profesor.cantidadAlumnos}
                         </p>
@@ -133,7 +133,7 @@ export default function ProfesorCard({ profesor, onEdit, onDelete }: Props) {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                             </svg>
                                         </div>
-                                        <p className="text-[8px] text-[#a1887f] font-black uppercase tracking-widest mt-1">Alumnos</p>
+                                        <p className="text-[8px] text-[#a1887f] font-black uppercase tracking-widest mt-1">Estudiantes</p>
                                     </div>
                                 </div>
                             ))}

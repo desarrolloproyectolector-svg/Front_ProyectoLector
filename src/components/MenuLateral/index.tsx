@@ -21,13 +21,9 @@
 //         <aside
 //             className={`fixed left-0 top-0 h-full w-64 bg-[#2b1b17] text-[#f0e6d2] flex flex-col items-stretch py-8 shadow-2xl z-50 transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
 //         >
-//             <div className="mb-12 px-6 flex justify-between items-center gap-3">
-//                 <div className="flex items-center gap-3">
-//                     <div className="w-10 h-10 bg-[#d4af37] rounded-full flex items-center justify-center shrink-0 shadow-lg">
-//                         <svg className="w-6 h-6 text-[#2b1b17]" fill="currentColor" viewBox="0 0 24 24"><path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" /></svg>
-//                     </div>
-//                     <span className="font-playfair text-xl font-bold tracking-widest text-[#d4af37]">ACADEMIA</span>
-//                 </div>
+//             <div className="mb-10 px-6 flex flex-col items-center text-center">
+//                 <span className="text-[#d4af37] font-black tracking-[0.2em] text-xl leading-none">PROYECTO</span>
+//                 <span className="text-[#d4af37] font-bold tracking-[0.3em] text-xl mt-1 leading-none">LECTOR</span>
 //             </div>
 
 //             <nav className="flex-1 flex flex-col gap-2 px-2">

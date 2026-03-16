@@ -33,7 +33,7 @@ export default function ProfesorStats({
       color: 'from-emerald-500/10 to-emerald-500/5',
     },
     {
-      label: 'Alumnos Atendidos',
+      label: 'Estudiantes',
       value: totalAlumnosAtendidos,
       icon: (
         <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
