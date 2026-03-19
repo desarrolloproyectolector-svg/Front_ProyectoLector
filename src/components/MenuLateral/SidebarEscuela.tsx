@@ -12,6 +12,7 @@ export default function SidebarEscuela({ isOpen, onClose }: { isOpen: boolean; o
         { href: '/escuela', icon: 'chart', label: 'Dashboard' },
         { href: '/escuela/alumnos', icon: 'users', label: 'Alumnos' },
         { href: '/escuela/compras', icon: 'shopping', label: 'Compras' },
+        { href: '/escuela/licencias', icon: 'ticket', label: 'Licencias' },
         { href: '/escuela/grupos', icon: 'calendar', label: 'Grupos' },
         { href: '/escuela/profesores', icon: 'users', label: 'Profesores' },
       ]}

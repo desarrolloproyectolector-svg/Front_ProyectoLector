@@ -118,91 +118,99 @@ export default function AdminLibrosPage() {
     const librosError = libros.filter(l => l.estado === 'error');
 
     return (
-        <div className="min-h-screen bg-[#fefdfb]">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2] border-b border-[#e3dac9] p-6">
-                <div className="w-full">
-                    <h1 className="font-playfair text-3xl font-bold text-[#2b1b17] mb-2">Gestión de Libros</h1>
-                    <p className="text-[#8d6e3f]">Carga, gestiona y asigna libros a las escuelas</p>
+        <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8">
+            <div className="space-y-6 animate-fade-in">
+                
+                {/* Header */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
+                            Gestión de Libros
+                        </h1>
+                        <p className="text-[#5d4037] text-lg font-lora">
+                            Carga, gestiona y asigna libros a las escuelas
+                        </p>
+                    </div>
+                    <button 
+                        onClick={() => setShowAddModal(true)}
+                        disabled={isLoading}
+                        className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
+                        Cargar Libro
+                    </button>
                 </div>
-            </div>
 
-            {/* Main Content */}
-            <div className="w-full p-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white border border-[#e3dac9] rounded-lg p-4">
-                        <p className="text-sm text-[#8d6e3f] font-semibold">Total de libros</p>
-                        <p className="text-3xl font-bold text-[#2b1b17] mt-1">{libros.length}</p>
-                    </div>
-                    <div className="bg-white border border-[#e3dac9] rounded-lg p-4">
-                        <p className="text-sm text-green-600 font-semibold">Listos</p>
-                        <p className="text-3xl font-bold text-green-600 mt-1">{librosListo.length}</p>
-                    </div>
-                    <div className="bg-white border border-[#e3dac9] rounded-lg p-4">
-                        <p className="text-sm text-yellow-600 font-semibold">Procesando</p>
-                        <p className="text-3xl font-bold text-yellow-600 mt-1">{librosPendientes.length}</p>
-                    </div>
-                    <div className="bg-white border border-[#e3dac9] rounded-lg p-4">
-                        <p className="text-sm text-red-600 font-semibold">Con error</p>
-                        <p className="text-3xl font-bold text-red-600 mt-1">{librosError.length}</p>
-                    </div>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    {[
+                        { label: 'Total Libros', value: libros.length, bg: 'from-[#2b1b17]/10 to-[#2b1b17]/5', color: 'text-[#2b1b17]', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+                        { label: 'Listos', value: librosListo.length, bg: 'from-emerald-500/10 to-emerald-500/5', color: 'text-emerald-600', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { label: 'Procesando', value: librosPendientes.length, bg: 'from-yellow-500/10 to-yellow-500/5', color: 'text-yellow-600', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { label: 'Con Error', value: librosError.length, bg: 'from-red-500/10 to-red-500/5', color: 'text-red-600', icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+                    ].map((stat, i) => (
+                        <div key={i} className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3.5 rounded-xl bg-gradient-to-br ${stat.bg} shadow-sm flex-shrink-0`}>
+                                    <svg className={`w-7 h-7 ${stat.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={stat.icon}/></svg>
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1 truncate">{stat.label}</p>
+                                    <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">{isLoading ? '...' : stat.value}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-700 font-medium">{error}</p>
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <p className="text-red-800 font-medium">{error}</p>
+                        </div>
                     </div>
                 )}
 
                 {/* Toolbar */}
-                <div className="bg-white border border-[#e3dac9] rounded-lg p-6 mb-6">
-                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div className="flex-1 flex gap-4 w-full md:w-auto">
+                <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg border border-[#e3dac9]/50">
+                    <div className="flex flex-col lg:flex-row gap-4">
+                        <div className="relative flex-1">
                             <input
                                 type="text"
                                 placeholder="Buscar por título, código o materia..."
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
-                                className="flex-1 px-4 py-2 border border-[#d4af37] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300"
                                 disabled={isLoading}
                             />
+                            <svg className="w-5 h-5 text-[#a1887f] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
 
-                        <select
-                            value={filterGrado}
-                            onChange={e => setFilterGrado(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
-                            className="px-4 py-2 border border-[#d4af37] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
-                            disabled={isLoading}
-                        >
-                            <option value="todos">Todos los grados</option>
-                            {gradesAvailable.map(grade => (
-                                <option key={grade} value={grade}>
-                                    Grado {grade}
-                                </option>
-                            ))}
-                        </select>
-
-                        <button
-                            onClick={() => setShowAddModal(true)}
-                            disabled={isLoading}
-                            className="px-6 py-2 bg-[#d4af37] hover:bg-[#b8941e] text-[#2b1b17] font-bold rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap"
-                        >
-                            + Cargar Libro
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm font-bold text-[#8d6e3f] uppercase tracking-wider whitespace-nowrap">Grado:</span>
+                            <select
+                                value={filterGrado}
+                                onChange={e => setFilterGrado(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
+                                className="px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] font-medium text-sm transition-all"
+                                disabled={isLoading}
+                            >
+                                <option value="todos">Todos</option>
+                                {gradesAvailable.map(grade => (
+                                    <option key={grade} value={grade}>Grado {grade}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 {/* Tabla de libros */}
-                <div className="bg-white border border-[#e3dac9] rounded-lg overflow-hidden">
+                <div className="bg-white rounded-xl shadow-lg border border-[#e3dac9]/50 overflow-hidden">
                     {isLoading ? (
-                        <div className="flex items-center justify-center py-12">
+                        <div className="flex items-center justify-center py-20">
                             <div className="flex flex-col items-center">
-                                <svg className="animate-spin h-8 w-8 text-[#d4af37] mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <p className="text-[#8d6e3f] font-semibold">Cargando libros...</p>
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37] mb-4"></div>
+                                <p className="text-[#8d6e3f] font-bold">Cargando catálogo...</p>
                             </div>
                         </div>
                     ) : (
@@ -216,8 +224,6 @@ export default function AdminLibrosPage() {
                         />
                     )}
                 </div>
-            </div>
-
             {/* Modals */}
             <AddLibroModal
                 isOpen={showAddModal}
@@ -251,7 +257,7 @@ export default function AdminLibrosPage() {
                 onClose={() => setShowViewModal(false)}
                 libroId={viewLibroId}
             />
-
         </div>
-    );
+    </div>
+);
 }

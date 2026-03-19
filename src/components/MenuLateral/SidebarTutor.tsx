@@ -9,7 +9,7 @@ export default function SidebarTutor({ isOpen, onClose }: { isOpen: boolean; onC
       isOpen={isOpen}
       role="Tutor"
       menuItems={[
-        { href: '/tutor', icon: 'library', label: 'Inicio' },
+        { href: '/tutor', icon: 'library', label: 'Dashboard Familiar' },
       ]}
       onClose={onClose}
     />

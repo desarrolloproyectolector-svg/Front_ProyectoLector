@@ -1,204 +1,253 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { VinculacionService } from '../../service/vinculacion.service';
 
 export default function TutorPage() {
-    const [selectedPeriod, setSelectedPeriod] = useState('month');
+    const [children, setChildren] = useState<any[]>([]);
+    const [selectedChildIndex, setSelectedChildIndex] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+    const [showLinkingModal, setShowLinkingModal] = useState(false);
+    const [linkingCode, setLinkingCode] = useState('');
+    const [isLinking, setIsLinking] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
-    const childInfo = {
-        name: 'Carlos López García',
-        grade: '3°A',
-        school: 'Preparatoria Central',
-        teacher: 'Prof. García',
+    const loadChildren = async () => {
+        try {
+            setIsLoading(true);
+            const data = await VinculacionService.getMisAlumnos();
+            const list = Array.isArray(data) ? data : (data.data || []);
+            setChildren(list);
+            if (list.length > 0 && selectedChildIndex >= list.length) {
+                setSelectedChildIndex(0);
+            }
+        } catch (err) {
+            console.error('Error cargando alumnos vinculados:', err);
+            setChildren([]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    useEffect(() => {
+        loadChildren();
+    }, []);
+
+    const handleLink = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!linkingCode.trim()) return;
+
+        try {
+            setIsLinking(true);
+            setError(null);
+            await VinculacionService.vincularConCodigo({ codigo: linkingCode.trim() });
+            setSuccess('¡Alumno vinculado con éxito!');
+            setLinkingCode('');
+            setTimeout(() => {
+                setSuccess(null);
+                setShowLinkingModal(false);
+                loadChildren();
+            }, 2000);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Error al vincular. Verifica el código.');
+        } finally {
+            setIsLinking(false);
+        }
+    };
+
+    const currentChild = children[selectedChildIndex];
+
+    // Revertimos iconos al diseño creativo anterior
     const stats = [
-        { label: 'Libros Leídos', value: '12', icon: 'book', color: 'bg-blue-500' },
-        { label: 'Promedio General', value: '8.9', icon: 'star', color: 'bg-yellow-500' },
-        { label: 'Horas de Lectura', value: '24', icon: 'clock', color: 'bg-green-500' },
-        { label: 'Racha Activa', value: '15 días', icon: 'fire', color: 'bg-orange-500' },
-    ];
-
-    const recentActivity = [
-        { book: 'Cien Años de Soledad', progress: 100, date: 'Completado hoy', score: 9.5 },
-        { book: 'El Principito', progress: 75, date: 'En progreso', score: null },
-        { book: 'Don Quijote', progress: 100, date: 'Completado hace 3 días', score: 8.8 },
-    ];
-
-    const skills = [
-        { name: 'Comprensión Lectora', level: 92, color: 'bg-blue-500' },
-        { name: 'Vocabulario', level: 88, color: 'bg-purple-500' },
-        { name: 'Análisis Crítico', level: 85, color: 'bg-green-500' },
-        { name: 'Síntesis', level: 90, color: 'bg-yellow-500' },
+        { 
+            label: 'Libros Leídos', 
+            value: '12', 
+            icon: 'book',
+            color: 'bg-blue-500 shadow-blue-200' 
+        },
+        { 
+            label: 'Promedio Gral.', 
+            value: '8.9', 
+            icon: 'star',
+            color: 'bg-yellow-500 shadow-yellow-200' 
+        },
+        { 
+            label: 'Lectura (Hrs)', 
+            value: '24', 
+            icon: 'clock',
+            color: 'bg-emerald-500 shadow-emerald-200' 
+        },
+        { 
+            label: 'Racha Activa', 
+            value: '15 días', 
+            icon: 'fire',
+            color: 'bg-orange-500 shadow-orange-200' 
+        },
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#f5f1e8] to-[#e8dcc4] p-4 md:p-8">
-            {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
-                    Portal del Tutor
-                </h1>
-                <p className="text-[#5d4037] text-lg">
-                    Seguimiento del progreso académico de tu hijo(a)
-                </p>
+        <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8 animate-fade-in font-sans">
+            {/* Header Homogeneizado idéntico a Admin */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                <div>
+                    <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
+                        Dashboard Familiar
+                    </h1>
+                    <p className="text-[#5d4037] text-lg font-lora">
+                        Seguimiento y acompañamiento académico de tus hijos
+                    </p>
+                </div>
+                <button 
+                    onClick={() => setShowLinkingModal(true)}
+                    className="flex items-center gap-2 bg-[#2b1b17] text-[#f0e6d2] px-6 py-4 rounded-xl font-bold shadow-lg hover:bg-[#3e2723] hover:scale-105 transition-all outline-none"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
+                    Vincular Hijo
+                </button>
             </div>
 
-            {/* Student Info Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-8 text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-                    <div className="w-20 h-20 bg-[#d4af37] rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-4xl font-bold text-[#2b1b17]">
-                            {childInfo.name.charAt(0)}
-                        </span>
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-24">
+                    <div className="w-16 h-16 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin mb-4" />
+                    <p className="text-[#8d6e3f] font-bold text-xl">Accediendo a la información familiar...</p>
+                </div>
+            ) : children.length === 0 ? (
+                /* Empty state con diseño Homogéneo */
+                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-[#e3dac9]/50 p-12 text-center animate-fade-in">
+                    <div className="w-20 h-20 bg-[#fbf8f1] rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-10 h-10 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     </div>
-                    <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-[#2b1b17]">{childInfo.name}</h2>
-                        <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-6 mt-2 text-sm text-[#5d4037]">
-                            <span>📚 {childInfo.grade}</span>
-                            <span>🏫 {childInfo.school}</span>
-                            <span>👨‍🏫 {childInfo.teacher}</span>
-                        </div>
-                    </div>
-                    <button className="mt-4 md:mt-0 w-full md:w-auto bg-[#d4af37] text-[#2b1b17] px-6 py-3 rounded-lg font-semibold hover:bg-[#c19b2f] transition-colors">
-                        Contactar Profesor
+                    <h2 className="text-2xl font-playfair font-bold text-[#2b1b17] mb-4">No hay alumnos vinculados</h2>
+                    <p className="text-[#5d4037] mb-8 font-medium">Vincula una cuenta para comenzar el seguimiento.</p>
+                    <button 
+                        onClick={() => setShowLinkingModal(true)}
+                        className="bg-[#d4af37] text-[#2b1b17] px-8 py-4 rounded-xl font-bold shadow-md hover:shadow-xl transition-all"
+                    >
+                        Comenzar Ahora
                     </button>
                 </div>
-            </div>
+            ) : (
+                <div className="space-y-6">
+                    {/* Selector de hijos (Homogéneo) */}
+                    {children.length > 1 && (
+                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                            {children.map((child, idx) => (
+                                <button
+                                    key={child.id}
+                                    onClick={() => setSelectedChildIndex(idx)}
+                                    className={`px-6 py-2.5 rounded-xl font-bold transition-all text-sm border-2 ${
+                                        selectedChildIndex === idx 
+                                        ? 'bg-[#2b1b17] text-[#f0e6d2] border-[#2b1b17] shadow-md' 
+                                        : 'bg-white text-[#5d4037] border-[#e3dac9]/30 hover:border-[#d4af37]'
+                                    }`}
+                                >
+                                    {child.persona?.nombre}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {stats.map((stat, index) => (
-                    <div key={index} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
-                        <div className="flex items-center gap-4 mb-3">
-                            <div className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center`}>
-                                {stat.icon === 'book' && (
-                                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                    </svg>
-                                )}
-                                {stat.icon === 'star' && <span className="text-white text-2xl">⭐</span>}
-                                {stat.icon === 'clock' && <span className="text-white text-2xl">⏱️</span>}
-                                {stat.icon === 'fire' && <span className="text-white text-2xl">🔥</span>}
+                    {/* Ficha del Alumno (Volvemos al diseño creativo solicitado) */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#e3dac9]/30 p-8 relative overflow-hidden group">
+                        
+                        <div className="relative flex flex-col md:flex-row items-center gap-10">
+                            {/* Avatar Creativo Espresso anterior */}
+                            <div className="w-28 h-28 bg-[#2b1b17] rounded-3xl flex items-center justify-center shadow-2xl relative transition-transform hover:scale-105">
+                                <span className="text-5xl font-playfair font-black text-[#d4af37]">
+                                    {currentChild?.persona?.nombre?.charAt(0)}
+                                </span>
+                                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#d4af37] rounded-lg flex items-center justify-center border-2 border-white shadow-lg">
+                                    <svg className="w-4 h-4 text-[#2b1b17]" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/></svg>
+                                </div>
+                            </div>
+                            <div className="flex-1 text-center md:text-left">
+                                <h2 className="text-4xl font-playfair font-black leading-tight mb-4">
+                                    <span className="text-[#d4af37]">{currentChild?.persona?.nombre}</span> <br className="hidden md:block"/>
+                                    <span className="text-[#2b1b17]">
+                                        {currentChild?.persona?.apellidoPaterno} {currentChild?.persona?.apellidoMaterno || ''}
+                                    </span>
+                                </h2>
+                                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                                    <div className="flex items-center gap-2 text-[#5d4037] font-bold bg-[#fbf8f1] px-4 py-2 rounded-xl border border-[#e3dac9]/40">
+                                        <svg className="w-4 h-4 text-[#d4af37]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.827a1 1 0 00-.788 0L2.606 6l7 3.5 7-3.5-7.212-3.173zM17.5 7.925l-7.5 3.75-7.5-3.75v5.422l7.5 3.75 7.5-3.75V7.925z"/></svg>
+                                        Grado: {currentChild?.grado}°
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[#5d4037] font-bold bg-[#fbf8f1] px-4 py-2 rounded-xl border border-[#e3dac9]/40">
+                                        <svg className="w-4 h-4 text-[#d4af37]" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+                                        Grupo: {currentChild?.grupo || 'N/A'}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[#5d4037] font-bold bg-[#fbf8f1] px-4 py-2 rounded-xl border border-[#e3dac9]/40 leading-tight">
+                                        <svg className="w-4 h-4 text-[#d4af37]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd"/></svg>
+                                        {currentChild?.escuela?.nombre}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <h3 className="text-3xl font-bold text-[#2b1b17] mb-1">{stat.value}</h3>
-                        <p className="text-[#8d6e63] text-sm">{stat.label}</p>
                     </div>
-                ))}
-            </div>
 
-            {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Recent Activity */}
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
-                    <h2 className="text-2xl font-playfair font-bold text-[#2b1b17] mb-6">
-                        Actividad Reciente
-                    </h2>
-                    <div className="space-y-4">
-                        {recentActivity.map((activity, index) => (
-                            <div key={index} className="flex items-center gap-4 p-4 bg-[#f5f1e8] rounded-lg">
-                                <div className="w-16 h-20 bg-[#d4af37] rounded flex items-center justify-center flex-shrink-0">
-                                    <svg className="w-8 h-8 text-[#2b1b17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    {/* Stats Grid con Iconos Creativos anteriores */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                        {stats.map((stat, i) => (
+                            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-[#e3dac9]/30 transition-all hover:bg-[#fbf8f1]">
+                                <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center mb-4 shadow-lg transform group-hover:rotate-6 transition-transform`}>
+                                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {stat.icon === 'book' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />}
+                                        {stat.icon === 'star' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />}
+                                        {stat.icon === 'clock' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0" />}
+                                        {stat.icon === 'fire' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />}
                                     </svg>
                                 </div>
-                                <div className="flex-1">
-                                    <h3 className="text-[#2b1b17] font-semibold mb-1">{activity.book}</h3>
-                                    <p className="text-[#8d6e63] text-sm mb-2">{activity.date}</p>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className="bg-[#d4af37] h-2 rounded-full transition-all"
-                                            style={{ width: `${activity.progress}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                                {activity.score && (
-                                    <div className="text-center">
-                                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                                            <span className="text-2xl font-bold text-green-600">{activity.score}</span>
-                                        </div>
-                                        <p className="text-xs text-[#8d6e63] mt-1">Calificación</p>
-                                    </div>
-                                )}
+                                <div className="text-2xl font-bold text-[#2b1b17] mb-1">{stat.value}</div>
+                                <div className="text-sm font-medium text-[#8d6e3f]">{stat.label}</div>
                             </div>
                         ))}
                     </div>
 
-                    {/* Progress Chart */}
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                        <h3 className="text-xl font-playfair font-bold text-[#2b1b17] mb-4">
-                            Progreso Mensual
-                        </h3>
-                        <div className="h-48 flex items-end justify-between gap-2">
-                            {[65, 70, 85, 90, 88, 92, 95].map((height, index) => (
-                                <div key={index} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
-                                    <div className="w-full bg-[#d4af37] rounded-t hover:bg-[#c19b2f] transition-all cursor-pointer"
-                                        style={{ height: `${height}%` }}>
-                                    </div>
-                                    <span className="text-xs text-[#8d6e63]">S{index + 1}</span>
-                                </div>
-                            ))}
+                </div>
+            )}
+
+            {/* Modal de Vinculación (Estilo Admin) */}
+            {showLinkingModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl p-10 w-full max-w-lg shadow-2xl border border-[#e3dac9] relative">
+                        <button 
+                            onClick={() => setShowLinkingModal(false)}
+                            className="absolute top-6 right-6 text-[#a1887f] hover:text-[#2b1b17] transition-all"
+                        >
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+
+                        <div className="text-center mb-8">
+                            <h2 className="text-3xl font-playfair font-bold text-[#2b1b17] mb-2">Vincular Nueva Cuenta</h2>
+                            <p className="text-[#8d6e3f]">Solicita el código de 32 caracteres a tu hijo</p>
                         </div>
+
+                        <form onSubmit={handleLink} className="space-y-6">
+                            <div className="space-y-2 text-left">
+                                <label className="text-[11px] font-bold text-[#a1887f] uppercase tracking-widest ml-1">Código de Seguridad</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Ej: 9421834d917ce02db3ba74072bc629f5..."
+                                    className="w-full p-4 bg-[#fbf8f1] rounded-xl border-2 border-[#e3dac9]/50 focus:border-[#d4af37] outline-none font-mono text-xs text-center"
+                                    value={linkingCode}
+                                    onChange={(e) => setLinkingCode(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            {error && <p className="text-red-500 text-sm font-bold text-center bg-red-50 p-4 rounded-xl border border-red-100">{error}</p>}
+                            {success && <p className="text-emerald-500 text-sm font-bold text-center bg-emerald-50 p-4 rounded-xl border border-emerald-100">{success}</p>}
+                            
+                            <button 
+                                disabled={isLinking || !linkingCode}
+                                className="w-full bg-[#2b1b17] text-[#f0e6d2] p-4 rounded-xl font-bold text-lg hover:bg-[#3e2723] hover:scale-[1.02] transition-all disabled:opacity-50"
+                            >
+                                {isLinking ? 'Procesando...' : 'Confirmar Vínculo'}
+                            </button>
+                        </form>
                     </div>
                 </div>
-
-                {/* Sidebar */}
-                <div className="space-y-6">
-                    {/* Skills */}
-                    <div className="bg-white rounded-xl shadow-lg p-6">
-                        <h3 className="text-xl font-playfair font-bold text-[#2b1b17] mb-4">
-                            Habilidades
-                        </h3>
-                        <div className="space-y-4">
-                            {skills.map((skill, index) => (
-                                <div key={index}>
-                                    <div className="flex justify-between text-sm mb-2">
-                                        <span className="text-[#2b1b17] font-medium">{skill.name}</span>
-                                        <span className="text-[#d4af37] font-bold">{skill.level}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className={`${skill.color} h-2 rounded-full transition-all`}
-                                            style={{ width: `${skill.level}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Achievements */}
-                    <div className="bg-white rounded-xl shadow-lg p-6">
-                        <h3 className="text-xl font-playfair font-bold text-[#2b1b17] mb-4">
-                            Logros Recientes
-                        </h3>
-                        <div className="space-y-3">
-                            {[
-                                { icon: '🏆', title: 'Lector del Mes', date: 'Hace 2 días' },
-                                { icon: '⭐', title: '10 Libros Completados', date: 'Hace 1 semana' },
-                                { icon: '🎯', title: 'Racha de 15 días', date: 'Hoy' },
-                            ].map((achievement, index) => (
-                                <div key={index} className="flex items-center gap-3 p-3 bg-[#f5f1e8] rounded-lg">
-                                    <span className="text-3xl">{achievement.icon}</span>
-                                    <div>
-                                        <p className="text-[#2b1b17] font-medium text-sm">{achievement.title}</p>
-                                        <p className="text-[#8d6e63] text-xs">{achievement.date}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Recommendations */}
-                    <div className="bg-gradient-to-br from-[#d4af37] to-[#c19b2f] rounded-xl shadow-lg p-6 text-white">
-                        <h3 className="text-xl font-bold mb-2">💡 Recomendación</h3>
-                        <p className="text-sm opacity-90">
-                            ¡Excelente progreso! Tu hijo está desarrollando muy bien sus habilidades de comprensión lectora.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

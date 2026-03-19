@@ -13,6 +13,7 @@ export default function SidebarAdmin({ isOpen, onClose }: { isOpen: boolean; onC
         { href: '/admin/escuelas', icon: 'library', label: 'Escuelas' },
         { href: '/admin/usuarios', icon: 'users', label: 'Usuarios' },
         { href: '/admin/libros', icon: 'library', label: 'Libros' },
+        { href: '/admin/licencias', icon: 'ticket', label: 'Licencias' },
       ]}
       onClose={onClose}
     />

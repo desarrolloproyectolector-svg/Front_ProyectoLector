@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './styles.module.css';
+import { LicenciaService } from '../../../service/licencia.service';
 
 export const CanjeCodigo: React.FC = () => {
     const [code, setCode] = useState('');
@@ -21,22 +22,48 @@ export const CanjeCodigo: React.FC = () => {
         setCode(formatted);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Show validating state
-        setMessage({ text: 'Verificando...', color: '#8d6e3f', opacity: 1 });
 
         if (code.length < 19) { // 16 chars + 3 dashes = 19
             setMessage({ text: '⚠ Código incompleto', color: '#ef5350', opacity: 1 });
             return;
         }
 
-        // Mock API Call
-        setTimeout(() => {
-            setMessage({ text: '✓ ¡Libro Agregado Exitosamente!', color: '#66bb6a', opacity: 1 });
-            // In a real app, this would refresh the library or redirect
-        }, 1500);
+        // Show validating state
+        setMessage({ text: 'Verificando...', color: '#8d6e3f', opacity: 1 });
+
+        try {
+            const response = await LicenciaService.canjearLicencia({ clave: code });
+            
+            setMessage({ 
+                text: `✓ ${response.message}`, 
+                color: '#66bb6a', 
+                opacity: 1 
+            });
+
+            // Opcional: Podríamos mostrar el título del libro canjeado
+            // if (response.data?.titulo) {
+            //     alert(`¡Felicidades! Has canjeado "${response.data.titulo}"`);
+            // }
+
+            // Limpiar el código después de un breve delay
+            setTimeout(() => {
+                setCode('');
+                setMessage(prev => ({ ...prev, opacity: 0 }));
+                // Redirigir a la biblioteca para ver el nuevo libro
+                window.location.href = '/alumno/library';
+            }, 2000);
+
+        } catch (error: any) {
+            console.error('Error al canjear:', error);
+            const errorMsg = error.response?.data?.message || 'Error al procesar el código';
+            setMessage({ 
+                text: `⚠ ${errorMsg}`, 
+                color: '#ef5350', 
+                opacity: 1 
+            });
+        }
     };
 
     return (

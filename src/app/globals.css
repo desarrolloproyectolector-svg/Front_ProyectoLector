@@ -8,18 +8,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /*  --font-sans: var(--font-geist-sans); */
-  /*  --font-mono: var(--font-geist-mono); */
 }
 
-/* Ensure font variables work with legacy classes */
-.font-playfair {
-  font-family: var(--font-playfair), serif;
-}
-
-.font-lora {
-  font-family: var(--font-lora), serif;
-}
+.font-playfair { font-family: var(--font-playfair), serif; }
+.font-lora     { font-family: var(--font-lora), serif; }
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -28,30 +20,9 @@
   }
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.animate-fade { animation: fadeIn 0.3s ease-out; }
 
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-fade {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* 3D Utilities missing in standard Tailwind */
-.transform-style-3d {
-  transform-style: preserve-3d;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-.perspective-2500 {
-  perspective: 2500px;
-}
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden    { backface-visibility: hidden; }
+.perspective-2500   { perspective: 2500px; }
