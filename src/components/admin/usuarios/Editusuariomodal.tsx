@@ -26,6 +26,8 @@ interface EditUsuarioModalProps {
             nombre: string;
             nivel: string;
         };
+        grado?: number;
+        grupo?: string;
     };
 }
 
@@ -61,6 +63,8 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
         fechaNacimiento: usuario.fechaNacimiento    ?? '',
         genero:          usuario.genero             ?? '',
         password:        '',
+        grado:           usuario.grado,
+        grupo:           usuario.grupo              ?? '',
     };
 
     const handleSubmit = async (data: UsuarioFormEditData) => {
@@ -78,6 +82,8 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
             if (data.telefono?.trim())        payload.telefono        = data.telefono.trim();
             if (data.fechaNacimiento?.trim()) payload.fechaNacimiento = data.fechaNacimiento.trim();
             if (data.genero?.trim())          payload.genero          = data.genero.trim();
+            if (data.grado !== undefined)     payload.grado           = data.grado;
+            if (data.grupo?.trim())           payload.grupo           = data.grupo.trim();
 
             if (data.password && data.password.trim().length > 0) {
                 payload.password = data.password.trim();

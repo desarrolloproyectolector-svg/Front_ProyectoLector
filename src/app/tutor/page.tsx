@@ -12,6 +12,9 @@ export default function TutorPage() {
     const [isLinking, setIsLinking] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
+    const [alumnoToUnlink, setAlumnoToUnlink] = useState<any>(null);
+    const [isUnlinking, setIsUnlinking] = useState(false);
 
     const loadChildren = async () => {
         try {
@@ -33,6 +36,18 @@ export default function TutorPage() {
     useEffect(() => {
         loadChildren();
     }, []);
+
+    // Bloqueo de scroll global cuando el modal está abierto
+    useEffect(() => {
+        if (showLinkingModal || showUnlinkConfirm) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showLinkingModal, showUnlinkConfirm]);
 
     const handleLink = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,9 +71,30 @@ export default function TutorPage() {
         }
     };
 
+    const handleUnlink = async () => {
+        if (!alumnoToUnlink) return;
+
+        try {
+            setIsUnlinking(true);
+            setError(null);
+            await VinculacionService.desvincular(alumnoToUnlink.id);
+            setSuccess(`¡Vínculo con ${alumnoToUnlink.persona?.nombre} eliminado!`);
+            
+            setTimeout(() => {
+                setSuccess(null);
+                setShowUnlinkConfirm(false);
+                setAlumnoToUnlink(null);
+                loadChildren();
+            }, 2000);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'No se pudo desvincular al alumno.');
+        } finally {
+            setIsUnlinking(false);
+        }
+    };
+
     const currentChild = children[selectedChildIndex];
 
-    // Revertimos iconos al diseño creativo anterior
     const stats = [
         { 
             label: 'Libros Leídos', 
@@ -87,9 +123,9 @@ export default function TutorPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8 animate-fade-in font-sans">
-            {/* Header Homogeneizado idéntico a Admin */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+        <div className="min-h-screen bg-[#f5f5f5] px-4 pb-4 md:px-8 md:pb-8 pt-0 animate-fade-in font-sans">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pt-8">
                 <div>
                     <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
                         Dashboard Familiar
@@ -113,7 +149,6 @@ export default function TutorPage() {
                     <p className="text-[#8d6e3f] font-bold text-xl">Accediendo a la información familiar...</p>
                 </div>
             ) : children.length === 0 ? (
-                /* Empty state con diseño Homogéneo */
                 <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-[#e3dac9]/50 p-12 text-center animate-fade-in">
                     <div className="w-20 h-20 bg-[#fbf8f1] rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg className="w-10 h-10 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -129,7 +164,7 @@ export default function TutorPage() {
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {/* Selector de hijos (Homogéneo) */}
+                    {/* Selector de hijos */}
                     {children.length > 1 && (
                         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                             {children.map((child, idx) => (
@@ -148,11 +183,26 @@ export default function TutorPage() {
                         </div>
                     )}
 
-                    {/* Ficha del Alumno (Volvemos al diseño creativo solicitado) */}
+                    {/* Ficha del Alumno */}
                     <div className="bg-white rounded-2xl shadow-sm border border-[#e3dac9]/30 p-8 relative overflow-hidden group">
-                        
-                        <div className="relative flex flex-col md:flex-row items-center gap-10">
-                            {/* Avatar Creativo Espresso anterior */}
+                        {/* Botón Desvincular - Esquina Superior Derecha */}
+                        <div className="absolute top-6 right-8 z-[30]">
+                            <button
+                                onClick={() => {
+                                    setAlumnoToUnlink(currentChild);
+                                    setShowUnlinkConfirm(true);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl font-bold text-xs border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm group/btn"
+                                title="Desvincular alumno"
+                            >
+                                <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Desvincular Hijo
+                            </button>
+                        </div>
+
+                        <div className="relative flex flex-col md:flex-row items-center gap-10 pt-4 md:pt-0">
                             <div className="w-28 h-28 bg-[#2b1b17] rounded-3xl flex items-center justify-center shadow-2xl relative transition-transform hover:scale-105">
                                 <span className="text-5xl font-playfair font-black text-[#d4af37]">
                                     {currentChild?.persona?.nombre?.charAt(0)}
@@ -186,7 +236,7 @@ export default function TutorPage() {
                         </div>
                     </div>
 
-                    {/* Stats Grid con Iconos Creativos anteriores */}
+                    {/* Stats Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                         {stats.map((stat, i) => (
                             <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-[#e3dac9]/30 transition-all hover:bg-[#fbf8f1]">
@@ -203,11 +253,10 @@ export default function TutorPage() {
                             </div>
                         ))}
                     </div>
-
                 </div>
             )}
 
-            {/* Modal de Vinculación (Estilo Admin) */}
+            {/* Modal de Vinculación */}
             {showLinkingModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fade-in">
                     <div className="bg-white rounded-2xl p-10 w-full max-w-lg shadow-2xl border border-[#e3dac9] relative">
@@ -245,6 +294,68 @@ export default function TutorPage() {
                                 {isLinking ? 'Procesando...' : 'Confirmar Vínculo'}
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Confirmación de Desvinculación */}
+            {showUnlinkConfirm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-[#2b1b17]/80 backdrop-blur-md animate-fade-in">
+                    <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl border border-[#e3dac9] relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-[#d4af37] to-red-500" />
+                        
+                        <div className="text-center mt-4">
+                            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-red-600 shadow-inner">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            
+                            <h2 className="text-3xl font-playfair font-black text-[#2b1b17] mb-4">¿Estás seguro?</h2>
+                            <p className="text-[#5d4037] mb-8 font-lora text-lg leading-relaxed">
+                                Estás a punto de desvincular a <span className="font-black text-[#2b1b17]">{alumnoToUnlink?.persona?.nombre}</span> de tu Dashboard Familiar. 
+                            </p>
+
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={handleUnlink}
+                                    disabled={isUnlinking}
+                                    className="w-full bg-red-600 text-white p-4 rounded-xl font-bold text-lg shadow-lg hover:bg-red-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                                >
+                                    {isUnlinking ? (
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Confirmar Desvinculación
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowUnlinkConfirm(false);
+                                        setAlumnoToUnlink(null);
+                                    }}
+                                    disabled={isUnlinking}
+                                    className="w-full bg-[#fbf8f1] text-[#5d4037] p-4 rounded-xl font-bold border-2 border-[#e3dac9]/50 hover:bg-[#e3dac9]/20 transition-all font-lora"
+                                >
+                                    No, mantener vínculo
+                                </button>
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="mt-4 p-4 bg-red-50 text-red-600 text-sm font-bold rounded-xl border border-red-100">
+                                {error}
+                            </div>
+                        )}
+                        {success && (
+                            <div className="mt-4 p-4 bg-emerald-50 text-emerald-600 text-sm font-bold rounded-xl border border-emerald-100">
+                                {success}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { profesorService } from '../../../service/escuela/profesor/profesor.service';
+import { GrupoService } from '../../../service/escuela/grupos/grupo.service';
+import { GrupoListItem } from '../../../types/escuela/grupos/grupo';
 import { ProfesorFormData, ProfesorFormErrors, RegistroProfesorPayload } from '../../../types/escuela/profesor/profesor.types';
 import { toast } from '@/utils/toast';
 import { sanitizeText, sanitizeEmail, isValidEmail, focusFirstError, hasUppercase } from '../../../utils/formValidation';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Props {
     open: boolean;
@@ -13,20 +16,7 @@ interface Props {
     onSuccess?: () => void;
 }
 
-const ESPECIALIDADES = [
-    'Matemáticas',
-    'Literatura',
-    'Español',
-    'Ciencias Naturales',
-    'Historia',
-    'Geografía',
-    'Inglés',
-    'Educación Física',
-    'Artes',
-    'Música',
-    'Tecnología',
-    'Otra',
-];
+
 
 export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) {
     const [formData, setFormData] = useState<ProfesorFormData>({
@@ -39,17 +29,35 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
         fechaNacimiento: '',
         especialidad: '',
         fechaIngreso: '',
+        idGrupo: undefined,
     });
 
+    const [grupos, setGrupos] = useState<GrupoListItem[]>([]);
     const [errors, setErrors] = useState<ProfesorFormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+    // Cargar grupos al abrir el modal
+    useEffect(() => {
+        if (open) {
+            const loadGroups = async () => {
+                try {
+                    const data = await GrupoService.getAll();
+                    setGrupos(data);
+                } catch (error) {
+                    console.error('Error al cargar grupos:', error);
+                }
+            };
+            loadGroups();
+        }
+    }, [open]);
+
     const handleChange = (field: keyof ProfesorFormData) =>
-        (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-            setFormData(prev => ({ ...prev, [field]: e.target.value }));
-            if (errors[field]) {
-                setErrors(prev => ({ ...prev, [field]: undefined }));
+        (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { value: any } }) => {
+            const value = 'target' in e ? e.target.value : e;
+            setFormData((prev: ProfesorFormData) => ({ ...prev, [field]: value }));
+            if (errors[field as keyof ProfesorFormErrors]) {
+                setErrors((prev: ProfesorFormErrors) => ({ ...prev, [field as keyof ProfesorFormErrors]: undefined }));
             }
         };
 
@@ -115,10 +123,30 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
 
             const response = await profesorService.registrarProfesor(payload);
 
-            toast.success(
-                `¡Profesor ${response.data.nombre} ${response.data.apellidoPaterno} registrado exitosamente!`,
-                5000
-            );
+            // ✅ Si se seleccionó un grupo, asignar al profesor recién creado
+            if (formData.idGrupo) {
+                try {
+                    await GrupoService.asignarMaestro({
+                        maestroId: response.data.maestro.id,
+                        grupoId: formData.idGrupo
+                    });
+                    toast.success(
+                        `¡Profesor registrado y asignado al grupo exitosamente!`,
+                        5000
+                    );
+                } catch (assignError) {
+                    console.error('Error al asignar grupo:', assignError);
+                    toast.warning(
+                        `Profesor registrado, pero no se pudo completar la asignación al grupo.`,
+                        6000
+                    );
+                }
+            } else {
+                toast.success(
+                    `¡Profesor ${response.data.nombre} registrado exitosamente!`,
+                    5000
+                );
+            }
 
             handleClose();
             onSuccess?.();
@@ -150,6 +178,7 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
             fechaNacimiento: '',
             especialidad: '',
             fechaIngreso: '',
+            idGrupo: undefined,
         });
         setErrors({});
         setShowPassword(false);
@@ -304,18 +333,15 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                                 Especialidad
                                 <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
                             </label>
-                            <select
+                            <input
+                                type="text"
                                 name="especialidad"
+                                placeholder="Ej: Matemáticas"
                                 value={formData.especialidad || ''}
                                 onChange={handleChange('especialidad')}
                                 disabled={isLoading}
                                 className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 transition-all"
-                            >
-                                <option value="">Sin especificar</option>
-                                {ESPECIALIDADES.map(e => (
-                                    <option key={e} value={e}>{e}</option>
-                                ))}
-                            </select>
+                            />
                         </div>
 
                         {/* Fecha de Ingreso */}
@@ -332,6 +358,44 @@ export default function NuevoProfesorModal({ open, onClose, onSuccess }: Props) 
                                 disabled={isLoading}
                                 className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 transition-all"
                             />
+                        </div>
+
+                        {/* ✅ Nuevo Selector de Grupo (Mismo Estilo que otros campos) */}
+                        <div className="md:col-span-2">
+                            <label className={labelClass}>
+                                Asignar a un Grupo <span className="text-[#a1887f] text-xs font-normal ml-1">(opcional)</span>
+                            </label>
+                            <div className="max-w-[400px]">
+                                <CustomSelect
+                                    showSearch={false}
+                                    options={[...grupos]
+                                        .sort((a, b) => {
+                                            const aOccupied = a.maestros && a.maestros.length > 0;
+                                            const bOccupied = b.maestros && b.maestros.length > 0;
+                                            if (aOccupied !== bOccupied) return aOccupied ? 1 : -1;
+                                            if (a.grado !== b.grado) return a.grado - b.grado;
+                                            return a.nombre.localeCompare(b.nombre);
+                                        })
+                                        .map(g => {
+                                            const maestroAsignado = g.maestros && g.maestros.length > 0;
+                                            const nombreMaestro = maestroAsignado ? g.maestros[0].nombre : null;
+
+                                            return {
+                                                id: g.id,
+                                                label: `${g.grado}° ${g.nombre}`,
+                                                subLabel: maestroAsignado 
+                                                    ? `Profesor actual: ${nombreMaestro}` 
+                                                    : 'Grupo disponible para asignación',
+                                                disabled: maestroAsignado,
+                                                variant: maestroAsignado ? 'danger' : 'success'
+                                            };
+                                        })
+                                    }
+                                    value={formData.idGrupo || ''}
+                                    onChange={(val) => handleChange('idGrupo')({ target: { value: val } } as any)}
+                                    placeholder="Seleccionar grupo..."
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>

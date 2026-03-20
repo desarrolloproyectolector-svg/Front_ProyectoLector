@@ -41,9 +41,9 @@ export default function AdminLayout({
         />
       )}
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8 min-h-screen transition-all">
+      <main className="flex-1 md:ml-64 px-4 py-2 md:px-8 md:py-4 min-h-screen transition-all">
 
-        <header className="flex items-center gap-4 mb-8">
+        <header className="flex items-center gap-4 mb-2 md:mb-0">
           <button
             className="md:hidden text-[#2b1b17] p-2 hover:bg-black/5 rounded-lg"
             onClick={() => setIsSidebarOpen(true)}
@@ -53,10 +53,6 @@ export default function AdminLayout({
             </svg>
           </button>
 
-          <div>
-            <h1 className="text-2xl font-bold">{currentTitle.title}</h1>
-            <p className="text-sm text-gray-600 hidden md:block">{currentTitle.sub}</p>
-          </div>
         </header>
 
         {children}

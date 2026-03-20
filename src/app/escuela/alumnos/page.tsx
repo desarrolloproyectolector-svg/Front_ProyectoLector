@@ -51,6 +51,19 @@ export default function AlumnosPage() {
         cargarAlumnos();
     }, []);
 
+    // Bloqueo de scroll global cuando cualquier modal está abierto
+    const isAnyModalOpen = showAddModal || showEditModal || showDeleteModal || showCargaMasivaModal;
+    useEffect(() => {
+        if (isAnyModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isAnyModalOpen]);
+
     const filteredAlumnos = alumnos.filter(alumno => {
         const nombreCompleto = getNombreCompletoAlumno(alumno);
         
@@ -272,7 +285,7 @@ export default function AlumnosPage() {
                     >
                         Todos los Grados
                     </button>
-                    {[1, 2, 3, 4, 5, 6].map((grado) => (
+                    {(gradosUnicos as number[]).sort((a, b) => a - b).map((grado) => (
                         <button
                             key={grado}
                             onClick={() => setFilterGrado(grado.toString())}
@@ -310,7 +323,6 @@ export default function AlumnosPage() {
                     {/* Overlay */}
                     <div
                         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={handleDeleteCancel}
                     />
                     {/* Dialog */}
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fade-in">

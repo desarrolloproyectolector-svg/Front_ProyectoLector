@@ -96,4 +96,19 @@ export class VinculacionService {
             throw error;
         }
     }
+
+    /**
+     * Desvincular un alumno del tutor autenticado
+     * POST /personas/padres/desvincular-alumno
+     * { "alumnoId": 123 }
+     */
+    static async desvincular(alumnoId: number | string): Promise<any> {
+        try {
+            const response = await api.post('/personas/padres/desvincular-alumno', { alumnoId });
+            return response.data;
+        } catch (error: any) {
+            console.error('❌ Error al desvincular alumno:', error.response?.data || error);
+            throw error;
+        }
+    }
 }

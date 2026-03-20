@@ -15,7 +15,7 @@ interface AddGrupoModalProps {
     onSuccess: () => void;
 }
 
-const EMPTY_FORM = { grado: 1, nombre: '' };
+const EMPTY_FORM = { grado: '' as any, nombre: '' };
 
 export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState(EMPTY_FORM);
@@ -47,13 +47,25 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, o
         fetchMaestros();
     }, [isOpen]);
 
+    // Bloqueo de scroll global cuando el modal está abierto
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'grado' ? parseInt(value, 10) : value,
+            [name]: name === 'grado' ? (value === '' ? '' : parseInt(value, 10)) : value,
         }));
         if (errors[name as 'grado' | 'nombre']) {
             setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -62,7 +74,9 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, o
 
     const validate = (): boolean => {
         const newErrors: Partial<Record<'grado' | 'nombre', string>> = {};
-        if (!formData.grado || formData.grado < 1)
+        if (formData.grado === '' || formData.grado === null || formData.grado === undefined)
+            newErrors.grado = 'El grado es requerido';
+        else if (formData.grado < 1)
             newErrors.grado = 'El grado debe ser un número entero ≥ 1';
         if (!formData.nombre.trim())
             newErrors.nombre = 'El nombre es requerido';
@@ -113,7 +127,7 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, o
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fade-in">
 
                 {/* Header */}
@@ -156,7 +170,7 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, o
                             type="number"
                             name="grado"
                             min={1}
-                            value={formData.grado}
+                            value={isNaN(Number(formData.grado)) ? '' : formData.grado}
                             onChange={handleChange}
                             placeholder="Ej: 1"
                             className={`w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${

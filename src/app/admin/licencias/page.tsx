@@ -1,9 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Modal } from '../../../components/ui/Modal';
+import { CustomSelect } from '../../../components/ui/CustomSelect';
 import { LicenciaService } from '../../../service/licencia.service';
 import { EscuelaService } from '../../../service/escuela.service';
+import { LibrosService } from '../../../service/libros.service';
 import { Licencia, FiltrosLicencia } from '../../../types/licencias';
+import { Libro } from '../../../types/libros/libro';
 import type { EscuelaListItem } from '../../../types/admin/escuelas/escuela';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -11,6 +15,7 @@ import autoTable from 'jspdf-autotable';
 export default function AdminLicenciasPage() {
     const [licencias, setLicencias] = useState<Licencia[]>([]);
     const [escuelas, setEscuelas] = useState<EscuelaListItem[]>([]);
+    const [books, setBooks] = useState<Libro[]>([]);
     const [showGenerar, setShowGenerar] = useState(false);
     
     // Pagination States
@@ -36,13 +41,26 @@ export default function AdminLicenciasPage() {
         fechaVencimiento: '2026-12-31'
     });
 
+    const [statsGlobales, setStatsGlobales] = useState<any>(null);
+
     // Reset page to 1 when filters change
     useEffect(() => {
         setPage(1);
     }, [filtros]);
 
+    // Bloqueo de scroll global cuando el modal está abierto
+    useEffect(() => {
+        if (showGenerar) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showGenerar]);
+
     const handleExportPDF = async (customParams?: any) => {
-        // (Existing backend-based general export logic remains here for the filter button)
         try {
             const params = customParams || {
                 escuelaId: filtros.escuelaId,
@@ -71,17 +89,13 @@ export default function AdminLicenciasPage() {
 
     const handleGenerateBatchPDF = (batchData: any) => {
         const doc = new jsPDF();
-        
-        // Header
         doc.setFontSize(22);
-        doc.setTextColor(43, 27, 23); // #2b1b17 (Coffee)
+        doc.setTextColor(43, 27, 23);
         doc.text('PROYECTO LECTOR', 14, 22);
-        
         doc.setFontSize(14);
-        doc.setTextColor(141, 110, 63); // #8d6e3f (Gold-ish)
+        doc.setTextColor(141, 110, 63);
         doc.text('Emisión de Licencias Institucionales', 14, 32);
         
-        // Info Box
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
         const schoolName = escuelas.find(e => Number(e.id) === Number(batchData.escuelaId))?.nombre || 'Institución';
@@ -90,7 +104,6 @@ export default function AdminLicenciasPage() {
         doc.text(`Cantidad: ${batchData.cantidad}`, 14, 59);
         doc.text(`Vencimiento: ${batchData.fechaVencimiento}`, 14, 66);
         
-        // Table
         autoTable(doc, {
             startY: 75,
             head: [['#', 'Código de Licencia (16 caracteres)']],
@@ -109,13 +122,49 @@ export default function AdminLicenciasPage() {
     const loadData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const [licRes, escRes] = await Promise.all([
+            const [licRes, escRes, booksRes] = await Promise.all([
                 LicenciaService.listLicencias({ ...filtros, page, limit }),
-                EscuelaService.getAll(1, 100)
+                EscuelaService.getAll(1, 100),
+                LibrosService.getAll()
             ]);
+
             setLicencias(licRes.data || []);
             setTotalItems(licRes.total || (licRes.data?.length || 0));
             setEscuelas(escRes.data || []);
+            setBooks(booksRes.data || []);
+
+            // Estadísticas:
+            if (filtros.escuelaId) {
+                try {
+                    const totRes = await LicenciaService.getTotalesEscuela(filtros.escuelaId);
+                    setStatsGlobales(totRes.data);
+                } catch (e) {
+                    setStatsGlobales(null);
+                }
+            } else {
+                // Caso Global: Si el backend no provee totales agregados en licRes,
+                // realizamos 3 peticiones ultraligeras (limit: 1) para extraer los totales de los metadatos.
+                if (!licRes.stats && !licRes.totales) {
+                    try {
+                        const [usedRes, availRes, vencRes] = await Promise.all([
+                            LicenciaService.listLicencias({ ...filtros, estado: 'usada', page: 1, limit: 1 }),
+                            LicenciaService.listLicencias({ ...filtros, estado: 'disponible', page: 1, limit: 1 }),
+                            LicenciaService.listLicencias({ ...filtros, estado: 'vencida', page: 1, limit: 1 }),
+                        ]);
+                        setStatsGlobales({
+                            total: licRes.total || 0,
+                            enUso: usedRes.total || 0,
+                            disponibles: availRes.total || 0,
+                            vencidas: vencRes.total || 0
+                        });
+                    } catch (e) {
+                        console.error('Error fetching global stats:', e);
+                        setStatsGlobales(null);
+                    }
+                } else {
+                    setStatsGlobales(licRes.stats || licRes.totales);
+                }
+            }
         } catch (err) {
             console.error('Error loading licencias:', err);
             setError('Error al cargar las licencias');
@@ -151,24 +200,11 @@ export default function AdminLicenciasPage() {
                 libroId: Number(newLicencia.libroId),
                 cantidad: Number(newLicencia.cantidad)
             });
-            
             setShowGenerar(false);
-            
-            // Auto-export EXCLUSIVE PDF using the response data
-            if (res.data) {
-                handleGenerateBatchPDF(res.data);
-            }
-
+            if (res.data) handleGenerateBatchPDF(res.data);
             loadData();
-
-            // Reset form
             setSelectedPlan('custom');
-            setNewLicencia({
-                escuelaId: '',
-                libroId: '',
-                cantidad: '',
-                fechaVencimiento: '2026-12-31'
-            });
+            setNewLicencia({ escuelaId: '', libroId: '', cantidad: '', fechaVencimiento: '2026-12-31' });
         } catch (err) {
             alert('Error al generar licencias');
         } finally {
@@ -176,31 +212,23 @@ export default function AdminLicenciasPage() {
         }
     };
 
-    const stats = {
-        total: totalItems,
-        disponibles: licencias.filter(l => l.estado === 'disponible').length,
-        usadas: licencias.filter(l => l.estado === 'usada').length,
-        vencidas: licencias.filter(l => l.estado === 'vencida').length,
+    const statsDisplay = {
+        total: statsGlobales?.total ?? totalItems,
+        disponibles: statsGlobales?.disponibles ?? (filtros.estado === 'disponible' ? totalItems : 0),
+        usadas: statsGlobales?.enUso ?? (filtros.estado === 'usada' ? totalItems : 0),
+        vencidas: statsGlobales?.vencidas ?? (filtros.estado === 'vencida' ? totalItems : 0),
     };
 
     return (
         <div className="min-h-screen bg-[#f5f5f5] p-4 md:p-8">
             <div className="space-y-6 animate-fade-in">
-                
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
-                        <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
-                            Gestión de Licencias
-                        </h1>
-                        <p className="text-[#5d4037] text-lg font-lora">
-                            Control maestro de accesos y bibliotecas
-                        </p>
+                        <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">Gestión de Licencias</h1>
+                        <p className="text-[#5d4037] text-lg font-lora">Control maestro de accesos y bibliotecas</p>
                     </div>
-                    <button 
-                        onClick={() => setShowGenerar(true)}
-                        className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0"
-                    >
+                    <button onClick={() => setShowGenerar(true)} className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold shadow-lg flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
                         Generar Licencias
                     </button>
@@ -209,14 +237,14 @@ export default function AdminLicenciasPage() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                     {[
-                        { label: 'Total Emitidas', value: stats.total, bg: 'from-[#2b1b17]/10 to-[#2b1b17]/5', color: 'text-[#2b1b17]', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-                        { label: 'Disponibles', value: stats.disponibles, bg: 'from-emerald-500/10 to-emerald-500/5', color: 'text-emerald-600', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-                        { label: 'En Uso', value: stats.usadas, bg: 'from-blue-500/10 to-blue-500/5', color: 'text-blue-600', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-                        { label: 'Vencidas', value: stats.vencidas, bg: 'from-red-500/10 to-red-500/5', color: 'text-red-600', icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { label: 'Total Emitidas', value: statsDisplay.total, bg: 'from-[#2b1b17]/10 to-[#2b1b17]/5', color: 'text-[#2b1b17]', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                        { label: 'Disponibles', value: statsDisplay.disponibles, bg: 'from-emerald-500/10 to-emerald-500/5', color: 'text-emerald-600', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+                        { label: 'En Uso', value: statsDisplay.usadas, bg: 'from-blue-500/10 to-blue-500/5', color: 'text-blue-600', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+                        { label: 'Vencidas', value: statsDisplay.vencidas, bg: 'from-red-500/10 to-red-500/5', color: 'text-red-600', icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
                     ].map((stat, i) => (
-                        <div key={i} className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <div key={i} className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300">
                             <div className="flex items-center gap-4">
-                                <div className={`p-3.5 rounded-xl bg-gradient-to-br ${stat.bg} shadow-sm flex-shrink-0`}>
+                                <div className={`p-3.5 rounded-xl bg-gradient-to-br ${stat.bg}`}>
                                     <svg className={`w-7 h-7 ${stat.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={stat.icon}/></svg>
                                 </div>
                                 <div>
@@ -231,14 +259,9 @@ export default function AdminLicenciasPage() {
                 {/* Filtros */}
                 <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg border border-[#e3dac9]/50">
                     <div className="flex flex-col md:flex-row items-center gap-4">
-                        <div className="flex items-center gap-3 bg-[#fbf8f1] px-4 py-2 rounded-lg border border-[#e3dac9]">
-                            <svg className="w-5 h-5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                            <span className="text-sm font-bold text-[#2b1b17] uppercase tracking-wider">Filtros</span>
-                        </div>
-                        
-                        <div className="flex-1 w-full md:w-auto">
+                        <div className="flex-1 w-full">
                             <select 
-                                className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300"
+                                className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white text-sm"
                                 value={filtros.escuelaId || ''}
                                 onChange={e => setFiltros({...filtros, escuelaId: e.target.value ? Number(e.target.value) : undefined})}
                             >
@@ -246,31 +269,17 @@ export default function AdminLicenciasPage() {
                                 {escuelas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
                             </select>
                         </div>
-
-                        <button 
-                            onClick={() => handleExportPDF()}
-                            className="w-full md:w-auto justify-center px-6 py-3 bg-[#fbf8f1] text-[#2b1b17] rounded-xl font-bold border-2 border-[#e3dac9] hover:bg-[#e3dac9] transition-all flex items-center gap-2"
-                        >
-                            <svg className="w-5 h-5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <button onClick={() => handleExportPDF()} className="w-full md:w-auto px-6 py-3 bg-[#fbf8f1] rounded-xl font-bold border-2 border-[#e3dac9] flex items-center gap-2">
                             Exportar PDF
                         </button>
-
-                        <div className="hidden lg:flex bg-[#fbf8f1] p-1.5 rounded-xl border border-[#e3dac9]">
+                        <div className="hidden lg:flex gap-2">
                             {([
                                 { id: undefined, label: 'Todo' },
                                 { id: 'disponible', label: 'Libres' },
                                 { id: 'usada', label: 'En Uso' },
                                 { id: 'vencida', label: 'Bajas' }
                             ] as const).map(opt => (
-                                <button
-                                    key={opt.label}
-                                    onClick={() => setFiltros({...filtros, estado: opt.id})}
-                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                                        filtros.estado === opt.id 
-                                        ? 'bg-[#2b1b17] text-[#f0e6d2] shadow-md' 
-                                        : 'text-[#8d6e3f] hover:bg-[#e3dac9]'
-                                    }`}
-                                >
+                                <button key={opt.label} onClick={() => setFiltros({...filtros, estado: opt.id})} className={`px-4 py-2 rounded-lg text-xs font-bold ${filtros.estado === opt.id ? 'bg-[#2b1b17] text-[#f0e6d2]' : 'text-[#8d6e3f] hover:bg-[#e3dac9]'}`}>
                                     {opt.label}
                                 </button>
                             ))}
@@ -278,52 +287,41 @@ export default function AdminLicenciasPage() {
                     </div>
                 </div>
 
-                {/* Table Layout */}
+                {/* Table */}
                 <div className="bg-white rounded-xl shadow-lg border border-[#e3dac9]/50 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2] border-b border-[#e3dac9]">
+                            <thead className="bg-[#fbf8f1] border-b border-[#e3dac9]">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold text-[#2b1b17] uppercase tracking-wider text-xs">#</th>
-                                    <th className="px-6 py-4 font-bold text-[#2b1b17] uppercase tracking-wider text-xs">Clave</th>
-                                    <th className="px-6 py-4 font-bold text-[#2b1b17] uppercase tracking-wider text-xs">Libro Identificado</th>
-                                    <th className="px-6 py-4 font-bold text-[#2b1b17] uppercase tracking-wider text-xs">Institución</th>
-                                    <th className="px-6 py-4 font-bold text-[#2b1b17] uppercase tracking-wider text-xs text-center">Estado</th>
-                                    <th className="px-6 py-4 font-bold text-[#2b1b17] uppercase tracking-wider text-xs text-right">Acciones</th>
+                                    <th className="px-6 py-4 font-bold text-xs uppercase">#</th>
+                                    <th className="px-6 py-4 font-bold text-xs uppercase">Clave</th>
+                                    <th className="px-6 py-4 font-bold text-xs uppercase">Libro</th>
+                                    <th className="px-6 py-4 font-bold text-xs uppercase">Institución</th>
+                                    <th className="px-6 py-4 font-bold text-xs uppercase text-center">Estado</th>
+                                    <th className="px-6 py-4 font-bold text-xs uppercase text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#e3dac9]">
                                 {isLoading ? (
-                                    <tr><td colSpan={6} className="p-12 text-center text-[#d4af37] italic">Cargando registros...</td></tr>
+                                    <tr><td colSpan={6} className="p-12 text-center text-[#d4af37]">Cargando registros...</td></tr>
                                 ) : licencias.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={6} className="p-12 text-center">
-                                            <div className="flex flex-col items-center gap-4 opacity-40 text-[#a1887f]">
-                                                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2H7"/></svg>
-                                                <p className="text-xl font-playfair font-bold">No se encontraron licencias</p>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <tr><td colSpan={6} className="p-12 text-center opacity-40">No se encontraron licencias</td></tr>
                                 ) : (
-                                    licencias.slice((page - 1) * limit, page * limit).map((l, i) => (
-                                        <tr key={l.id} className="group hover:bg-[#fbf8f1] transition-colors">
-                                            <td className="px-6 py-4 text-xs font-bold text-[#a1887f] w-12">
+                                    licencias.map((l, i) => (
+                                        <tr key={l.id} className="hover:bg-[#fbf8f1] transition-colors">
+                                            <td className="px-6 py-4 text-xs font-bold text-[#a1887f]">
                                                 {String(((page - 1) * limit) + i + 1).padStart(2, '0')}
                                             </td>
+                                            <td className="px-6 py-4 font-mono text-sm">{l.clave}</td>
                                             <td className="px-6 py-4">
-                                                <span className="font-mono text-sm font-bold text-[#2b1b17] bg-[#fbf8f1] px-3 py-1 rounded border border-[#e3dac9]">{l.clave}</span>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-[#2b1b17]">{l.titulo}</span>
-                                                    <span className="text-[10px] text-[#a1887f] font-bold">ID: {l.libroId}</span>
+                                                <div className="flex flex-col text-sm">
+                                                    <span className="font-bold">{l.titulo}</span>
+                                                    <span className="text-xs text-[#a1887f]">ID: {l.libroId}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-[#5d4037]">
-                                                {l.nombreEscuela}
-                                            </td>
+                                            <td className="px-6 py-4 text-sm">{l.nombreEscuela}</td>
                                             <td className="px-6 py-4 text-center">
-                                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
                                                     l.estado === 'disponible' ? 'bg-emerald-100 text-emerald-700' :
                                                     l.estado === 'usada' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
                                                 }`}>
@@ -331,14 +329,7 @@ export default function AdminLicenciasPage() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <button 
-                                                    onClick={() => handleToggleActiva(l.id, l.activa)}
-                                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border-2 ${
-                                                        l.activa 
-                                                        ? 'bg-red-50 text-red-600 border-red-100 hover:bg-red-600 hover:text-white' 
-                                                        : 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-600 hover:text-white'
-                                                    }`}
-                                                >
+                                                <button onClick={() => handleToggleActiva(l.id, l.activa)} className={`px-4 py-2 rounded-xl text-xs font-bold border-2 ${l.activa ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
                                                     {l.activa ? 'Bloquear' : 'Activar'}
                                                 </button>
                                             </td>
@@ -351,169 +342,68 @@ export default function AdminLicenciasPage() {
 
                     {/* Pagination */}
                     {!isLoading && totalItems > limit && (
-                        <div className="bg-white border-t border-[#e3dac9] px-6 py-4 flex items-center justify-between">
-                            <p className="text-sm text-[#5d4037]">
-                                Mostrando <span className="font-bold">{((page - 1) * limit) + 1}</span> a <span className="font-bold">{Math.min(page * limit, totalItems)}</span> de <span className="font-bold">{totalItems}</span> licencias
+                        <div className="bg-white border-t border-[#e3dac9] px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p className="text-sm font-medium text-[#5d4037]">
+                                Mostrando <span className="font-bold text-[#2b1b17]">{(page - 1) * limit + 1}</span> a <span className="font-bold text-[#2b1b17]">{Math.min(page * limit, totalItems)}</span> de <span className="font-bold text-[#2b1b17]">{totalItems}</span> licencias
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
                                     disabled={page === 1}
-                                    className="p-2 rounded-lg border border-[#e3dac9] text-[#2b1b17] hover:bg-[#fbf8f1] disabled:opacity-30 transition-all font-bold"
+                                    className="p-2 px-4 rounded-xl border-2 border-[#e3dac9] text-[#2b1b17] hover:bg-[#fbf8f1] hover:border-[#d4af37] disabled:opacity-20 transition-all font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm"
                                 >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
                                     Anterior
                                 </button>
                                 
-                                <div className="flex gap-1">
-                                    {[...Array(Math.ceil(totalItems / limit))].map((_, i) => (
-                                        <button
-                                            key={i + 1}
-                                            onClick={() => setPage(i + 1)}
-                                            className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
-                                                page === i + 1
-                                                ? 'bg-[#2b1b17] text-[#f0e6d2] shadow-md'
-                                                : 'text-[#8d6e3f] hover:bg-[#fbf8f1]'
-                                            }`}
-                                        >
-                                            {i + 1}
-                                        </button>
-                                    ))}
+                                <div className="hidden md:flex gap-2 mx-2">
+                                    {Array.from({ length: Math.ceil(totalItems / limit) }, (_, i) => i + 1)
+                                        .filter(p => p === 1 || p === Math.ceil(totalItems / limit) || Math.abs(p - page) <= 1)
+                                        .map((p, idx, arr) => (
+                                            <React.Fragment key={p}>
+                                                {idx > 0 && arr[idx-1] !== p - 1 && <span className="text-[#a1887f] self-end pb-2 font-black tracking-tighter">...</span>}
+                                                <button
+                                                    onClick={() => setPage(p)}
+                                                    className={`w-10 h-10 rounded-xl font-black transition-all border-2 text-sm ${
+                                                        page === p
+                                                        ? 'bg-[#2b1b17] border-[#2b1b17] text-[#f0e6d2] shadow-md transform -translate-y-0.5'
+                                                        : 'bg-white border-[#e3dac9] text-[#8d6e3f] hover:border-[#d4af37] hover:bg-[#fbf8f1]'
+                                                    }`}
+                                                >
+                                                    {p}
+                                                </button>
+                                            </React.Fragment>
+                                        ))
+                                    }
                                 </div>
 
                                 <button
-                                    onClick={() => setPage(prev => prev + 1)}
+                                    onClick={() => setPage(p => p + 1)}
                                     disabled={page >= Math.ceil(totalItems / limit)}
-                                    className="p-2 rounded-lg border border-[#e3dac9] text-[#2b1b17] hover:bg-[#fbf8f1] disabled:opacity-30 transition-all font-bold"
+                                    className="p-2 px-4 rounded-xl border-2 border-[#e3dac9] text-[#2b1b17] hover:bg-[#fbf8f1] hover:border-[#d4af37] disabled:opacity-20 transition-all font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm"
                                 >
                                     Siguiente
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
                                 </button>
                             </div>
                         </div>
                     )}
                 </div>
-                        {/* Modal Generar */}
+
+                {/* Modal Generar */}
                 {showGenerar && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#2b1b17]/80 backdrop-blur-xl animate-fade-in">
-                        <div className="relative bg-[#f5f5f5] rounded-xl p-12 w-full max-w-xl shadow-2xl border border-[#e3dac9]">
-                            <button 
-                                onClick={() => setShowGenerar(false)}
-                                className="absolute top-8 right-8 text-[#a1887f] hover:text-[#2b1b17] transition-colors"
-                            >
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
-
-                            <div className="text-center mb-10">
-                                <h2 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">Nueva Emisión</h2>
-                                <p className="text-[#8d6e3f] italic font-medium font-lora">Generación masiva de licencias para instituciones</p>
-                            </div>
-
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
+                        <div className="bg-[#f5f5f5] rounded-xl p-12 w-full max-w-xl shadow-2xl border border-[#e3dac9] relative">
+                            <button onClick={() => setShowGenerar(false)} className="absolute top-8 right-8 text-[#a1887f]">Cerrar</button>
+                            <h2 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-8 text-center">Nueva Emisión</h2>
                             <form onSubmit={handleGenerar} className="space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-[#a1887f] ml-2">Seleccionar Escuela</label>
-                                    <select 
-                                        className="w-full p-4 bg-white rounded-xl border-2 border-[#e3dac9] focus:border-[#d4af37] outline-none transition-all font-medium text-[#2b1b17]"
-                                        value={newLicencia.escuelaId}
-                                        onChange={e => setNewLicencia({...newLicencia, escuelaId: e.target.value})}
-                                        required
-                                    >
-                                        <option value="0">Elige la institución...</option>
-                                        {escuelas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
-                                    </select>
-                                </div>
-
+                                <CustomSelect label="Institución" options={escuelas.map(e => ({ id: e.id, label: e.nombre }))} value={newLicencia.escuelaId} onChange={val => setNewLicencia({...newLicencia, escuelaId: String(val)})} required />
                                 <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-[#a1887f] ml-2">Libro ID</label>
-                                        <input 
-                                            type="number" 
-                                            placeholder="Ej. 10"
-                                            className="w-full p-4 bg-white rounded-xl border-2 border-[#e3dac9] focus:border-[#d4af37] outline-none font-medium"
-                                            value={newLicencia.libroId}
-                                            onChange={e => setNewLicencia({...newLicencia, libroId: e.target.value})}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-[#a1887f] ml-2">Cantidad</label>
-                                        <input 
-                                            type="number" 
-                                            placeholder="Ej. 50"
-                                            className="w-full p-4 bg-white rounded-xl border-2 border-[#e3dac9] focus:border-[#d4af37] outline-none font-medium"
-                                            value={newLicencia.cantidad}
-                                            onChange={e => setNewLicencia({...newLicencia, cantidad: e.target.value})}
-                                            required
-                                        />
-                                    </div>
+                                    <CustomSelect label="Libro" options={books.map(b => ({ id: b.id, label: b.titulo }))} value={newLicencia.libroId} onChange={val => setNewLicencia({...newLicencia, libroId: String(val)})} required />
+                                    <input type="number" className="p-4 rounded-xl border-2" value={newLicencia.cantidad} onChange={e => setNewLicencia({...newLicencia, cantidad: e.target.value})} placeholder="Cantidad" required />
                                 </div>
-
-                                <div className="space-y-4">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-[#a1887f] ml-2">Plazo de Vigencia</label>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {[
-                                            { label: 'Cuatrimestral', id: '4m', months: 4 },
-                                            { label: 'Semestral', id: '6m', months: 6 },
-                                            { label: 'Personalizado', id: 'custom', months: 0 }
-                                        ].map((opt) => (
-                                            <button
-                                                key={opt.id}
-                                                type="button"
-                                                onClick={() => {
-                                                    setSelectedPlan(opt.id as any);
-                                                    if (opt.months > 0) {
-                                                        const d = new Date();
-                                                        d.setMonth(d.getMonth() + opt.months);
-                                                        setNewLicencia({...newLicencia, fechaVencimiento: d.toISOString().split('T')[0]});
-                                                    }
-                                                }}
-                                                className={`py-3 px-2 rounded-xl border-2 transition-all text-[10px] font-bold uppercase tracking-widest ${
-                                                    selectedPlan === opt.id
-                                                    ? 'bg-[#2b1b17] text-[#f0e6d2] border-[#2b1b17] shadow-lg'
-                                                    : 'bg-white text-[#a1887f] border-[#e3dac9] hover:border-[#d4af37] hover:text-[#2b1b17]'
-                                                }`}
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex items-center gap-2 ml-2 mb-4">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37] animate-pulse"></div>
-                                        <p className="text-[10px] font-bold text-[#8d6e3f] italic uppercase tracking-widest">
-                                            {selectedPlan === '4m' ? 'Modo Automático: Cuatrimestral' : 
-                                             selectedPlan === '6m' ? 'Modo Automático: Semestral' : 
-                                             'Modo de Fecha Libre Activado'}
-                                        </p>
-                                    </div>
-                                    
-                                    <div className={`relative group transition-all duration-300 ${selectedPlan !== 'custom' ? 'opacity-60 grayscale-[0.5]' : 'opacity-100'}`}>
-                                        <div className="absolute -top-2 left-4 bg-[#f5f5f5] px-2 text-[9px] font-bold text-[#d4af37] uppercase tracking-tighter">
-                                            {selectedPlan === 'custom' ? '📅 Elige una fecha' : '🔒 Fecha Automática'}
-                                        </div>
-                                        <input 
-                                            type="date" 
-                                            disabled={selectedPlan !== 'custom'}
-                                            className={`w-full p-4 rounded-xl border-2 outline-none font-medium transition-all text-sm ${
-                                                selectedPlan !== 'custom' 
-                                                ? 'bg-gray-100 border-[#e3dac9] text-[#a1887f] cursor-not-allowed' 
-                                                : 'bg-white border-[#d4af37] text-[#2b1b17]'
-                                            }`}
-                                            value={newLicencia.fechaVencimiento}
-                                            onChange={e => {
-                                                setNewLicencia({...newLicencia, fechaVencimiento: e.target.value});
-                                                setSelectedPlan('custom');
-                                            }}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <button 
-                                    type="submit" 
-                                    disabled={isGenerating}
-                                    className="w-full py-4 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold text-lg hover:shadow-xl transition-all disabled:opacity-50"
-                                >
-                                    {isGenerating ? 'Generando...' : 'Confirmar Generación'}
-                                </button>
+                                <input type="date" className="w-full p-4 rounded-xl border-2" value={newLicencia.fechaVencimiento} onChange={e => setNewLicencia({...newLicencia, fechaVencimiento: e.target.value})} required />
+                                <button type="submit" className="w-full py-5 bg-[#2b1b17] text-[#f0e6d2] rounded-xl font-bold shadow-xl">Generar Licencias</button>
                             </form>
                         </div>
                     </div>

@@ -61,13 +61,25 @@ export const EditGrupoModal: React.FC<EditGrupoModalProps> = ({ isOpen, onClose,
         fetchMaestros();
     }, [isOpen, grupo]);
 
+    // Bloqueo de scroll global cuando el modal está abierto
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'grado' ? parseInt(value, 10) : value,
+            [name]: name === 'grado' ? (value === '' ? '' : parseInt(value, 10)) : value,
         }));
         if (errors[name as keyof UpdateGrupoDTO]) {
             setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -146,7 +158,7 @@ export const EditGrupoModal: React.FC<EditGrupoModalProps> = ({ isOpen, onClose,
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fade-in max-h-[90vh] overflow-y-auto">
 
                 {/* Header */}
@@ -187,7 +199,7 @@ export const EditGrupoModal: React.FC<EditGrupoModalProps> = ({ isOpen, onClose,
                             type="number"
                             name="grado"
                             min={1}
-                            value={formData.grado}
+                            value={isNaN(Number(formData.grado)) ? '' : formData.grado}
                             onChange={handleChange}
                             className={`w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${
                                 errors.grado

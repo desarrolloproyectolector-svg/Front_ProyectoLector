@@ -9,6 +9,7 @@ interface ModalProps {
     children: React.ReactNode;
     size?: 'sm' | 'md' | 'lg' | 'xl' | '4xl';
     maxWidth?: string;
+    isLocked?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({ 
@@ -17,7 +18,8 @@ export const Modal: React.FC<ModalProps> = ({
     title, 
     children, 
     size = 'md',
-    maxWidth
+    maxWidth,
+    isLocked = true
 }) => {
     useEffect(() => {
         if (isOpen) {
@@ -48,7 +50,7 @@ export const Modal: React.FC<ModalProps> = ({
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
+                onClick={isLocked ? undefined : onClose}
             ></div>
 
             {/* Modal */}

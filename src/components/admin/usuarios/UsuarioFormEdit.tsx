@@ -12,6 +12,8 @@ export interface UsuarioFormEditData {
     fechaNacimiento: string;
     genero: string;
     password: string;
+    grado?: number;
+    grupo?: string;
 }
 
 interface UsuarioFormEditProps {
@@ -38,6 +40,8 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
     const [fechaNacimiento, setFechaNacimiento] = useState(initialData?.fechaNacimiento ?? '');
     const [genero, setGenero] = useState(initialData?.genero ?? '');
     const [password, setPassword] = useState('');
+    const [grado, setGrado] = useState<number | undefined>(initialData?.grado);
+    const [grupo, setGrupo] = useState(initialData?.grupo ?? '');
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -84,7 +88,9 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
             telefono: sanitizeText(telefono),
             fechaNacimiento,
             genero,
-            password
+            password,
+            grado,
+            grupo
         });
     };
 
@@ -219,6 +225,39 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                     className={inputClass('fechaNacimiento')}
                 />
             </div>
+
+            {/* Campos de Alumno — Grado y Grupo */}
+            {initialData?.grado !== undefined && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className={labelClass}>Grado</label>
+                        <input
+                            type="number"
+                            name="grado"
+                            id="grado"
+                            disabled={isLoading}
+                            value={grado ?? ''}
+                            onChange={e => setGrado(e.target.value ? parseInt(e.target.value) : undefined)}
+                            placeholder="Ej: 1"
+                            className={inputClass('grado')}
+                        />
+                    </div>
+                    <div>
+                        <label className={labelClass}>Grupo</label>
+                        <input
+                            type="text"
+                            name="grupo"
+                            id="grupo"
+                            autoComplete="off"
+                            disabled={isLoading}
+                            value={grupo}
+                            onChange={e => setGrupo(e.target.value)}
+                            placeholder="Ej: A"
+                            className={inputClass('grupo')}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Contraseña — opcional en edición */}
             <div>

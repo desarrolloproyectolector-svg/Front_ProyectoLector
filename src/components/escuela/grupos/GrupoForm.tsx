@@ -99,44 +99,22 @@ export default function GrupoForm({
             }
           />
 
-          {/* Grado Select */}
-          <div className="w-full">
-            <label className="block text-sm font-bold text-[#2b1b17] mb-2">
-              Grado
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a1887f]">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                </svg>
-              </div>
-              <select
-                name="grado"
-                value={form.grado}
-                onChange={handleChange}
-                required
-                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.grado
-                  ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10"
-                  : "border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10"
-                  }`}
-              >
-                <option value="">Selecciona un grado</option>
-                <option value="1">1er Grado</option>
-                <option value="2">2do Grado</option>
-                <option value="3">3er Grado</option>
-              </select>
-            </div>
-            {errors.grado && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {errors.grado}
-              </p>
-            )}
-          </div>
+          <Input
+            label="Grado"
+            name="grado"
+            type="number"
+            value={form.grado}
+            onChange={handleChange}
+            placeholder="Ej: 1"
+            error={errors.grado}
+            required
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+              </svg>
+            }
+          />
 
           {/* Profesor */}
           <Input

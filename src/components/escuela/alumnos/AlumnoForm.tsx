@@ -202,19 +202,20 @@ export const AlumnoForm: React.FC<AlumnoFormProps> = ({
                         Información Académica
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="w-full">
-                            <label className="block text-sm font-bold text-[#2b1b17] mb-2">Grado</label>
-                            <div className="relative">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a1887f]">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                                </div>
-                                <select name="grado" value={formData.grado || ''} onChange={handleChange} disabled={isLoading}
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm transition-all duration-300 focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10">
-                                    <option value="">Selecciona un grado</option>
-                                    {[1,2,3,4,5,6].map(g => <option key={g} value={g}>{g}°</option>)}
-                                </select>
-                            </div>
-                        </div>
+                        <Input
+                            label="Grado"
+                            name="grado"
+                            type="number"
+                            value={String(formData.grado || '')}
+                            onChange={handleChange}
+                            placeholder="Ej: 1"
+                            disabled={isLoading}
+                            icon={
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            }
+                        />
                         <div className="w-full">
                             <label className="block text-sm font-bold text-[#2b1b17] mb-2">Grupo</label>
                             <div className="relative">

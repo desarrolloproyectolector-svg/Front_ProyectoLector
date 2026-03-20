@@ -14,6 +14,7 @@ export interface ProfesorFormData {
     fechaNacimiento?: string;
     especialidad?: string;
     fechaIngreso?: string;
+    idGrupo?: number;
 }
 
 export interface RegistroProfesorPayload {
@@ -66,6 +67,7 @@ export interface ProfesorFormErrors {
     fechaNacimiento?: string;
     especialidad?: string;
     fechaIngreso?: string;
+    idGrupo?: string;
 }
 
 // ============================================================================

@@ -145,39 +145,20 @@ export const AlumnoFields: React.FC<AlumnoFieldsProps> = ({
                         }
                     />
 
-                    {/* Grado - Select */}
-                    <div className="w-full">
-                        <label className="block text-sm font-bold text-[#2b1b17] mb-2">
-                            Grado
-                        </label>
-                        <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a1887f]">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                </svg>
-                            </div>
-                            <select
-                                name="grado"
-                                value={data.grado || ''}
-                                onChange={(e) => onChange('grado', e.target.value ? parseInt(e.target.value) : '')}
-                                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.grado
-                                        ? 'border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                                        : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
-                                    }`}
-                            >
-                                <option value="">Selecciona un grado</option>
-                                <option value="1">1° (Primero)</option>
-                                <option value="2">2° (Segundo)</option>
-                                <option value="3">3° (Tercero)</option>
-                                <option value="4">4° (Cuarto)</option>
-                                <option value="5">5° (Quinto)</option>
-                                <option value="6">6° (Sexto)</option>
-                            </select>
-                        </div>
-                        {errors.grado && (
-                            <p className="mt-1 text-sm text-red-600">{errors.grado}</p>
-                        )}
-                    </div>
+                    <Input
+                        label="Grado"
+                        name="grado"
+                        type="number"
+                        value={data.grado || ''}
+                        onChange={(e) => onChange('grado', e.target.value ? parseInt(e.target.value) : '')}
+                        placeholder="Ej: 1"
+                        error={errors.grado}
+                        icon={
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                        }
+                    />
 
                     <Input
                         label="Grupo"

@@ -84,6 +84,19 @@ export default function EscuelasAdminPage() {
         loadEscuelas();
     }, [loadStats, loadEscuelas]);
 
+    // Bloqueo de scroll global cuando cualquier modal está abierto
+    const isAnyModalOpen = showAddModal || showEditModal || showDeleteModal;
+    useEffect(() => {
+        if (isAnyModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isAnyModalOpen]);
+
     // ── Handlers modales ─────────────────────────────────────
     const handleAddSuccess = () => {
         setShowAddModal(false);
@@ -347,7 +360,7 @@ export default function EscuelasAdminPage() {
                 {/* ── Modal confirmación de eliminación ───────────────── */}
                 {showDeleteModal && escuelaToDelete && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleDeleteCancel} />
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
                         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fade-in">
 
                             <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-red-100">
