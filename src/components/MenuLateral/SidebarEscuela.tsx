@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import MenuBase from './MenuBase';
 
 export default function SidebarEscuela({ isOpen, onClose }: { isOpen: boolean; onClose?: () => void; }) {

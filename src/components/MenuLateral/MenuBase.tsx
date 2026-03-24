@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ReactElement } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 interface MenuItem {
   href: string;
@@ -12,36 +13,22 @@ interface MenuItem {
 
 interface MenuBaseProps {
   isOpen: boolean;
-  role: string;
+  role?: string;
   menuItems: MenuItem[];
-  userName?: string;
-  userClass?: string;
   onClose?: () => void;
 }
 
 export default function MenuBase({
   isOpen,
-  role,
   menuItems,
-  userName = 'Usuario',
-  userClass = 'Admin',
   onClose,
 }: MenuBaseProps) {
   const pathname = usePathname();
-  const router = useRouter();
+  const { displayName, roleLabel, logout } = useAuth();
 
   // --- Lógica de Cierre de Sesión ---
   const handleLogout = () => {
-    // 1. Borrar la cookie 'token' (ajusta el nombre si es distinto)
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-
-    // 2. Limpiar almacenamiento local por seguridad
-    localStorage.clear();
-    sessionStorage.clear();
-
-    // 3. Redirigir y refrescar el estado del servidor
-    router.push('/login');
-    router.refresh();
+    logout();
   };
 
   // --- Renderizador de Iconos ---
@@ -122,8 +109,8 @@ export default function MenuBase({
       {/* User & Logout Section */}
       <div className="mt-auto px-4 pt-6 border-t border-[#4e342e]">
         <div className="mb-4 px-2">
-          <p className="text-sm font-semibold text-[#f0e6d2]">{userName}</p>
-          <p className="text-xs text-[#a1887f]">{userClass}</p>
+          <p className="text-sm font-semibold text-[#f0e6d2]">{displayName}</p>
+          <p className="text-xs text-[#a1887f]">{roleLabel}</p>
         </div>
 
         <button

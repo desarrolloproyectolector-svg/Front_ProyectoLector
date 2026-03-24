@@ -5,10 +5,11 @@ import styles from './styles.module.css';
 
 import api from '../../utils/api';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { useAuth } from '../../context/AuthContext';
 
 export const LoginBook: React.FC = () => {
     const router = useRouter();
+    const { login } = useAuth();
     // State
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -90,12 +91,8 @@ export const LoginBook: React.FC = () => {
             const userName = user?.nombre || username.split('@')[0];
             const tipoPersona = user?.tipoPersona || 'alumno';
 
-            // Save Token and User Data
-            localStorage.setItem('token', access_token);
-            if (user) {
-                localStorage.setItem('user', JSON.stringify(user));
-            }
-            Cookies.set('token', access_token, { expires: 7 }); // expires in 7 days
+            // Save Token and User Data via AuthContext
+            login(access_token, user ?? { nombre: userName, tipoPersona });
 
             // --- SUCCESS SEQUENCE ---
             // 0. Set Welcome Name

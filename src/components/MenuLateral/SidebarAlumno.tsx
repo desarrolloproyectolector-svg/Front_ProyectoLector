@@ -1,5 +1,4 @@
 'use client';
-import { usePathname } from 'next/navigation';
 import MenuBase from './MenuBase';
 
 interface Props {
@@ -46,8 +45,7 @@ export default function SidebarAlumno({ isOpen, onClose }: Props) {
       isOpen={isOpen}
       role="Estudiante"
       menuItems={menuItems}
-      userName="Usuario"
-      userClass="Clase A-1"
+      onClose={onClose}
     />
   );
 }

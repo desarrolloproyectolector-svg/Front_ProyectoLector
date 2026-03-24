@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import MenuBase from './MenuBase';
 
 export default function SidebarAdmin({ isOpen, onClose }: { isOpen: boolean; onClose?: () => void; }) {
