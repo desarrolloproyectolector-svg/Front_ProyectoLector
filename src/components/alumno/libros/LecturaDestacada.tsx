@@ -37,8 +37,19 @@ export const LecturaDestacada: React.FC<LecturaDestacadaProps> = ({ libro, onCli
             {/* Contenido izquierdo */}
             <div className="relative z-10 flex-1 w-full order-2 md:order-1 mt-6 md:mt-0">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 bg-gradient-to-r from-[#d4af37] to-[#c19a2e] rounded-full shadow-lg border border-white/20">
+                    {hasStarted ? (
+                        /* Ícono bookmark para "continúa" */
+                        <svg className="w-3 h-3 text-[#2b1b17] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 2a2 2 0 0 0-2 2v18l8-3 8 3V4a2 2 0 0 0-2-2H6z" />
+                        </svg>
+                    ) : (
+                        /* Ícono libro abierto para "próxima lectura" */
+                        <svg className="w-3.5 h-3.5 text-[#2b1b17] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    )}
                     <span className="text-[10px] font-black tracking-widest uppercase text-[#2b1b17]">
-                        ⚡ {hasStarted ? 'Continúa donde lo dejaste' : 'Tu próxima lectura'}
+                        {hasStarted ? 'Continúa donde lo dejaste' : 'Tu próxima lectura'}
                     </span>
                 </div>
 
@@ -55,7 +66,10 @@ export const LecturaDestacada: React.FC<LecturaDestacadaProps> = ({ libro, onCli
 
                 {/* Última lectura */}
                 {libro.ultimaLectura && (
-                    <p className="text-white/40 text-xs mb-8 ml-6">
+                    <p className="flex items-center gap-1.5 text-white/60 text-xs mb-8">
+                        <svg className="w-3.5 h-3.5 flex-shrink-0 text-[#d4af37]/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         Última lectura: {formatFecha(libro.ultimaLectura)}
                     </p>
                 )}
@@ -72,9 +86,13 @@ export const LecturaDestacada: React.FC<LecturaDestacadaProps> = ({ libro, onCli
                         </div>
                         <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm border border-white/5">
                             <div
-                                className="h-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-1000 ease-out"
+                                className="h-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-1000 ease-out relative overflow-hidden"
                                 style={{ width: `${libro.progresoPorcentaje}%` }}
-                            />
+                            >
+                                {libro.progresoPorcentaje > 0 && libro.progresoPorcentaje < 100 && (
+                                    <span className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

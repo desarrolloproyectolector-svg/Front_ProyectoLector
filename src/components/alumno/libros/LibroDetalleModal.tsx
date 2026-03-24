@@ -47,7 +47,7 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                 </button>
 
                 {/* Izquierda: Portada + info básica */}
-                <div className="w-full md:w-2/5 bg-[#fbf8f1] p-8 md:p-12 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#e3dac9]/50">
+                <div className="w-full md:w-2/5 bg-gradient-to-b from-[#fbf8f1] to-white p-8 md:p-12 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#e3dac9]/50">
                     <div className="relative group">
                         <div className="w-48 h-64 bg-gradient-to-br from-[#d4af37] to-[#8d6e3f] rounded-xl shadow-2xl flex items-center justify-center p-4 transform rotate-3 transition-transform group-hover:rotate-0">
                             {libro.portadaUrl ? (
@@ -129,6 +129,9 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                             <div className="space-y-3">
                                 {segmentosOrdenados.map((seg, index) => {
                                     const isUltimo = seg.id === libro.ultimoSegmentoId;
+                                    const isCompletado = ultimoSegIdx >= 0 && index < ultimoSegIdx;
+                                    const isPendiente = ultimoSegIdx >= 0 && index > ultimoSegIdx;
+
                                     return (
                                         <div
                                             key={seg.id}
@@ -136,18 +139,38 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                                             className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
                                                 isUltimo
                                                     ? 'border-[#d4af37] bg-[#fbf8f1]/80'
+                                                    : isCompletado
+                                                    ? 'border-emerald-100 bg-emerald-50/40 hover:border-emerald-200'
                                                     : 'border-[#e3dac9]/30 hover:border-[#d4af37] hover:bg-[#fbf8f1]/50'
                                             }`}
                                         >
+                                            {/* Badge numérico / check / pending */}
                                             <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-bold text-xs transition-all flex-shrink-0 ${
                                                 isUltimo
                                                     ? 'bg-[#2b1b17] text-white border-[#2b1b17]'
+                                                    : isCompletado
+                                                    ? 'bg-emerald-500 text-white border-emerald-500'
                                                     : 'bg-white border-[#e3dac9] text-[#8d6e3f] group-hover:bg-[#2b1b17] group-hover:text-white group-hover:border-[#2b1b17]'
                                             }`}>
-                                                {index + 1}
+                                                {isCompletado ? (
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : (
+                                                    index + 1
+                                                )}
                                             </div>
+
                                             <div className="flex-1 min-w-0">
-                                                <p className={`font-bold text-sm truncate ${isUltimo ? 'text-[#2b1b17]' : 'text-[#2b1b17] group-hover:text-[#8d6e3f]'} transition-colors`}>
+                                                <p className={`font-bold text-sm truncate transition-colors ${
+                                                    isCompletado
+                                                        ? 'text-emerald-700'
+                                                        : isUltimo
+                                                        ? 'text-[#2b1b17]'
+                                                        : isPendiente
+                                                        ? 'text-[#a1887f]'
+                                                        : 'text-[#2b1b17] group-hover:text-[#8d6e3f]'
+                                                }`}>
                                                     {seg.titulo}
                                                 </p>
                                                 {isUltimo && (
@@ -155,8 +178,18 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                                                         Aquí te quedaste
                                                     </span>
                                                 )}
+                                                {isCompletado && (
+                                                    <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
+                                                        Completado
+                                                    </span>
+                                                )}
                                             </div>
-                                            <div className={`transition-colors flex-shrink-0 ${isUltimo ? 'text-[#d4af37]' : 'text-[#e3dac9] group-hover:text-[#d4af37]'}`}>
+
+                                            <div className={`transition-colors flex-shrink-0 ${
+                                                isUltimo ? 'text-[#d4af37]'
+                                                : isCompletado ? 'text-emerald-400'
+                                                : 'text-[#e3dac9] group-hover:text-[#d4af37]'
+                                            }`}>
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                                                 </svg>

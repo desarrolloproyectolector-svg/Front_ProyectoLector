@@ -26,11 +26,27 @@ export const LibroCard: React.FC<LibroCardProps> = ({ libro, onClick }) => {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 ) : (
-                    <div className="text-center">
-                        <svg className="w-16 h-16 text-[#d4af37]/30 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        <span className="font-playfair font-bold text-[#8d6e3f] text-sm block px-4">{libro.titulo}</span>
+                    /* Portada sintética estilo editorial */
+                    <div className="w-full h-full relative flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#3e2723] via-[#2b1b17] to-[#1a0e0a]">
+                        {/* Lomo izquierdo */}
+                        <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-b from-[#d4af37] via-[#c19a2e] to-[#a07820]" />
+                        {/* Ornamento superior */}
+                        <div className="absolute top-4 left-6 right-4 h-px bg-gradient-to-r from-[#d4af37]/80 to-transparent" />
+                        <div className="absolute top-6 left-6 right-4 h-px bg-[#d4af37]/20" />
+                        {/* Título centrado */}
+                        <div className="px-6 py-4 text-center z-10">
+                            <span className="font-playfair font-black text-white text-sm leading-snug block drop-shadow-md">
+                                {libro.titulo}
+                            </span>
+                            {libro.materia && (
+                                <span className="mt-2 inline-block text-[#d4af37]/70 text-[9px] uppercase tracking-[0.2em] font-bold">
+                                    {libro.materia}
+                                </span>
+                            )}
+                        </div>
+                        {/* Ornamento inferior */}
+                        <div className="absolute bottom-6 left-6 right-4 h-px bg-gradient-to-r from-[#d4af37]/80 to-transparent" />
+                        <div className="absolute bottom-4 left-6 right-4 h-px bg-[#d4af37]/20" />
                     </div>
                 )}
 
@@ -43,10 +59,13 @@ export const LibroCard: React.FC<LibroCardProps> = ({ libro, onClick }) => {
                     </div>
                 )}
 
-                {/* Overlay hover */}
-                <div className="absolute inset-0 bg-[#2b1b17]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="bg-white text-[#2b1b17] px-6 py-2 rounded-full font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform text-sm">
-                        {hasStarted ? 'Continuar' : 'Ver libro'}
+                {/* Overlay hover — franja inferior */}
+                <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[#2b1b17]/90 via-[#2b1b17]/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4 translate-y-2 group-hover:translate-y-0">
+                    <span className="flex items-center gap-1.5 bg-white/95 text-[#2b1b17] px-5 py-2 rounded-full font-bold shadow-lg text-xs backdrop-blur-sm">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        {hasStarted ? 'Continuar' : 'Abrir libro'}
                     </span>
                 </div>
             </div>
@@ -76,13 +95,18 @@ export const LibroCard: React.FC<LibroCardProps> = ({ libro, onClick }) => {
                     </div>
                     <div className="h-2 w-full bg-[#f0e6d2] rounded-full overflow-hidden">
                         <div
-                            className={`h-full transition-all duration-1000 ease-out rounded-full ${
+                            className={`h-full transition-all duration-1000 ease-out rounded-full relative overflow-hidden ${
                                 isCompleted
                                     ? 'bg-gradient-to-r from-emerald-400 to-teal-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
                                     : 'bg-gradient-to-r from-[#d4af37] to-[#c19a2e]'
                             }`}
                             style={{ width: `${libro.progresoPorcentaje}%` }}
-                        />
+                        >
+                            {/* Shimmer en barras activas */}
+                            {!isCompleted && hasStarted && (
+                                <span className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
