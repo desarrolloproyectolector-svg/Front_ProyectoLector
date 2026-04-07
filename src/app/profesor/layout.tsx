@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarProfesor from '../../components/MenuLateral/SidebarProfesor';
+import RouteGuard from '../../components/auth/RouteGuard';
 
 export default function ProfesorLayout({
   children,
@@ -51,7 +52,9 @@ export default function ProfesorLayout({
             <p className="text-sm text-gray-600 hidden md:block">{currentTitle.sub}</p>
           </div>
         </header>
-        {children}
+        <RouteGuard allowedRoles={['maestro']}>
+          {children}
+        </RouteGuard>
       </main>
     </div>
   );

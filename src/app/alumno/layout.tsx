@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarAlumno from '../../components/MenuLateral/SidebarAlumno';
+import RouteGuard from '../../components/auth/RouteGuard';
 
 export default function DashboardLayout({
   children,
@@ -115,7 +116,11 @@ export default function DashboardLayout({
         </header>
 
         {/* Content */}
-        <div className="animate-fade">{children}</div>
+        <div className="animate-fade">
+          <RouteGuard allowedRoles={['alumno']}>
+            {children}
+          </RouteGuard>
+        </div>
       </main>
     </div>
   );

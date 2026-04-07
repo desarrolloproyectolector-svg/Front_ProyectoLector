@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Lora } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
+import { Toaster } from "../components/Toaster";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -31,6 +32,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

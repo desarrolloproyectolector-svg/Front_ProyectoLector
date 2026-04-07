@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarTutor from '../../components/MenuLateral/SidebarTutor';
+import RouteGuard from '../../components/auth/RouteGuard';
 
 export default function TutorLayout({
   children,
@@ -43,7 +44,9 @@ export default function TutorLayout({
             </svg>
           </button>
         </header>
-        {children}
+        <RouteGuard allowedRoles={['padre']}>
+          {children}
+        </RouteGuard>
       </main>
     </div>
   );

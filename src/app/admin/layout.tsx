@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarAdmin from '../../components/MenuLateral/SidebarAdmin';
+import RouteGuard from '../../components/auth/RouteGuard';
 
 export default function AdminLayout({
   children,
@@ -55,7 +56,9 @@ export default function AdminLayout({
 
         </header>
 
-        {children}
+        <RouteGuard allowedRoles={['administrador']}>
+          {children}
+        </RouteGuard>
       </main>
     </div>
   );

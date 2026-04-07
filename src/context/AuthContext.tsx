@@ -19,6 +19,8 @@ interface AuthContextType {
   user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
+  /** true tras el primer check de localStorage (evita redirects prematuros) */
+  isInitialized: boolean;
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
   /** Etiqueta legible del rol (ej. "maestro" → "Profesor") */
@@ -44,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Cargar desde localStorage al montar
   useEffect(() => {
@@ -56,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Si algo falla, limpiar por seguridad
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+    } finally {
+      // Marcar como inicializado siempre, con o sin sesión
+      setIsInitialized(true);
     }
   }, []);
 
@@ -93,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         token,
         isAuthenticated: !!token,
+        isInitialized,
         login,
         logout,
         roleLabel,

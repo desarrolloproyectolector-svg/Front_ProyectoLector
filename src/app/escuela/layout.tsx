@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarEscuela from '../../components/MenuLateral/SidebarEscuela';
+import RouteGuard from '../../components/auth/RouteGuard';
 
 export default function EscuelaLayout({
   children,
@@ -38,7 +39,9 @@ export default function EscuelaLayout({
             </svg>
           </button>
         </header>
-        {children}
+        <RouteGuard allowedRoles={['director']}>
+          {children}
+        </RouteGuard>
       </main>
     </div>
   );
