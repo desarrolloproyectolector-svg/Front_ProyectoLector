@@ -137,10 +137,11 @@ export default function AnnotationSidebar({ activeTool, onToggle }: AnnotationSi
     // para evitar cualquier posibilidad de encimarse en el header alto.
     const w = document.documentElement.clientWidth;
     const h = document.documentElement.clientHeight;
-    
+    const sidebarW = 52;
+
     setPos({
-      x: Math.max(10, w - 80),             // 80px desde la derecha
-      y: Math.max(150, (h / 2) - 160),     // Centrado vertical, asegurando al menos 150px del borde superior
+      x: Math.max(8, w - sidebarW - 12),       // 12px desde el borde derecho
+      y: Math.max(100, (h / 2) - 160),          // Centrado vertical con margen del header
     });
     setMounted(true);
   }, []);

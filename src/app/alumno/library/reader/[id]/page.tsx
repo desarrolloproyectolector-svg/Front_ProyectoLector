@@ -341,22 +341,22 @@ export default function ReaderPage() {
             />
 
             {/* Header */}
-            <header className="sticky top-0 z-110 bg-white/80 backdrop-blur-md border-b border-[#e3dac9] px-4 md:px-8 py-4 flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-4">
+            <header className="sticky top-0 z-110 bg-white/80 backdrop-blur-md border-b border-[#e3dac9] px-3 md:px-8 py-3 flex items-center justify-between shadow-sm gap-2">
+                <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
                     <button onClick={handleExit}
-                        className="p-2 hover:bg-[#fbf8f1] rounded-full transition-colors group" title="Volver">
-                        <svg className="w-6 h-6 text-[#8d6e3f] group-hover:text-[#2b1b17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        className="p-2 hover:bg-[#fbf8f1] rounded-full transition-colors group shrink-0" title="Volver">
+                        <svg className="w-5 h-5 md:w-6 md:h-6 text-[#8d6e3f] group-hover:text-[#2b1b17]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </button>
-                    <div>
-                        <h1 className="font-playfair font-bold text-lg md:text-xl line-clamp-1">{libro.titulo}</h1>
-                        <p className="text-[10px] font-black text-[#d4af37] uppercase tracking-widest">
-                            {currentSegment.unidadNombre || 'Contenido'} • {currentIdx + 1} de {totalSegments}
+                    <div className="min-w-0 flex-1">
+                        <h1 className="font-playfair font-bold text-sm md:text-xl truncate">{libro.titulo}</h1>
+                        <p className="text-[9px] md:text-[10px] font-black text-[#d4af37] uppercase tracking-widest truncate">
+                            {currentSegment.unidadNombre || 'Contenido'} &bull; {currentIdx + 1} de {totalSegments}
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 md:gap-4">
+                <div className="flex items-center gap-2 md:gap-4 shrink-0">
                     <div className="hidden md:flex flex-col items-end mr-2">
                         <span className="text-[10px] font-black text-[#a1887f]">PROGRESO</span>
                         <div className="w-32 h-1.5 bg-[#f0e6d2] rounded-full overflow-hidden mt-1">
@@ -380,19 +380,19 @@ export default function ReaderPage() {
                     <div className="hidden md:block w-px h-6 bg-[#e3dac9]" />
                     <button
                         onClick={handleExit}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#e3dac9] text-[#8d6e3f] text-xs font-bold uppercase tracking-widest hover:border-[#d4af37] hover:text-[#2b1b17] transition-all"
+                        className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-[#e3dac9] text-[#8d6e3f] text-xs font-bold uppercase tracking-widest hover:border-[#d4af37] hover:text-[#2b1b17] transition-all"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        <span className="hidden sm:inline">Finalizar</span>
+                        Finalizar
                     </button>
                     <button onClick={() => setShowSidebar(true)}
-                        className="p-2 bg-[#2b1b17] text-white rounded-lg hover:bg-[#3e2723] transition-all shadow-md flex items-center gap-2 px-4">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        className="p-2 bg-[#2b1b17] text-white rounded-lg hover:bg-[#3e2723] transition-all shadow-md flex items-center gap-1.5 px-3">
+                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
-                        <span className="hidden sm:inline text-xs font-bold uppercase tracking-widest">Capítulos</span>
+                        <span className="hidden md:inline text-xs font-bold uppercase tracking-widest">Capítulos</span>
                     </button>
                 </div>
             </header>
