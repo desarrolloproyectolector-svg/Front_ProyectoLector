@@ -367,8 +367,6 @@ export default function AnnotationToolbar({
             backdropFilter: 'blur(12px)',
             animation: 'fadeInBackdrop 0.2s ease both',
           }}
-          onMouseDown={e => { if (e.target === e.currentTarget) onClear(); }}
-          onTouchStart={e => { if (e.target === e.currentTarget) onClear(); }}
         >
           <div
             className="w-full max-w-sm rounded-2xl overflow-hidden"

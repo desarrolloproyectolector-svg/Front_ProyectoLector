@@ -35,7 +35,6 @@ export default function GlosarioTutorialModal({
       <div 
         className="absolute inset-0 bg-[#0a0a0a]/30 backdrop-blur-sm transition-opacity duration-400 ease-in-out"
         style={{ opacity: isClosing ? 0 : 1 }}
-        onClick={handleClose}
       />
       
       {/* Contenido de la Tarjeta */}
