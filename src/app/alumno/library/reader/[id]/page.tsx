@@ -332,7 +332,6 @@ export default function ReaderPage() {
                 onHighlight={annotations.addHighlight}
                 onComentario={annotations.addComentario}
                 onClear={annotations.clearSelection}
-                glosarioMatch={glosarioMatch}
             />
 
             {/* ── Barra lateral flotante de herramientas ── */}
