@@ -129,38 +129,58 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                             <div className="space-y-3">
                                 {segmentosOrdenados.map((seg, index) => {
                                     const isUltimo = seg.id === libro.ultimoSegmentoId;
+                                    const maxUnlockedIdx = Math.round((libro.progresoPorcentaje * segmentosOrdenados.length) / 100) - 1;
+                                    const isLocked = index > (maxUnlockedIdx < 0 ? 0 : maxUnlockedIdx);
+                                    
                                     return (
                                         <div
                                             key={seg.id}
-                                            onClick={() => onLeer(libro, seg.id)}
-                                            className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
-                                                isUltimo
-                                                    ? 'border-[#d4af37] bg-[#fbf8f1]/80'
-                                                    : 'border-[#e3dac9]/30 hover:border-[#d4af37] hover:bg-[#fbf8f1]/50'
+                                            onClick={() => { if (!isLocked) onLeer(libro, seg.id); }}
+                                            className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all ${
+                                                isLocked 
+                                                    ? 'opacity-40 cursor-not-allowed grayscale bg-gray-50 border-transparent' 
+                                                    : isUltimo
+                                                        ? 'border-[#d4af37] bg-[#fbf8f1]/80 cursor-pointer'
+                                                        : 'border-[#e3dac9]/30 hover:border-[#d4af37] hover:bg-[#fbf8f1]/50 cursor-pointer'
                                             }`}
                                         >
                                             <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-bold text-xs transition-all flex-shrink-0 ${
-                                                isUltimo
-                                                    ? 'bg-[#2b1b17] text-white border-[#2b1b17]'
-                                                    : 'bg-white border-[#e3dac9] text-[#8d6e3f] group-hover:bg-[#2b1b17] group-hover:text-white group-hover:border-[#2b1b17]'
+                                                isLocked
+                                                    ? 'bg-gray-200 text-gray-500 border-gray-200'
+                                                    : isUltimo
+                                                        ? 'bg-[#2b1b17] text-white border-[#2b1b17]'
+                                                        : 'bg-white border-[#e3dac9] text-[#8d6e3f] group-hover:bg-[#2b1b17] group-hover:text-white group-hover:border-[#2b1b17]'
                                             }`}>
-                                                {index + 1}
+                                                {isLocked ? (
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                    </svg>
+                                                ) : (
+                                                    index + 1
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className={`font-bold text-sm truncate ${isUltimo ? 'text-[#2b1b17]' : 'text-[#2b1b17] group-hover:text-[#8d6e3f]'} transition-colors`}>
+                                                <p className={`font-bold text-sm truncate ${isLocked ? 'text-gray-500' : isUltimo ? 'text-[#2b1b17]' : 'text-[#2b1b17] group-hover:text-[#8d6e3f]'} transition-colors`}>
                                                     {seg.titulo}
                                                 </p>
-                                                {isUltimo && (
+                                                {isUltimo && !isLocked && (
                                                     <span className="text-[10px] text-[#d4af37] font-black uppercase tracking-wider">
                                                         Aquí te quedaste
                                                     </span>
                                                 )}
+                                                {isLocked && (
+                                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                                                        Bloqueado
+                                                    </span>
+                                                )}
                                             </div>
-                                            <div className={`transition-colors flex-shrink-0 ${isUltimo ? 'text-[#d4af37]' : 'text-[#e3dac9] group-hover:text-[#d4af37]'}`}>
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </div>
+                                            {!isLocked && (
+                                                <div className={`transition-colors flex-shrink-0 ${isUltimo ? 'text-[#d4af37]' : 'text-[#e3dac9] group-hover:text-[#d4af37]'}`}>
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}

@@ -7,10 +7,26 @@ interface UseReadingTimerReturn {
   stop: () => number; // retorna los segundos totales al parar
 }
 
-export function useReadingTimer(): UseReadingTimerReturn {
-  const [seconds, setSeconds] = useState(0);
+export function useReadingTimer(libroId?: string | number): UseReadingTimerReturn {
+  const storageKey = libroId ? `reading_timer_libro_${libroId}` : 'reading_timer_global';
+
+  const [seconds, setSeconds] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem(storageKey);
+      return saved ? parseInt(saved, 10) : 0;
+    }
+    return 0;
+  });
+  
   const [isRunning, setIsRunning] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Persistir el tiempo en cada cambio
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(storageKey, seconds.toString());
+    }
+  }, [seconds, storageKey]);
 
   // Tick cada segundo cuando está corriendo
   useEffect(() => {
@@ -43,6 +59,9 @@ export function useReadingTimer(): UseReadingTimerReturn {
   const stop = (): number => {
     setIsRunning(false);
     if (intervalRef.current) clearInterval(intervalRef.current);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(storageKey);
+    }
     return seconds;
   };
 

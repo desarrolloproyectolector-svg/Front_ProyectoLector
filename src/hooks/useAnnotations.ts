@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { AlumnoLibrosService } from '../service/alumno/libros.service';
+import { AnotacionResponse, AnotacionPayload } from '../types/alumno/libros';
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -11,7 +13,7 @@ export type HighlightColor  = 'amarillo' | 'verde' | 'rosa' | 'azul';
 export type ActiveTool = HighlightColor | 'comentario' | null;
 
 export interface Anotacion {
-    id:                string;
+    id:                string | number;
     alumnoId:          number | string;
     libroId:           number;
     segmentoId:        number;
@@ -56,23 +58,8 @@ export const HIGHLIGHT_SOLID: Record<HighlightColor, string> = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function generateId(): string {
-    return `ann_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function storageKey(libroId: number): string {
-    return `anotaciones_libro_${libroId}`;
-}
-
-function load(libroId: number): Anotacion[] {
-    try {
-        const raw = localStorage.getItem(storageKey(libroId));
-        return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-}
-
-function save(libroId: number, anotaciones: Anotacion[]): void {
-    localStorage.setItem(storageKey(libroId), JSON.stringify(anotaciones));
+function generateTempId(): string {
+    return `temp_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
 function getTextOffsetInElement(
@@ -170,19 +157,52 @@ export function useAnnotations({ alumnoId, libroId, segmentoId }: UseAnnotations
     const [selection,    setSelection]    = useState<SelectionState | null>(null);
     const [pendingType,  setPendingType]  = useState<AnnotationType | null>(null);
     const [commentDraft, setCommentDraft] = useState('');
-    // Herramienta activa seleccionada desde la barra lateral
     const [activeTool,   setActiveTool]   = useState<ActiveTool>(null);
 
-    useEffect(() => { setTodas(load(libroId)); }, [libroId]);
+    // Cargar anotaciones desde la API
+    useEffect(() => {
+        let mounted = true;
+        AlumnoLibrosService.getAnotaciones(libroId)
+            .then(res => {
+                if (mounted) {
+                    setTodas(res as Anotacion[]);
+                }
+            })
+            .catch(console.error);
+        return () => { mounted = false; };
+    }, [libroId]);
 
-    const anotacionesDelSegmento = todas.filter(a => a.segmentoId === segmentoId);
+    const anotacionesDelSegmento = todas.filter(a => String(a.segmentoId) === String(segmentoId));
 
-    // Alternar herramienta: si ya está activa, la desactiva
     const toggleTool = useCallback((tool: ActiveTool) => {
         setActiveTool(prev => prev === tool ? null : tool);
         setSelection(null);
         setPendingType(null);
     }, []);
+
+    // ── Lógica Optimista ──────────────────────────────────────────────────────
+
+    const applyOptimisticAdd = useCallback((payload: AnotacionPayload) => {
+        const tempId = generateTempId();
+        const optimista: Anotacion = {
+            id: tempId,
+            alumnoId,
+            libroId,
+            ...payload,
+            creadoEn: new Date().toISOString()
+        };
+
+        setTodas(prev => [...prev, optimista]);
+
+        AlumnoLibrosService.crearAnotacion(libroId, payload)
+            .then(res => {
+                setTodas(prev => prev.map(a => a.id === tempId ? (res as Anotacion) : a));
+            })
+            .catch(e => {
+                console.error('Error guardando anotación:', e);
+                setTodas(prev => prev.filter(a => a.id !== tempId));
+            });
+    }, [alumnoId, libroId]);
 
     // ── Capturar selección ────────────────────────────────────────────────────
 
@@ -203,37 +223,28 @@ export function useAnnotations({ alumnoId, libroId, segmentoId }: UseAnnotations
             rect,
         };
 
-        // Si hay herramienta activa, aplicar directo sin mostrar popup
         if (activeTool !== null) {
             if (activeTool === 'comentario') {
-                // Para comentario sí necesitamos el modal — guardar selección y abrir
                 setSelection(state);
                 setPendingType('comentario');
             } else {
-                // Es un color de highlight → aplicar directo
-                const nueva: Anotacion = {
-                    id: generateId(), alumnoId, libroId, segmentoId,
+                applyOptimisticAdd({
+                    segmentoId,
                     tipo: 'highlight',
                     textoSeleccionado: state.text,
                     offsetInicio: state.offsetInicio,
-                    offsetFin:    state.offsetFin,
-                    color: activeTool, comentario: null,
-                    creadoEn: new Date().toISOString(),
-                };
-                setTodas(prev => {
-                    const next = [...prev, nueva];
-                    save(libroId, next);
-                    return next;
+                    offsetFin: state.offsetFin,
+                    color: activeTool,
+                    comentario: null
                 });
                 window.getSelection()?.removeAllRanges();
             }
             return;
         }
 
-        // Sin herramienta activa → comportamiento original (popup)
         setSelection(state);
         setPendingType(null);
-    }, [activeTool, alumnoId, libroId, segmentoId]);
+    }, [activeTool, segmentoId, applyOptimisticAdd]);
 
     const clearSelection = useCallback(() => {
         setSelection(null);
@@ -244,37 +255,57 @@ export function useAnnotations({ alumnoId, libroId, segmentoId }: UseAnnotations
 
     const addHighlight = useCallback((color: HighlightColor) => {
         if (!selection) return;
-        const nueva: Anotacion = {
-            id: generateId(), alumnoId, libroId, segmentoId,
+        applyOptimisticAdd({
+            segmentoId,
             tipo: 'highlight',
             textoSeleccionado: selection.text,
             offsetInicio: selection.offsetInicio,
-            offsetFin:    selection.offsetFin,
-            color, comentario: null,
-            creadoEn: new Date().toISOString(),
-        };
-        const next = [...todas, nueva];
-        setTodas(next); save(libroId, next); clearSelection();
-    }, [selection, todas, alumnoId, libroId, segmentoId, clearSelection]);
+            offsetFin: selection.offsetFin,
+            color,
+            comentario: null
+        });
+        clearSelection();
+    }, [selection, segmentoId, applyOptimisticAdd, clearSelection]);
 
     const addComentario = useCallback((texto: string) => {
         if (!selection || !texto.trim()) return;
-        const nueva: Anotacion = {
-            id: generateId(), alumnoId, libroId, segmentoId,
+        applyOptimisticAdd({
+            segmentoId,
             tipo: 'comentario',
             textoSeleccionado: selection.text,
             offsetInicio: selection.offsetInicio,
-            offsetFin:    selection.offsetFin,
-            color: null, comentario: texto.trim(),
-            creadoEn: new Date().toISOString(),
-        };
-        const next = [...todas, nueva];
-        setTodas(next); save(libroId, next); clearSelection(); setCommentDraft('');
-    }, [selection, todas, alumnoId, libroId, segmentoId, clearSelection]);
+            offsetFin: selection.offsetFin,
+            color: null,
+            comentario: texto.trim()
+        });
+        clearSelection();
+        setCommentDraft('');
+    }, [selection, segmentoId, applyOptimisticAdd, clearSelection]);
 
-    const removeAnotacion = useCallback((id: string) => {
-        const next = todas.filter(a => a.id !== id);
-        setTodas(next); save(libroId, next);
+    const addComentarioDirect = useCallback((textoSeleccionado: string, offsetInicio: number, offsetFin: number, comentario: string) => {
+        if (!comentario.trim()) return;
+        applyOptimisticAdd({
+            segmentoId,
+            tipo: 'comentario',
+            textoSeleccionado,
+            offsetInicio,
+            offsetFin,
+            color: null,
+            comentario: comentario.trim()
+        });
+    }, [segmentoId, applyOptimisticAdd]);
+
+    const removeAnotacion = useCallback((id: string | number) => {
+        const toDelete = todas.find(a => a.id === id);
+        setTodas(prev => prev.filter(a => a.id !== id));
+
+        if (typeof id === 'string' && id.startsWith('temp_')) return;
+
+        AlumnoLibrosService.eliminarAnotacion(libroId, id)
+            .catch(e => {
+                console.error('Error eliminando anotación:', e);
+                if (toDelete) setTodas(prev => [...prev, toDelete]);
+            });
     }, [todas, libroId]);
 
     const getPayloadParaBack = useCallback(() => todas, [todas]);
@@ -285,7 +316,7 @@ export function useAnnotations({ alumnoId, libroId, segmentoId }: UseAnnotations
         commentDraft, setCommentDraft,
         activeTool, toggleTool,
         handleTextSelection, clearSelection,
-        addHighlight, addComentario, removeAnotacion,
+        addHighlight, addComentario, addComentarioDirect, removeAnotacion,
         getPayloadParaBack,
     };
 }

@@ -5,6 +5,9 @@ import {
     LibroDetalle,
     ProgresoPayload,
     ProgresoResponse,
+    AnotacionPayload,
+    AnotacionResponse,
+    SesionPayload,
 } from '../../types/alumno/libros';
 
 // Normaliza la respuesta real del backend al modelo que usa el frontend
@@ -69,7 +72,8 @@ export class AlumnoLibrosService {
                             numeroPagina: seg.numeroPagina ? Number(seg.numeroPagina) : null,
                             idExterno: seg.idExterno,
                             unidadId: Number(unidad.id),
-                            unidadNombre: unidad.nombre
+                            unidadNombre: unidad.nombre,
+                            glosario: Array.isArray(seg.glosario) ? seg.glosario : [],
                         });
                     });
                 }
@@ -95,4 +99,48 @@ export class AlumnoLibrosService {
         return response.data?.data ?? response.data;
     }
 
+    /**
+     * Define o busca una palabra en el glosario remoto.
+     * POST /libros/glosario/palabra
+     */
+    static async registrarGlosario(palabra: string): Promise<{ palabra: string, definicion: string | null, origen: string }> {
+        const response = await api.post(`/libros/glosario/palabra`, { palabra });
+        return response.data?.data ?? response.data;
+    }
+
+    /**
+     * Obtener todas las anotaciones del alumno para un libro
+     * GET /escuelas/mis-libros/:libroId/anotaciones
+     */
+    static async getAnotaciones(libroId: number): Promise<AnotacionResponse[]> {
+        const response = await api.get(`/escuelas/mis-libros/${libroId}/anotaciones`);
+        return response.data?.data ?? response.data;
+    }
+
+    /**
+     * Crear una nueva anotación
+     * POST /escuelas/mis-libros/:libroId/anotaciones
+     */
+    static async crearAnotacion(libroId: number, payload: AnotacionPayload): Promise<AnotacionResponse> {
+        const response = await api.post(`/escuelas/mis-libros/${libroId}/anotaciones`, payload);
+        return response.data?.data ?? response.data;
+    }
+
+    /**
+     * Eliminar una anotación
+     * DELETE /escuelas/mis-libros/:libroId/anotaciones/:anotacionId
+     */
+    static async eliminarAnotacion(libroId: number, anotacionId: string | number): Promise<{ message: string }> {
+        const response = await api.delete(`/escuelas/mis-libros/${libroId}/anotaciones/${anotacionId}`);
+        return response.data;
+    }
+
+    /**
+     * Registrar sesión de lectura
+     * POST /escuelas/mis-libros/:libroId/sesiones
+     */
+    static async registrarSesion(libroId: number, payload: SesionPayload): Promise<any> {
+        const response = await api.post(`/escuelas/mis-libros/${libroId}/sesiones`, payload);
+        return response.data?.data ?? response.data;
+    }
 }

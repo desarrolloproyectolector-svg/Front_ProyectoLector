@@ -5,6 +5,7 @@ import { AddUsuarioModal } from '../../../components/admin/usuarios/AddUsuarioMo
 import { EditUsuarioModal } from '../../../components/admin/usuarios/Editusuariomodal';
 import { CargaMasivaAdminModal } from '../../../components/admin/usuarios/CargaMasivaAdminModal';
 import { UsuarioDetalleRow } from '../../../components/admin/usuarios/UsuarioDetalleRow';
+import { Pagination } from '../../../components/ui/Pagination';
 import { UsuarioService } from '../../../service/admin/usuarios/vistausuario.service';
 import { Usuario, TotalesPorRol, mapTipoPersonaToRole, getNombreCompleto } from '../../../types/admin/usuarios/vistausuario';
 
@@ -58,8 +59,22 @@ export default function UsuariosAdminPage() {
             setIsLoading(true);
             setError('');
             const response = await UsuarioService.getAll();
-            setUsuarios(response.data);
-            setTotales(response.totalesPorRol);
+            
+            // La API devuelve { message, totalesPorRol, total, data: [...] }
+            // Extraer el array de usuarios
+            const usersList = Array.isArray(response?.data) ? response.data : [];
+            setUsuarios(usersList);
+            
+            // Extraer y formatear totales
+            const ts = response?.totalesPorRol || {};
+            setTotales({
+                administrador: ts.administrador || 0,
+                director: ts.director || 0,
+                maestro: ts.maestro || 0,
+                alumno: ts.alumno || 0,
+                padre: ts.padre || 0,
+                total: ts.total || 0
+            });
         } catch (error: any) {
             console.error('Error al cargar usuarios:', error);
             setError('Error al cargar usuarios. Por favor intenta de nuevo.');
@@ -68,7 +83,7 @@ export default function UsuariosAdminPage() {
         }
     };
 
-    const filteredUsuarios = usuarios.filter(usuario => {
+    const filteredUsuarios = (usuarios || []).filter(usuario => {
         const nombreCompleto = getNombreCompleto(usuario);
         const matchSearch =
             nombreCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -390,75 +405,13 @@ export default function UsuariosAdminPage() {
 
                     {/* Pagination Controls */}
                     {!isLoading && filteredUsuarios.length > 0 && totalPages > 1 && (
-                        <div className="flex items-center justify-between px-6 py-4 border-t border-[#e3dac9]/50 bg-white">
-                            <div className="flex flex-1 justify-between sm:hidden">
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    disabled={currentPage === 1}
-                                    className="relative inline-flex items-center px-4 py-2 border border-[#e3dac9] text-sm font-medium rounded-md text-[#5d4037] bg-white hover:bg-[#fbf8f1] disabled:opacity-50"
-                                >
-                                    Anterior
-                                </button>
-                                <button
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className="relative inline-flex items-center px-4 py-2 border border-[#e3dac9] text-sm font-medium rounded-md text-[#5d4037] bg-white hover:bg-[#fbf8f1] disabled:opacity-50"
-                                >
-                                    Siguiente
-                                </button>
-                            </div>
-                            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                <div>
-                                    <p className="text-sm text-[#5d4037]">
-                                        Mostrando <span className="font-bold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> a <span className="font-bold">{Math.min(currentPage * ITEMS_PER_PAGE, filteredUsuarios.length)}</span> de <span className="font-bold">{filteredUsuarios.length}</span> resultados
-                                    </p>
-                                </div>
-                                <div>
-                                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                        <button
-                                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                            disabled={currentPage === 1}
-                                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-[#e3dac9] bg-white text-sm font-medium text-[#8d6e3f] hover:bg-[#fbf8f1] disabled:opacity-50"
-                                        >
-                                            <span className="sr-only">Anterior</span>
-                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                            .filter(p => p === 1 || p === totalPages || Math.abs(currentPage - p) <= 1)
-                                            .map((p, i, arr) => (
-                                                <React.Fragment key={p}>
-                                                    {i > 0 && arr[i - 1] !== p - 1 && (
-                                                        <span className="relative inline-flex items-center px-4 py-2 border border-[#e3dac9] bg-white text-sm font-medium text-[#5d4037]">
-                                                            ...
-                                                        </span>
-                                                    )}
-                                                    <button
-                                                        onClick={() => setCurrentPage(p)}
-                                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === p
-                                                            ? 'z-10 bg-[#fbf8f1] border-[#d4af37] text-[#d4af37] font-bold'
-                                                            : 'bg-white border-[#e3dac9] text-[#5d4037] hover:bg-gray-50'
-                                                            }`}
-                                                    >
-                                                        {p}
-                                                    </button>
-                                                </React.Fragment>
-                                            ))}
-                                        <button
-                                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                            disabled={currentPage === totalPages}
-                                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-[#e3dac9] bg-white text-sm font-medium text-[#8d6e3f] hover:bg-[#fbf8f1] disabled:opacity-50"
-                                        >
-                                            <span className="sr-only">Siguiente</span>
-                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-                                    </nav>
-                                </div>
-                            </div>
-                        </div>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            totalItems={filteredUsuarios.length}
+                            itemsPerPage={ITEMS_PER_PAGE}
+                        />
                     )}
                 </div>
 

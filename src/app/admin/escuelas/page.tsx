@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AddEscuelaModal } from '../../../components/admin/escuelas/AddEscuelaModal';
 import { EditEscuelaModal } from '../../../components/admin/escuelas/EditescuelaModal';
 import { EscuelaTable } from '../../../components/admin/escuelas/EscuelaTable';
+import { Pagination } from '../../../components/ui/Pagination';
 import { EscuelaService } from '../../../service/escuela.service';
 import type { EscuelaListItem, EscuelaStats } from '../../../types/admin/escuelas/escuela';
 
@@ -19,6 +20,13 @@ export default function EscuelasAdminPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingStats, setIsLoadingStats] = useState(true);
     const [error, setError] = useState('');
+
+    const ITEMS_PER_PAGE = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, filterEstado]);
 
     // ── Modales ──────────────────────────────────────────────
     const [showAddModal, setShowAddModal] = useState(false);
@@ -74,9 +82,15 @@ export default function EscuelasAdminPage() {
             (e.director
                 ? `${e.director.nombre} ${e.director.apellido}`.toLowerCase().includes(term)
                 : false);
-        const matchEstado = filterEstado === 'todos' || e.estado === filterEstado;
+    const matchEstado = filterEstado === 'todos' || e.estado === filterEstado;
         return matchSearch && matchEstado;
     });
+
+    const totalPages = Math.max(1, Math.ceil(escuelas.length / ITEMS_PER_PAGE));
+    const pagedEscuelas = escuelas.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     // Carga inicial
     useEffect(() => {
@@ -349,11 +363,22 @@ export default function EscuelasAdminPage() {
                             <p className="text-[#8d6e3f]">Cargando escuelas...</p>
                         </div>
                     ) : (
-                        <EscuelaTable
-                            escuelas={escuelas}
-                            onEdit={handleEdit}
-                            onDelete={handleDeleteRequest}
-                        />
+                        <>
+                            <EscuelaTable
+                                escuelas={pagedEscuelas}
+                                onEdit={handleEdit}
+                                onDelete={handleDeleteRequest}
+                            />
+                            {escuelas.length > 0 && (
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setCurrentPage}
+                                    totalItems={escuelas.length}
+                                    itemsPerPage={ITEMS_PER_PAGE}
+                                />
+                            )}
+                        </>
                     )}
                 </div>
 

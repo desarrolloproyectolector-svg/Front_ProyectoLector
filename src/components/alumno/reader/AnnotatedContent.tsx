@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Anotacion, HIGHLIGHT_COLORS, HIGHLIGHT_BORDER, HIGHLIGHT_SOLID } from '../../../hooks/useAnnotations';
+import { AlumnoLibrosService } from '../../../service/alumno/libros.service';
 
 interface AnnotatedContentProps {
   contenido:   string;
   anotaciones: Anotacion[];
   onRemove:    (id: string) => void;
   onMouseUp:   () => void;
+  onAddComentario?: (ann: Anotacion, comentario: string) => void;
 }
 
 interface Span {
@@ -94,7 +96,7 @@ function NoteChip({ ann, noteIdx, onRemove, isOpen, onOpen, onClose, onHover }: 
       {/* Chip del marcador */}
       <button
         onClick={() => isOpen ? onClose() : onOpen()}
-        onMouseEnter={() => onHover(ann.id)}
+        onMouseEnter={() => onHover(ann.id as string)}
         onMouseLeave={() => { if (!isOpen) onHover(null); }}
         title="Ver nota"
         className="flex items-center justify-center transition-all duration-200 cursor-pointer"
@@ -194,12 +196,10 @@ function NoteChip({ ann, noteIdx, onRemove, isOpen, onOpen, onClose, onHover }: 
               className="flex items-center justify-between px-3 py-2"
               style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
             >
-              <span data-annotation-ignore="true" className="text-[8px] text-white/20 uppercase tracking-wider select-none">
-                Clic fuera para cerrar
-              </span>
+              <div data-annotation-ignore="true" />
               <button
                 data-annotation-ignore="true"
-                onClick={e => { e.stopPropagation(); onRemove(ann.id); onHover(null); }}
+                onClick={e => { e.stopPropagation(); onRemove(ann.id as string); onHover(null); }}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
                 style={{
                   color:      'rgba(248,113,113,0.75)',
@@ -246,13 +246,47 @@ export default function AnnotatedContent({
   anotaciones,
   onRemove,
   onMouseUp,
+  onAddComentario,
 }: AnnotatedContentProps) {
-  // Para highlights: hover state (mostrar tooltip "Quitar")
+  // Para highlights: hover state (mostrar tooltip solo informativo si no está activo el popover)
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
+  // Popover activo para el highlight (al hacer clic)
+  const [activeHighlightId,  setActiveHighlightId]  = useState<string | null>(null);
+  
+  // Estado para las nuevas funciones del popover (Nota y Diccionario)
+  const [popoverMode, setPopoverMode] = useState<'menu' | 'nota' | 'definicion'>('menu');
+  const [comentarioDraft, setComentarioDraft] = useState('');
+  const [definicionData, setDefinicionData] = useState<{ palabra: string, definicion: string | null } | null>(null);
+  const [isLoadingDef, setIsLoadingDef] = useState(false);
+  const [defError, setDefError] = useState<string | null>(null);
+  const popoverTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const activePopoverRef = useRef<HTMLElement>(null);
+  
   // Para comentarios: highlight del texto al interactuar con el chip
   const [hoveredCommentId,   setHoveredCommentId]   = useState<string | null>(null);
   // Chip abierto (click-to-toggle)
-  const [openCommentId,      setOpenCommentId]       = useState<string | null>(null);
+  const [openCommentId,      setOpenCommentId]      = useState<string | null>(null);
+
+  // Cerrar popover de highlight al hacer clic en cualquier otro lado
+  useEffect(() => {
+    if (!activeHighlightId) return;
+    const handleClick = (e: MouseEvent | TouchEvent) => {
+      if (activePopoverRef.current && activePopoverRef.current.contains(e.target as Node)) {
+        return;
+      }
+      setActiveHighlightId(null);
+      setPopoverMode('menu');
+      setComentarioDraft('');
+      setDefinicionData(null);
+      setDefError(null);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('touchstart', handleClick, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('touchstart', handleClick);
+    };
+  }, [activeHighlightId]);
 
   const parrafos    = contenido.split('\n');
   const comentarios = anotaciones.filter(a => a.tipo === 'comentario');
@@ -274,6 +308,7 @@ export default function AnnotatedContent({
     <>
       <div
         onMouseUp={onMouseUp}
+        onTouchEnd={onMouseUp}
         className="text-[#2b1b17] leading-[2] text-justify font-lora text-lg md:text-xl"
         style={{ hyphens: 'auto' }}
       >
@@ -287,7 +322,7 @@ export default function AnnotatedContent({
           return (
             <div key={paraIdx} className="relative flex items-start gap-3">
 
-              <p
+              <div
                 data-para-index={paraIdx}
                 className="flex-1 mb-8 indent-8 first:indent-0"
               >
@@ -327,62 +362,215 @@ export default function AnnotatedContent({
                   return (
                     <mark
                       key={si}
-                      onMouseEnter={() => setHoveredHighlightId(ann.id)}
+                      onMouseEnter={() => setHoveredHighlightId(ann.id as string)}
                       onMouseLeave={() => setHoveredHighlightId(null)}
-                      onClick={() => onRemove(ann.id)}
-                      title="Clic para quitar marcado"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveHighlightId(activeHighlightId === ann.id ? null : (ann.id as string));
+                      }}
                       className="relative group cursor-pointer"
                       style={{
                         background: isCommentActive
                           ? 'rgba(212,175,55,0.45)'
-                          : isHighlightHov
+                          : isHighlightHov || activeHighlightId === ann.id
                             ? HIGHLIGHT_COLORS[color].replace('0.45)', '0.7)')
                             : HIGHLIGHT_GRADIENTS[color],
                         borderBottom: `2.5px solid ${HIGHLIGHT_BORDER[color]}`,
                         borderRadius: '3px',
                         padding:      '1px 2px',
                         transition:   'background 0.2s ease, box-shadow 0.2s ease',
-                        boxShadow:    isHighlightHov ? `0 2px 12px ${solid}40` : 'none',
-                        outline:      isHighlightHov ? `1px solid ${solid}30`  : '1px solid transparent',
+                        boxShadow:    isHighlightHov || activeHighlightId === ann.id ? `0 2px 12px ${solid}40` : 'none',
+                        outline:      isHighlightHov || activeHighlightId === ann.id ? `1px solid ${solid}30`  : '1px solid transparent',
                       }}
                     >
                       {span.text}
 
-                      {/* Tooltip "Quitar marcado" — solo informativo, clic en el mark lo elimina */}
-                      <span
-                        data-annotation-ignore="true"
-                        className="
-                          absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-                          flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                          whitespace-nowrap select-none pointer-events-none
-                          opacity-0 group-hover:opacity-100
-                        "
-                        style={{
-                          background:     'rgba(20,10,4,0.92)',
-                          backdropFilter: 'blur(8px)',
-                          border:         '1px solid rgba(255,255,255,0.1)',
-                          boxShadow:      `0 4px 16px rgba(0,0,0,0.35), 0 0 0 1px ${solid}20`,
-                          transition:     'opacity 0.15s ease',
-                          zIndex:         10,
-                        }}
-                      >
-                        <svg data-annotation-ignore="true" className="w-2.5 h-2.5" style={{ color: solid }}
-                          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M20 20H7L3 16l11-11 7 7-1 8z"/>
-                          <path strokeLinecap="round" d="M6.5 17.5l4-4"/>
-                        </svg>
-                        <span data-annotation-ignore="true" className="text-[9px] font-black uppercase tracking-widest"
-                          style={{ color: 'rgba(255,255,255,0.85)' }}>
-                          Quitar
+                      {activeHighlightId === ann.id && (
+                        <span
+                          ref={activePopoverRef}
+                          data-annotation-ignore="true"
+                          className="
+                            absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                            flex flex-col gap-2 p-1.5 rounded-xl
+                            select-none cursor-default z-50
+                          "
+                          style={{
+                            background:     'rgba(20,10,4,0.95)',
+                            backdropFilter: 'blur(12px)',
+                            border:         '1px solid rgba(255,255,255,0.1)',
+                            boxShadow:      `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px ${solid}30`,
+                            animation:      'noteCardIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both',
+                            width:          popoverMode === 'menu' ? 'max-content' : '260px',
+                          }}
+                          onClick={e => e.stopPropagation()}
+                          onMouseDown={e => e.stopPropagation()} // <-- Esto es clave para que no se desmonte antes del click
+                          onTouchStart={e => e.stopPropagation()} // <-- Igual para móviles
+                        >
+                          {popoverMode === 'menu' && (
+                            <div className="flex items-center gap-1.5">
+                              {/* Botón Consultar Definición */}
+                              <button
+                                data-annotation-ignore="true"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  setPopoverMode('definicion');
+                                  setIsLoadingDef(true);
+                                  setDefError(null);
+                                  try {
+                                    const selWord = ann.textoSeleccionado.trim();
+                                    if (selWord.length < 2 || selWord.length > 80) {
+                                      setDefError('Selección inválida para glosario.');
+                                      return;
+                                    }
+                                    const data = await AlumnoLibrosService.registrarGlosario(selWord);
+                                    setDefinicionData({ palabra: data.palabra, definicion: data.definicion });
+                                  } catch (err) {
+                                    setDefError('Palabra no encontrada o no válida.');
+                                  } finally {
+                                    setIsLoadingDef(false);
+                                  }
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-[#d4af37]/80 hover:bg-[#d4af37]/15 hover:text-[#d4af37]"
+                              >
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="11" cy="11" r="8"/>
+                                  <path d="M21 21l-4.35-4.35"/>
+                                </svg>
+                                Definir
+                              </button>
+
+                              {/* Botón Añadir Nota */}
+                              <button
+                                data-annotation-ignore="true"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPopoverMode('nota');
+                                  setTimeout(() => popoverTextareaRef.current?.focus(), 50);
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-[#d4af37]/80 hover:bg-[#d4af37]/15 hover:text-[#d4af37]"
+                              >
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                  <path d="M12 20h9"/>
+                                  <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                Nota
+                              </button>
+
+                              <div className="w-px h-4" style={{ background: 'rgba(255,255,255,0.1)' }} />
+
+                              <button
+                                data-annotation-ignore="true"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onRemove(ann.id as string);
+                                  setActiveHighlightId(null);
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-red-400 hover:bg-red-500/15 hover:text-red-500"
+                              >
+                                <svg data-annotation-ignore="true" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+                                </svg>
+                                Eliminar
+                              </button>
+                            </div>
+                          )}
+
+                          {popoverMode === 'nota' && (
+                            <div className="p-2 w-full flex flex-col gap-2" onClick={e => e.stopPropagation()}>
+                              <textarea
+                                ref={popoverTextareaRef}
+                                value={comentarioDraft}
+                                onChange={e => setComentarioDraft(e.target.value)}
+                                placeholder="Escribe tu nota aquí..."
+                                className="w-full bg-black/20 text-white/90 text-sm rounded-lg p-2.5 outline-none resize-none font-lora placeholder-white/30"
+                                style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                                rows={3}
+                              />
+                              <div className="flex justify-end gap-2">
+                                <button onClick={() => setPopoverMode('menu')} className="px-3 py-1.5 text-xs text-white/50 hover:text-white/90 transition-colors">
+                                  Cancelar
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    if (onAddComentario && comentarioDraft.trim()) {
+                                      onAddComentario(ann, comentarioDraft);
+                                      setActiveHighlightId(null);
+                                      setPopoverMode('menu');
+                                      setComentarioDraft('');
+                                    }
+                                  }}
+                                  disabled={!comentarioDraft.trim()}
+                                  className="px-3 py-1.5 bg-[#d4af37] text-black text-xs font-bold rounded-md disabled:opacity-50"
+                                >
+                                  Guardar Nota
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {popoverMode === 'definicion' && (
+                            <div className="p-2 w-full flex flex-col gap-2 whitespace-normal" onClick={e => e.stopPropagation()}>
+                              {isLoadingDef ? (
+                                <div className="py-4 flex justify-center"><div className="w-4 h-4 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin"/></div>
+                              ) : defError ? (
+                                <p className="text-xs text-red-400 text-center py-2">{defError}</p>
+                              ) : definicionData ? (
+                                <div className="text-left">
+                                  <h4 className="text-sm font-bold text-[#d4af37] mb-1 capitalize">{definicionData.palabra}</h4>
+                                  <p className="text-xs text-white/80 leading-relaxed font-lora line-clamp-4">
+                                    {definicionData.definicion || 'No se encontró definición para esta palabra.'}
+                                  </p>
+                                </div>
+                              ) : null}
+                              <div className="flex justify-end pt-1">
+                                <button onClick={() => setPopoverMode('menu')} className="px-3 py-1 text-xs font-bold text-[#d4af37] hover:bg-white/5 rounded transition-colors">
+                                  Volver
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          <span data-annotation-ignore="true"
+                            className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-2.5 h-2.5 rotate-45"
+                            style={{ 
+                                background: 'rgba(20,10,4,0.95)',
+                                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                                borderRight: '1px solid rgba(255,255,255,0.1)'
+                            }}/>
                         </span>
-                        <span data-annotation-ignore="true"
-                          className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-2 h-2 rotate-45"
-                          style={{ background: 'rgba(20,10,4,0.92)' }}/>
-                      </span>
+                      )}
+
+                      {/* Tooltip informativo solo en hover, si el popover NO está abierto */}
+                      {isHighlightHov && activeHighlightId !== ann.id && (
+                        <span
+                          data-annotation-ignore="true"
+                          className="
+                            absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                            hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                            whitespace-nowrap select-none pointer-events-none
+                            z-40
+                          "
+                          style={{
+                            background:     'rgba(20,10,4,0.92)',
+                            backdropFilter: 'blur(8px)',
+                            border:         '1px solid rgba(255,255,255,0.1)',
+                            boxShadow:      `0 4px 16px rgba(0,0,0,0.35), 0 0 0 1px ${solid}20`,
+                            animation:      'fadeIn 0.15s ease-out forwards',
+                          }}
+                        >
+                          <span data-annotation-ignore="true" className="text-[9px] font-black uppercase tracking-widest"
+                            style={{ color: 'rgba(255,255,255,0.85)' }}>
+                            Clic para opciones
+                          </span>
+                          <span data-annotation-ignore="true"
+                            className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-2 h-2 rotate-45"
+                            style={{ background: 'rgba(20,10,4,0.92)' }}/>
+                        </span>
+                      )}
                     </mark>
                   );
                 })}
-              </p>
+              </div>
 
               {/* Chips de comentarios en el margen */}
               {paraComms.length > 0 && (
@@ -394,7 +582,7 @@ export default function AnnotatedContent({
                       noteIdx={noteIdx}
                       onRemove={id => { onRemove(id); setOpenCommentId(null); setHoveredCommentId(null); }}
                       isOpen={openCommentId === ann.id}
-                      onOpen={() => setOpenCommentId(ann.id)}
+                      onOpen={() => setOpenCommentId(ann.id as string)}
                       onClose={() => { setOpenCommentId(null); setHoveredCommentId(null); }}
                       onHover={id => setHoveredCommentId(id)}
                     />
@@ -428,7 +616,7 @@ export default function AnnotatedContent({
                 return (
                   <div
                     key={ann.id}
-                    onMouseEnter={() => { if (!openCommentId) setHoveredCommentId(ann.id); }}
+                    onMouseEnter={() => { if (!openCommentId) setHoveredCommentId(ann.id as string); }}
                     onMouseLeave={() => { if (!openCommentId) setHoveredCommentId(null); }}
                     className="group relative flex items-start gap-4 rounded-xl p-4 cursor-default transition-all duration-200"
                     style={{
@@ -459,7 +647,7 @@ export default function AnnotatedContent({
 
                     {/* Botón eliminar: siempre visible en hover, sin desaparecer */}
                     <button
-                      onClick={() => onRemove(ann.id)}
+                      onClick={() => onRemove(ann.id as string)}
                       className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200"
                       style={{
                         color:      'rgba(248,113,113,0.5)',

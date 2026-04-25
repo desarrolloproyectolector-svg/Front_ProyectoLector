@@ -48,6 +48,11 @@ export interface LibroAlumno {
     estado?: string;
 }
 
+export interface EntradaGlosario {
+    palabra: string;
+    definicion: string | null;
+}
+
 export interface Segmento {
     id: number;
     titulo: string;
@@ -57,6 +62,7 @@ export interface Segmento {
     idExterno?: string;
     unidadId?: number;
     unidadNombre?: string;
+    glosario?: EntradaGlosario[];
 }
 
 export interface UnidadRaw {
@@ -76,6 +82,7 @@ export interface SegmentoRaw {
     orden: string;
     idExterno: string;
     nombre?: string; // Algunos endpoints podrían devolverlo como nombre o el frontend lo mapea así
+    glosario?: EntradaGlosario[];
 }
 
 export interface LibroDetalle {
@@ -105,4 +112,30 @@ export interface ProgresoResponse {
     porcentaje: number;
     ultimoSegmentoId?: number;
     ultimaLectura: string;
+}
+
+export interface AnotacionPayload {
+    segmentoId: number;
+    tipo: 'highlight' | 'comentario';
+    textoSeleccionado: string;
+    offsetInicio: number;
+    offsetFin: number;
+    color: 'amarillo' | 'verde' | 'rosa' | 'azul' | null;
+    comentario: string | null;
+}
+
+export interface AnotacionResponse extends AnotacionPayload {
+    id: number | string;
+    alumnoId: number | string;
+    libroId: number;
+    creadoEn: string;
+}
+
+export interface SesionPayload {
+    duracionSegundos: number;
+    segmentosLeidos: number;
+    segmentoInicioId: number;
+    segmentoFinId: number;
+    fechaInicio: string;
+    fechaFin: string;
 }

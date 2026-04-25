@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AlumnoLibrosService } from '../../../../../service/alumno/libros.service';
 import { LibroDetalle } from '../../../../../types/alumno/libros';
+import { AlumnoService } from '../../../../../service/alumno/alumno.service';
+import { PreferenciasAlumno } from '../../../../../types/alumno/alumno';
 import { toast } from '../../../../../utils/toast';
 import { useReadingTimer, getFinishMessage } from '../../../../../hooks/useReadingTimer';
 import ReadingTimer from '../../../../../components/alumno/reader/ReadingTimer';
@@ -11,7 +13,10 @@ import { useAnnotations } from '../../../../../hooks/useAnnotations';
 import AnnotationToolbar from '../../../../../components/alumno/reader/AnnotationToolbar';
 import AnnotationSidebar from '../../../../../components/alumno/reader/AnnotationSidebar';
 import AnnotatedContent from '../../../../../components/alumno/reader/AnnotatedContent';
+import GlosarioTutorialModal from '../../../../../components/alumno/reader/GlosarioTutorialModal';
+import EvaluacionPanel from '../../../../../components/alumno/reader/EvaluacionPanel';
 import { useAuth } from '../../../../../context/AuthContext';
+import { useEvaluacion } from '../../../../../hooks/useEvaluacion';
 
 export default function ReaderPage() {
     const params       = useParams();
@@ -28,21 +33,55 @@ export default function ReaderPage() {
     const [isLoading,   setIsLoading]   = useState(true);
     const [isSaving,    setIsSaving]    = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
+    const [maxUnlockedIdx, setMaxUnlockedIdx] = useState(0);
+    const [preferencias, setPreferencias] = useState<PreferenciasAlumno | null>(null);
 
-    const timer = useReadingTimer();
+    const [segmentTimeElapsed, setSegmentTimeElapsed] = useState(0);
+    const [segmentRequiredTime, setSegmentRequiredTime] = useState(0);
+
+    const timer = useReadingTimer(libroId);
     const startNotifiedRef = useRef(false);
     const segmentsReadRef  = useRef(0);
+    const fechaInicioRef   = useRef<string | null>(null);
+    const segmentoInicioIdRef = useRef<number | null>(null);
+
 
     // ── Load book ─────────────────────────────────────────────────────────────
     const fetchLibro = useCallback(async () => {
         try {
             setIsLoading(true);
-            const data = await AlumnoLibrosService.getLibroDetalle(libroId);
+            const [data, misLibros, prefs] = await Promise.all([
+                AlumnoLibrosService.getLibroDetalle(libroId),
+                AlumnoLibrosService.getMisLibros(),
+                AlumnoService.getPreferencias()
+            ]);
+
+            setPreferencias(prefs);
+
+            const libroProgreso = misLibros.find(l => l.libroId === libroId);
+            if (libroProgreso) {
+                data.progresoPorcentaje = libroProgreso.progresoPorcentaje;
+                data.ultimoSegmentoId = libroProgreso.ultimoSegmentoId;
+            } else {
+                data.progresoPorcentaje = 0;
+            }
+
             setLibro(data);
             if (data.segmentos?.length > 0) {
                 const targetId = initialSegId || data.ultimoSegmentoId;
                 const idx = data.segmentos.findIndex(s => s.id === targetId);
-                setCurrentIdx(idx >= 0 ? idx : 0);
+                const current = idx >= 0 ? idx : 0;
+                let calculatedMax = Math.round((data.progresoPorcentaje * data.segmentos.length) / 100) - 1;
+                if (isNaN(calculatedMax) || calculatedMax < 0) calculatedMax = 0;
+                if (calculatedMax > data.segmentos.length - 1) calculatedMax = data.segmentos.length - 1;
+
+                setMaxUnlockedIdx(calculatedMax);
+
+                if (current > calculatedMax) {
+                    setCurrentIdx(calculatedMax);
+                } else {
+                    setCurrentIdx(current);
+                }
             }
         } catch {
             toast.error('No pudimos cargar el libro. Intenta de nuevo.');
@@ -58,12 +97,20 @@ export default function ReaderPage() {
         if (!isLoading && libro && !startNotifiedRef.current) {
             startNotifiedRef.current = true;
             segmentsReadRef.current = 0;
+            fechaInicioRef.current = new Date().toISOString();
+            segmentoInicioIdRef.current = libro.segmentos?.[currentIdx]?.id ?? null;
             toast.info(`¡Comenzando "${libro.titulo}"! Que disfrutes la lectura 📖`, 4000);
         }
-    }, [isLoading, libro]);
+    }, [isLoading, libro, currentIdx]);
 
     const totalSegments  = libro?.segmentos?.length ?? 0;
     const currentSegment = libro?.segmentos?.[currentIdx] ?? null;
+
+    // ── Evaluación por segmento (después de currentSegment) ───────────────
+    const evaluacion = useEvaluacion({
+        libroId,
+        segmentoId: currentSegment?.id ?? 0,
+    });
 
     const progressPercent = useMemo(() => {
         if (!totalSegments) return 0;
@@ -77,11 +124,9 @@ export default function ReaderPage() {
         segmentoId: currentSegment?.id ?? 0,
     });
 
-    // Extraemos referencias estables para evitar dependencias inestables
     const clearSelection      = annotations.clearSelection;
     const handleTextSelection = annotations.handleTextSelection;
 
-    // Al cambiar de segmento, limpiar la selección activa
     useEffect(() => {
         clearSelection();
     }, [currentIdx, clearSelection]);
@@ -91,18 +136,26 @@ export default function ReaderPage() {
         handleTextSelection(currentSegment.contenido);
     }, [currentSegment, handleTextSelection]);
 
-    // Cursor personalizado cuando hay herramienta activa
     const cursorStyle = useMemo(() => {
         if (!annotations.activeTool) return {};
         return { cursor: 'crosshair' };
     }, [annotations.activeTool]);
 
+    // ── Glosario: buscar la palabra seleccionada en el glosario del segmento ──
+    const glosarioMatch = useMemo(() => {
+        if (!annotations.selection?.text || !currentSegment?.glosario?.length) return null;
+        const palabraBuscada = annotations.selection.text.trim().toLowerCase();
+        return currentSegment.glosario.find(
+            e => e.palabra.toLowerCase() === palabraBuscada
+        ) ?? null;
+    }, [annotations.selection, currentSegment]);
+
     // ── Progreso ──────────────────────────────────────────────────────────────
-    const saveProgress = useCallback(async (segId: number, idx: number) => {
+    const saveProgress = useCallback(async (segId: number, idx: number, maxIdx: number) => {
         if (!libro) return;
         try {
             setIsSaving(true);
-            const pct = Math.round(((idx + 1) / totalSegments) * 100);
+            const pct = Math.round(((maxIdx + 1) / totalSegments) * 100);
             await AlumnoLibrosService.updateProgreso(libroId, { ultimoSegmentoId: segId, porcentaje: pct });
         } catch (e) {
             console.error(e);
@@ -111,50 +164,130 @@ export default function ReaderPage() {
         }
     }, [libro, libroId, totalSegments]);
 
+    useEffect(() => {
+        if (currentSegment) {
+            const savedTime = sessionStorage.getItem(`segment_time_${currentSegment.id}`);
+            setSegmentTimeElapsed(savedTime ? parseInt(savedTime, 10) : 0);
+            const text = currentSegment.contenido?.replace(/<[^>]+>/g, ' ') || '';
+            const words = text.trim().split(/\s+/).filter(Boolean).length;
+            let requiredTime = Math.ceil(words / 3);
+
+            if (words > 20 && requiredTime < 15) {
+                requiredTime = 15;
+            } else if (words <= 20) {
+                requiredTime = Math.max(5, Math.ceil(words / 2));
+            }
+            setSegmentRequiredTime(requiredTime);
+        }
+    }, [currentIdx, currentSegment]);
+
+    useEffect(() => {
+        if (currentSegment) {
+            sessionStorage.setItem(`segment_time_${currentSegment.id}`, segmentTimeElapsed.toString());
+        }
+    }, [segmentTimeElapsed, currentSegment]);
+
+    useEffect(() => {
+        if (currentIdx !== maxUnlockedIdx) return;
+        if (segmentTimeElapsed >= segmentRequiredTime) return;
+
+        const handleTick = () => {
+            if (!document.hidden) {
+                setSegmentTimeElapsed(prev => prev + 1);
+            }
+        };
+
+        const interval = setInterval(handleTick, 1000);
+        return () => clearInterval(interval);
+    }, [currentIdx, maxUnlockedIdx, segmentTimeElapsed, segmentRequiredTime]);
+
+    const isFrontier = currentIdx === maxUnlockedIdx;
+    const isWaiting  = isFrontier && segmentTimeElapsed < segmentRequiredTime;
+    const waitTime   = segmentRequiredTime - segmentTimeElapsed;
+
+    // Auto-cargar evaluación cuando el timer termina en el segmento frontera
+    useEffect(() => {
+        const esFronteraCompleta =
+            isFrontier &&
+            !isWaiting &&
+            currentIdx < totalSegments - 1 &&
+            evaluacion.estado === 'sin_evaluacion';
+
+        if (esFronteraCompleta) {
+            evaluacion.cargarEvaluacion();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isFrontier, isWaiting, currentIdx, totalSegments, evaluacion.estado]);
+
     const handleNext = useCallback(() => {
-        if (currentIdx < totalSegments - 1) {
+        if (!isWaiting && currentIdx < totalSegments - 1) {
+            // Bloquear avance si estamos en la frontera y la evaluación no pasó
+            if (isFrontier && !evaluacion.puedeAvanzar) {
+                // Abrir el panel si hay preguntas pendientes o retroalimentación
+                if (evaluacion.estado === 'pendiente' || evaluacion.estado === 'refuerzo') {
+                    evaluacion.abrirPanel();
+                }
+                return;
+            }
+
             const next = currentIdx + 1;
+
+            let newMax = maxUnlockedIdx;
+            if (currentIdx === maxUnlockedIdx) {
+                newMax = next;
+                setMaxUnlockedIdx(newMax);
+            }
+
             setCurrentIdx(next);
             segmentsReadRef.current += 1;
             const seg = libro?.segmentos[next];
-            if (seg) saveProgress(seg.id, next);
+            if (seg) saveProgress(seg.id, next, newMax);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    }, [currentIdx, totalSegments, libro, saveProgress]);
+    }, [currentIdx, totalSegments, libro, saveProgress, isWaiting, maxUnlockedIdx, isFrontier, evaluacion]);
 
     const handlePrev = useCallback(() => {
         if (currentIdx > 0) {
             const prev = currentIdx - 1;
             setCurrentIdx(prev);
             const seg = libro?.segmentos[prev];
-            if (seg) saveProgress(seg.id, prev);
+            if (seg) saveProgress(seg.id, prev, maxUnlockedIdx);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    }, [currentIdx, libro, saveProgress]);
+    }, [currentIdx, libro, saveProgress, maxUnlockedIdx]);
 
     const handleExit = useCallback(() => {
         const totalSeconds = timer.stop();
+        
+        // Registrar sesión en backend
+        if (fechaInicioRef.current && segmentoInicioIdRef.current) {
+            AlumnoLibrosService.registrarSesion(libroId, {
+                duracionSegundos: totalSeconds,
+                segmentosLeidos: segmentsReadRef.current + 1,
+                segmentoInicioId: segmentoInicioIdRef.current,
+                segmentoFinId: currentSegment?.id ?? segmentoInicioIdRef.current,
+                fechaInicio: fechaInicioRef.current,
+                fechaFin: new Date().toISOString()
+            }).catch(e => console.error('Error guardando sesión:', e));
+        }
+
         if (totalSeconds > 5) {
             const totalRead = segmentsReadRef.current + 1;
             const msg = getFinishMessage(totalSeconds, totalRead);
             toast.success(msg, 6000);
         }
         router.push('/alumno/library');
-    }, [timer, router]);
+    }, [timer, router, libroId, currentSegment]);
 
     const selectSegment = useCallback((idx: number) => {
+        if (idx > maxUnlockedIdx) return;
         setShowSidebar(false);
         setCurrentIdx(idx);
         const seg = libro?.segmentos[idx];
-        if (seg) saveProgress(seg.id, idx);
+        if (seg) saveProgress(seg.id, idx, maxUnlockedIdx);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [libro, saveProgress]);
+    }, [libro, saveProgress, maxUnlockedIdx]);
 
-    // ── Selección para el toolbar unificado ───────────────────────────────────
-    // Muestra el toolbar si hay selección, pero filtra según la herramienta activa:
-    // - Sin herramienta activa: muestra opciones de highlight/comentario libre
-    // - Con herramienta 'comentario': muestra solo el modal de comentario
-    // - Con herramienta de color: el highlight se aplica directamente, no necesita toolbar
     const toolbarSelection = useMemo(() => {
         if (!annotations.selection) return null;
         if (annotations.activeTool && annotations.activeTool !== 'comentario') return null;
@@ -176,6 +309,18 @@ export default function ReaderPage() {
 
     return (
         <div className="min-h-screen bg-[#fbf8f1] flex flex-col font-lora text-[#2b1b17]">
+            {preferencias && (
+                <GlosarioTutorialModal 
+                    hideTutorial={preferencias.ocultarTutorialLector}
+                    onClose={(hideNextTime) => {
+                        if (hideNextTime) {
+                            AlumnoService.updatePreferencias({ ocultarTutorialLector: true }).catch(console.error);
+                            setPreferencias(p => p ? { ...p, ocultarTutorialLector: true } : p);
+                        }
+                    }}
+                />
+            )}
+            <EvaluacionPanel ev={evaluacion} tituloSegmento={currentSegment.titulo} onContinuar={handleNext} />
 
             {/* ── Toolbar unificado (popup al seleccionar texto) ── */}
             <AnnotationToolbar
@@ -187,6 +332,7 @@ export default function ReaderPage() {
                 onHighlight={annotations.addHighlight}
                 onComentario={annotations.addComentario}
                 onClear={annotations.clearSelection}
+                glosarioMatch={glosarioMatch}
             />
 
             {/* ── Barra lateral flotante de herramientas ── */}
@@ -223,7 +369,6 @@ export default function ReaderPage() {
                         isRunning={timer.isRunning}
                     />
 
-                    {/* Badge de anotaciones */}
                     {totalAnotaciones > 0 && (
                         <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#fbf8f1] border border-[#e3dac9]">
                             <span className="text-xs">🖍</span>
@@ -278,6 +423,14 @@ export default function ReaderPage() {
                             anotaciones={annotations.anotacionesDelSegmento}
                             onRemove={annotations.removeAnotacion}
                             onMouseUp={handleMouseUp}
+                            onAddComentario={(ann, texto) => {
+                                annotations.addComentarioDirect(
+                                    ann.textoSeleccionado,
+                                    ann.offsetInicio,
+                                    ann.offsetFin,
+                                    texto
+                                );
+                            }}
                         />
                     ) : (
                         <p className="text-[#a1887f] italic text-center">Este segmento no tiene contenido.</p>
@@ -297,14 +450,94 @@ export default function ReaderPage() {
                     <span className="text-xs font-black text-[#a1887f] uppercase tracking-widest">
                         {currentIdx + 1} / {totalSegments}
                     </span>
-                    <button onClick={handleNext}
-                        disabled={currentIdx === totalSegments - 1}
-                        className="flex items-center gap-3 px-10 py-3 rounded-xl bg-[#2b1b17] text-white font-bold hover:bg-[#3e2723] hover:-translate-y-0.5 transition-all shadow-lg active:translate-y-0 disabled:opacity-40 disabled:pointer-events-none">
-                        Siguiente
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
+
+                    {/* Botón Siguiente — dinámico según estado de evaluación */}
+                    {(() => {
+                        // No es frontera: botón normal
+                        if (!isFrontier) {
+                            return (
+                                <button onClick={handleNext}
+                                    disabled={currentIdx === totalSegments - 1}
+                                    className="flex items-center gap-3 px-10 py-3 rounded-xl bg-[#2b1b17] text-white font-bold hover:bg-[#3e2723] hover:-translate-y-0.5 transition-all shadow-lg active:translate-y-0 disabled:opacity-40 disabled:pointer-events-none">
+                                    Siguiente
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            );
+                        }
+                        // Es el último segmento
+                        if (currentIdx === totalSegments - 1) {
+                            return (
+                                <button disabled className="flex items-center gap-3 px-10 py-3 rounded-xl bg-[#2b1b17] text-white font-bold opacity-40 pointer-events-none">
+                                    Fin
+                                </button>
+                            );
+                        }
+                        // Timer corriendo
+                        if (isWaiting) {
+                            return (
+                                <button disabled className="flex items-center gap-3 px-10 py-3 rounded-xl bg-[#2b1b17] text-white font-bold opacity-40 pointer-events-none">
+                                    Leyendo... {waitTime}s
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            );
+                        }
+                        // Cargando evaluación
+                        if (evaluacion.estado === 'cargando') {
+                            return (
+                                <button disabled className="flex items-center gap-3 px-10 py-3 rounded-xl bg-[#2b1b17] text-white font-bold opacity-60 pointer-events-none">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Evaluando...
+                                </button>
+                            );
+                        }
+                        // Evaluación pendiente de responder
+                        if (evaluacion.estado === 'pendiente') {
+                            return (
+                                <button onClick={() => evaluacion.abrirPanel()}
+                                    className="flex items-center gap-3 px-7 py-3 rounded-xl bg-[#d4af37] text-[#2b1b17] font-bold hover:bg-[#c19b2f] hover:-translate-y-0.5 transition-all shadow-lg">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Responder ({evaluacion.evaluacion?.preguntas.length ?? 0})
+                                </button>
+                            );
+                        }
+                        // Refuerzo — mostrar retroalimentación
+                        if (evaluacion.estado === 'refuerzo') {
+                            return (
+                                <button onClick={() => evaluacion.abrirPanel()}
+                                    className="flex items-center gap-3 px-7 py-3 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 hover:-translate-y-0.5 transition-all shadow-lg">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Reintentar
+                                </button>
+                            );
+                        }
+                        // Aprobado o sin preguntas — siguiente habilitado
+                        return (
+                            <button onClick={handleNext}
+                                className={`flex items-center gap-3 px-10 py-3 rounded-xl font-bold hover:-translate-y-0.5 transition-all shadow-lg ${
+                                    evaluacion.estado === 'aprobado'
+                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                        : 'bg-[#2b1b17] text-white hover:bg-[#3e2723]'
+                                }`}>
+                                {evaluacion.estado === 'aprobado' && (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4" />
+                                    </svg>
+                                )}
+                                Siguiente
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        );
+                    })()}
                 </div>
             </main>
 
@@ -325,12 +558,20 @@ export default function ReaderPage() {
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
                         {libro.segmentos.map((seg, idx) => {
                             const isActive = idx === currentIdx;
+                            const isLocked = idx > maxUnlockedIdx;
                             const segAnns  = annotations.getPayloadParaBack().filter(a => a.segmentoId === seg.id);
                             return (
                                 <button key={seg.id} onClick={() => selectSegment(idx)}
-                                    className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4 ${isActive ? 'bg-[#fbf8f1] border-[#d4af37] shadow-sm' : 'border-transparent hover:bg-gray-50'}`}>
-                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${isActive ? 'bg-[#2b1b17] text-white' : 'bg-gray-100 text-gray-400'}`}>
-                                        {idx + 1}
+                                    disabled={isLocked}
+                                    className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4 ${isActive ? 'bg-[#fbf8f1] border-[#d4af37] shadow-sm' : isLocked ? 'opacity-40 cursor-not-allowed grayscale' : 'border-transparent hover:bg-gray-50'}`}>
+                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${isActive ? 'bg-[#2b1b17] text-white' : isLocked ? 'bg-gray-200 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
+                                        {isLocked ? (
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                            </svg>
+                                        ) : (
+                                            idx + 1
+                                        )}
                                     </span>
                                     <div className="flex-1 min-w-0">
                                         <p className={`text-sm font-bold truncate ${isActive ? 'text-[#2b1b17]' : 'text-gray-600'}`}>{seg.titulo}</p>

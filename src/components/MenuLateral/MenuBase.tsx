@@ -78,14 +78,18 @@ export default function MenuBase({
       {/* Navigation */}
       <nav className="flex-1 flex flex-col gap-2 px-2">
         {menuItems.map((item) => {
-          // Un item está activo si el pathname coincide exactamente con su href
-          // O si el pathname es una subruta de su href (ej: /alumno/library/reader -> /alumno/library)
-          // Pero evitamos que rutas base (como /admin) marquen todo si hay una ruta más específica
-          const isExact = pathname === item.href;
-          const isSubRoute = pathname.startsWith(item.href + '/');
-          
-          // Especial para Alumno Library: queremos que se mantenga marcado en el lector
-          const isActive = isExact || isSubRoute;
+          // Calcular cuál es el ítem con el href más largo (más específico) que coincide
+          // con el pathname actual. Solo ese gana — así nunca quedan dos seleccionados.
+          const matches = (href: string) =>
+            pathname === href || pathname.startsWith(href + '/');
+
+          const bestMatch = menuItems
+            .filter(m => matches(m.href))
+            .reduce<string | null>((best, m) =>
+              best === null || m.href.length > best.length ? m.href : best
+            , null);
+
+          const isActive = bestMatch === item.href;
 
           return (
             <Link
@@ -104,6 +108,7 @@ export default function MenuBase({
             </Link>
           );
         })}
+
       </nav>
 
       {/* User & Logout Section */}

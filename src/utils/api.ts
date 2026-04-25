@@ -24,16 +24,36 @@ api.interceptors.request.use(
     }
 );
 
+// Flag para evitar múltiples redirecciones si varias peticiones fallan con 401 al mismo tiempo
+let isRedirecting = false;
+
 // Response Interceptor: Handle Global Errors (like 401 Unauthorized)
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
-            // Optional: Auto-logout logic
-            if (typeof window !== 'undefined') {
-                // localStorage.removeItem('token');
-                // window.location.href = '/login';
-            }
+        if (error.response?.status === 401 && typeof window !== 'undefined' && !isRedirecting) {
+            isRedirecting = true;
+
+            // Limpiar toda la sesión
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // Eliminar cookie del token
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+            // Redirigir al login con un pequeño delay para que el toast alcance a mostrarse
+            // (el toast se importa de forma dinámica para no crear dependencia circular)
+            import('../utils/toast').then(({ toast }) => {
+                toast.error('Tu sesión ha expirado. Por favor inicia sesión nuevamente.', 4000);
+                setTimeout(() => {
+                    isRedirecting = false;
+                    window.location.href = '/login';
+                }, 1500);
+            }).catch(() => {
+                // Fallback si el toast falla
+                window.location.href = '/login';
+                isRedirecting = false;
+            });
         }
         return Promise.reject(error);
     }

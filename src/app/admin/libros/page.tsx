@@ -7,11 +7,14 @@ import { CanjeLibroModal } from '../../../components/admin/libros/CanjeLibroModa
 import { DeleteLibroModal } from '../../../components/admin/libros/DeleteLibroModal';
 import { ViewLibroModal } from '../../../components/admin/libros/ViewLibroModal';
 import { AdminLibroTable } from '../../../components/admin/libros/AdminLibroTable';
+import { Pagination } from '../../../components/ui/Pagination';
 import { LibrosService } from '../../../service/libros.service';
 import { Libro, LibroEscuela } from '../../../types/libros/libro';
 
 export default function AdminLibrosPage() {
+    const ITEMS_PER_PAGE = 10;
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const [filterGrado, setFilterGrado] = useState<number | 'todos'>('todos');
     const [showAddModal, setShowAddModal] = useState(false);
     const [showAsignModal, setShowAsignModal] = useState(false);
@@ -52,10 +55,26 @@ export default function AdminLibrosPage() {
             libro.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (libro.materia?.nombre || '').toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchGrado = filterGrado === 'todos' || libro.grado === filterGrado;
+        const matchGrado = filterGrado === 'todos' || Number(libro.grado) === Number(filterGrado);
 
         return matchSearch && matchGrado;
     });
+
+    const totalPages = Math.max(1, Math.ceil(filteredLibros.length / ITEMS_PER_PAGE));
+    const pagedLibros = filteredLibros.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+    };
+
+    const handleGradoChange = (value: string) => {
+        setFilterGrado(value === 'todos' ? 'todos' : Number(value));
+        setCurrentPage(1);
+    };
 
     const handleView = (libro: Libro) => {
         setViewLibroId(libro.id);
@@ -180,7 +199,7 @@ export default function AdminLibrosPage() {
                                 type="text"
                                 placeholder="Buscar por título, código o materia..."
                                 value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
+                                onChange={e => handleSearchChange(e.target.value)}
                                 className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300"
                                 disabled={isLoading}
                             />
@@ -191,7 +210,7 @@ export default function AdminLibrosPage() {
                             <span className="text-sm font-bold text-[#8d6e3f] uppercase tracking-wider whitespace-nowrap">Grado:</span>
                             <select
                                 value={filterGrado}
-                                onChange={e => setFilterGrado(e.target.value === 'todos' ? 'todos' : Number(e.target.value))}
+                        onChange={e => handleGradoChange(e.target.value)}
                                 className="px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] font-medium text-sm transition-all"
                                 disabled={isLoading}
                             >
@@ -214,14 +233,27 @@ export default function AdminLibrosPage() {
                             </div>
                         </div>
                     ) : (
-                        <AdminLibroTable
-                            libros={filteredLibros}
-                            onView={handleView}
-                            onDelete={handleDelete}
-                            onAssign={handleAssign}
-                            onDownload={handleDownload}
-                            onToggleActivo={handleToggleActivo}
-                        />
+                        <>
+                            <AdminLibroTable
+                                libros={pagedLibros}
+                                onView={handleView}
+                                onDelete={handleDelete}
+                                onAssign={handleAssign}
+                                onDownload={handleDownload}
+                                onToggleActivo={handleToggleActivo}
+                            />
+
+                            {/* Paginación */}
+                            {filteredLibros.length > 0 && (
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={setCurrentPage}
+                                    totalItems={filteredLibros.length}
+                                    itemsPerPage={ITEMS_PER_PAGE}
+                                />
+                            )}
+                        </>
                     )}
                 </div>
             {/* Modals */}

@@ -53,15 +53,7 @@ const icons: Record<ToastVariant, React.ReactNode> = {
   ),
 };
 
-// ─── Gradient map ────────────────────────────────────────────────────────────
-
-const gradients: Record<ToastVariant, string> = {
-  success: 'linear-gradient(135deg, #1a6b4a 0%, #0d4e35 100%)',
-  error:   'linear-gradient(135deg, #7b1d1d 0%, #5a1212 100%)',
-  warning: 'linear-gradient(135deg, #7b5a0d 0%, #5a400a 100%)',
-  info:    'linear-gradient(135deg, #1a3a6b 0%, #0d2550 100%)',
-  loading: 'linear-gradient(135deg, #2d1f5e 0%, #1a1040 100%)',
-};
+// ─── Accent colors ─────────────────────────────────────────────────────────────
 
 const accentColors: Record<ToastVariant, string> = {
   success: '#34d399',
@@ -106,11 +98,16 @@ export function CustomToast({
 
   return (
     <div
-      onClick={() => !isLoading && sonnerToast.dismiss(id)}
+      onClick={(e) => { 
+        if (!isLoading) {
+          e.preventDefault();
+          sonnerToast.dismiss(id); 
+        }
+      }}
       style={{
-        background: gradients[variant],
-        border: `1px solid ${accent}30`,
-        boxShadow: `0 0 0 1px ${accent}15, 0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)`,
+        background: 'rgba(18, 18, 20, 0.95)',
+        border: `1px solid rgba(255,255,255,0.08)`,
+        boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3), 0 0 20px ${accent}15`,
         borderRadius: '14px',
         padding: '14px 16px',
         minWidth: '320px',
@@ -208,33 +205,39 @@ export function CustomToast({
         {/* Dismiss X (only non-loading) */}
         {!isLoading && (
           <button
-            onClick={(e) => { e.stopPropagation(); sonnerToast.dismiss(id); }}
+            onClick={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation(); 
+              sonnerToast.dismiss(id); 
+            }}
             style={{
               flexShrink: 0,
-              width: '20px',
-              height: '20px',
-              background: 'rgba(255,255,255,0.08)',
+              width: '28px',
+              height: '28px',
+              background: 'transparent',
               border: 'none',
-              borderRadius: '5px',
-              color: 'rgba(240,230,210,0.5)',
+              borderRadius: '6px',
+              color: 'rgba(255,255,255,0.4)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.15s',
+              transition: 'all 0.2s',
               padding: 0,
+              margin: '-4px -4px 0 0',
             }}
             onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)';
-              (e.currentTarget as HTMLButtonElement).style.color = '#f0e6d2';
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)';
+              (e.currentTarget as HTMLButtonElement).style.color = '#fff';
             }}
             onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)';
-              (e.currentTarget as HTMLButtonElement).style.color = 'rgba(240,230,210,0.5)';
+              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.4)';
             }}
+            aria-label="Cerrar notificación"
           >
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </button>
         )}

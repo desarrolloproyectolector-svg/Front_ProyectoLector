@@ -9,6 +9,7 @@ import {
   HIGHLIGHT_BORDER,
   HIGHLIGHT_SOLID,
 } from '../../../hooks/useAnnotations';
+import { AlumnoLibrosService } from '../../../service/alumno/libros.service';
 
 interface AnnotationToolbarProps {
   selection:      SelectionState | null;
@@ -54,6 +55,11 @@ export default function AnnotationToolbar({
   const [visible, setVisible] = useState(false);
   const [hoveredColor, setHoveredColor] = useState<HighlightColor | null>(null);
 
+  const [showGlosario, setShowGlosario] = useState(false);
+  const [isLoadingGlosario, setIsLoadingGlosario] = useState(false);
+  const [remoteDefinicion, setRemoteDefinicion] = useState<{ palabra: string, definicion: string | null } | null>(null);
+  const [glosarioError, setGlosarioError] = useState<string | null>(null);
+
   // Calcular posición sobre la selección (position:fixed)
   useEffect(() => {
     if (!selection) { setVisible(false); return; }
@@ -67,6 +73,10 @@ export default function AnnotationToolbar({
     setPos({ top: rect.top - gap, left });
     // Pequeño delay para permitir la animación de entrada
     setTimeout(() => setVisible(true), 10);
+    
+    setShowGlosario(false);
+    setRemoteDefinicion(null);
+    setGlosarioError(null);
   }, [selection]);
 
   // Focus en textarea al abrir comentario
@@ -112,18 +122,14 @@ export default function AnnotationToolbar({
 
             {/* Botón Marcatextos */}
             <button
-              onMouseDown={e => { e.preventDefault(); setPendingType('highlight'); }}
+              onMouseDown={e => { e.preventDefault(); setPendingType('highlight'); setShowGlosario(false); }}
+              onTouchStart={e => { e.preventDefault(); setPendingType('highlight'); setShowGlosario(false); }}
               title="Marcar texto"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150"
-              style={{
-                background: pendingType === 'highlight'
-                  ? 'rgba(212,175,55,0.25)'
-                  : 'transparent',
-                color: pendingType === 'highlight' ? '#f5d060' : 'rgba(212,175,55,0.7)',
-                outline: pendingType === 'highlight'
-                  ? '1px solid rgba(212,175,55,0.4)'
-                  : '1px solid transparent',
-              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 ${
+                pendingType === 'highlight'
+                  ? 'bg-[#d4af37]/25 text-[#f5d060] outline outline-1 outline-[#d4af37]/40'
+                  : 'bg-transparent text-[#d4af37]/70 hover:bg-white/10 hover:text-[#f5d060]'
+              }`}
             >
               {/* Ícono marcatextos */}
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
@@ -136,18 +142,14 @@ export default function AnnotationToolbar({
 
             {/* Botón Nota */}
             <button
-              onMouseDown={e => { e.preventDefault(); setPendingType('comentario'); }}
+              onMouseDown={e => { e.preventDefault(); setPendingType('comentario'); setShowGlosario(false); }}
+              onTouchStart={e => { e.preventDefault(); setPendingType('comentario'); setShowGlosario(false); }}
               title="Agregar nota"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150"
-              style={{
-                background: pendingType === 'comentario'
-                  ? 'rgba(212,175,55,0.25)'
-                  : 'transparent',
-                color: pendingType === 'comentario' ? '#f5d060' : 'rgba(212,175,55,0.7)',
-                outline: pendingType === 'comentario'
-                  ? '1px solid rgba(212,175,55,0.4)'
-                  : '1px solid transparent',
-              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 ${
+                pendingType === 'comentario'
+                  ? 'bg-[#d4af37]/25 text-[#f5d060] outline outline-1 outline-[#d4af37]/40'
+                  : 'bg-transparent text-[#d4af37]/70 hover:bg-white/10 hover:text-[#f5d060]'
+              }`}
             >
               {/* Ícono nota */}
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -157,12 +159,84 @@ export default function AnnotationToolbar({
               <span className="uppercase tracking-wider text-[10px]">Nota</span>
             </button>
 
+            {/* Botón Lupa (glosario) */}
+            <button
+              onMouseDown={async e => {
+                e.preventDefault();
+                const nextShow = !showGlosario;
+                setShowGlosario(nextShow);
+                setPendingType(null);
+
+                // Disparamos la petición solo al abrir y si no tenemos definición guardada
+                if (nextShow && selection?.text && !remoteDefinicion && !isLoadingGlosario) {
+                  try {
+                    setIsLoadingGlosario(true);
+                    setGlosarioError(null);
+                    
+                    const selWord = selection.text.trim();
+                    if (selWord.length < 2 || selWord.length > 80) {
+                        setGlosarioError('Selección inválida para glosario.');
+                        setIsLoadingGlosario(false);
+                        return;
+                    }
+
+                    const data = await AlumnoLibrosService.registrarGlosario(selWord);
+                    setRemoteDefinicion({ palabra: data.palabra, definicion: data.definicion });
+                  } catch (err: any) {
+                    setGlosarioError('Palabra no encontrada o no válida.');
+                  } finally {
+                    setIsLoadingGlosario(false);
+                  }
+                }
+              }}
+              onTouchStart={async e => {
+                e.preventDefault();
+                const nextShow = !showGlosario;
+                setShowGlosario(nextShow);
+                setPendingType(null);
+
+                if (nextShow && selection?.text && !remoteDefinicion && !isLoadingGlosario) {
+                  try {
+                    setIsLoadingGlosario(true);
+                    setGlosarioError(null);
+                    
+                    const selWord = selection.text.trim();
+                    if (selWord.length < 2 || selWord.length > 80) {
+                        setGlosarioError('Selección inválida para glosario.');
+                        setIsLoadingGlosario(false);
+                        return;
+                    }
+
+                    const data = await AlumnoLibrosService.registrarGlosario(selWord);
+                    setRemoteDefinicion({ palabra: data.palabra, definicion: data.definicion });
+                  } catch (err: any) {
+                    setGlosarioError('Palabra no encontrada o no válida.');
+                  } finally {
+                    setIsLoadingGlosario(false);
+                  }
+                }
+              }}
+              title="Ver definición"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-150 ${
+                showGlosario
+                  ? 'bg-[#d4af37]/25 text-[#f5d060] outline outline-1 outline-[#d4af37]/40'
+                  : 'bg-transparent text-[#d4af37]/70 hover:bg-white/10 hover:text-[#f5d060]'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <span className="uppercase tracking-wider text-[10px]">Definir</span>
+            </button>
+
             {/* Separador */}
             <div className="w-px h-5 mx-1" style={{ background: 'rgba(255,255,255,0.1)' }} />
 
             {/* Cerrar */}
             <button
               onMouseDown={e => { e.preventDefault(); onClear(); }}
+              onTouchStart={e => { e.preventDefault(); onClear(); }}
               title="Cancelar"
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 text-white/30 hover:text-white/80 hover:bg-white/10"
             >
@@ -184,6 +258,7 @@ export default function AnnotationToolbar({
                   <button
                     key={color}
                     onMouseDown={e => { e.preventDefault(); onHighlight(color); }}
+                    onTouchStart={e => { e.preventDefault(); onHighlight(color); }}
                     onMouseEnter={() => setHoveredColor(color)}
                     onMouseLeave={() => setHoveredColor(null)}
                     title={COLOR_LABELS[color]}
@@ -232,6 +307,57 @@ export default function AnnotationToolbar({
         </div>
       </div>
 
+      {/* ── Sub-panel de Diccionario (Glosario) ────────────────── */}
+      {showGlosario && (
+        <div
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[280px] z-50 pointer-events-auto"
+          style={{ animation: 'noteCardIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both' }}
+        >
+          <div
+            className="rounded-2xl p-3"
+            style={{
+              background: 'rgba(20,10,4,0.95)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
+            }}
+          >
+            {isLoadingGlosario ? (
+              <div className="flex flex-col items-center justify-center py-6 gap-3">
+                <div className="w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs text-[#d4af37]/60 uppercase tracking-widest font-black">Buscando...</span>
+              </div>
+            ) : glosarioError ? (
+              <div className="py-4 text-center">
+                <p className="text-xs text-red-400 font-medium">{glosarioError}</p>
+              </div>
+            ) : remoteDefinicion ? (
+              <div className="flex flex-col gap-2">
+                <h4 className="text-sm font-bold text-[#d4af37] capitalize tracking-wide border-b border-white/10 pb-1">
+                  {remoteDefinicion.palabra}
+                </h4>
+                <p className="text-sm text-white/90 leading-relaxed font-lora">
+                  {remoteDefinicion.definicion || 'No se encontró una definición exacta para esta palabra.'}
+                </p>
+              </div>
+            ) : null}
+
+            {/* Flechita superior del glosario */}
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-1px]">
+              <div
+                className="w-3 h-3 rotate-45 rounded-sm"
+                style={{
+                  background: 'rgba(20,10,4,0.95)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderBottom: 'none',
+                  borderRight: 'none',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Modal de comentario ─────────────────────────────────── */}
       {showCommentModal && (
         <div
@@ -242,6 +368,7 @@ export default function AnnotationToolbar({
             animation: 'fadeInBackdrop 0.2s ease both',
           }}
           onMouseDown={e => { if (e.target === e.currentTarget) onClear(); }}
+          onTouchStart={e => { if (e.target === e.currentTarget) onClear(); }}
         >
           <div
             className="w-full max-w-sm rounded-2xl overflow-hidden"

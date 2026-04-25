@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Modal } from '../../../components/ui/Modal';
 import { CustomSelect } from '../../../components/ui/CustomSelect';
+import { Pagination } from '../../../components/ui/Pagination';
 import { LicenciaService } from '../../../service/licencia.service';
 import { EscuelaService } from '../../../service/escuela.service';
 import { LibrosService } from '../../../service/libros.service';
@@ -342,51 +343,13 @@ export default function AdminLicenciasPage() {
 
                     {/* Pagination */}
                     {!isLoading && totalItems > limit && (
-                        <div className="bg-white border-t border-[#e3dac9] px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <p className="text-sm font-medium text-[#5d4037]">
-                                Mostrando <span className="font-bold text-[#2b1b17]">{(page - 1) * limit + 1}</span> a <span className="font-bold text-[#2b1b17]">{Math.min(page * limit, totalItems)}</span> de <span className="font-bold text-[#2b1b17]">{totalItems}</span> licencias
-                            </p>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                                    disabled={page === 1}
-                                    className="p-2 px-4 rounded-xl border-2 border-[#e3dac9] text-[#2b1b17] hover:bg-[#fbf8f1] hover:border-[#d4af37] disabled:opacity-20 transition-all font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
-                                    Anterior
-                                </button>
-                                
-                                <div className="hidden md:flex gap-2 mx-2">
-                                    {Array.from({ length: Math.ceil(totalItems / limit) }, (_, i) => i + 1)
-                                        .filter(p => p === 1 || p === Math.ceil(totalItems / limit) || Math.abs(p - page) <= 1)
-                                        .map((p, idx, arr) => (
-                                            <React.Fragment key={p}>
-                                                {idx > 0 && arr[idx-1] !== p - 1 && <span className="text-[#a1887f] self-end pb-2 font-black tracking-tighter">...</span>}
-                                                <button
-                                                    onClick={() => setPage(p)}
-                                                    className={`w-10 h-10 rounded-xl font-black transition-all border-2 text-sm ${
-                                                        page === p
-                                                        ? 'bg-[#2b1b17] border-[#2b1b17] text-[#f0e6d2] shadow-md transform -translate-y-0.5'
-                                                        : 'bg-white border-[#e3dac9] text-[#8d6e3f] hover:border-[#d4af37] hover:bg-[#fbf8f1]'
-                                                    }`}
-                                                >
-                                                    {p}
-                                                </button>
-                                            </React.Fragment>
-                                        ))
-                                    }
-                                </div>
-
-                                <button
-                                    onClick={() => setPage(p => p + 1)}
-                                    disabled={page >= Math.ceil(totalItems / limit)}
-                                    className="p-2 px-4 rounded-xl border-2 border-[#e3dac9] text-[#2b1b17] hover:bg-[#fbf8f1] hover:border-[#d4af37] disabled:opacity-20 transition-all font-bold text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm"
-                                >
-                                    Siguiente
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
-                                </button>
-                            </div>
-                        </div>
+                        <Pagination
+                            currentPage={page}
+                            totalPages={Math.ceil(totalItems / limit)}
+                            onPageChange={setPage}
+                            totalItems={totalItems}
+                            itemsPerPage={limit}
+                        />
                     )}
                 </div>
 
