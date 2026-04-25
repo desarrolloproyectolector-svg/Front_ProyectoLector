@@ -312,9 +312,8 @@ export default function AnnotationToolbar({
         <div
           className="fixed z-[499] pointer-events-auto"
           style={{
-            top: pos.top,
+            bottom: `calc(100vh - ${pos.top}px + 8px)`,
             left: pos.left,
-            transform: 'translateY(-100%) translateY(-8px)',
             width: '280px',
             animation: 'noteCardIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both',
           }}

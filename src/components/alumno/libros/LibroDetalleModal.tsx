@@ -33,7 +33,7 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
         >
-            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row border border-[#e3dac9]/30 relative">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col md:flex-row border border-[#e3dac9]/30 relative">
 
                 {/* Botón cerrar */}
                 <button
@@ -46,8 +46,8 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                 </button>
 
                 {/* Izquierda: Portada + info básica */}
-                <div className="w-full md:w-2/5 bg-[#fbf8f1] p-8 md:p-12 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#e3dac9]/50">
-                    <div className="relative group">
+                <div className="w-full md:w-2/5 bg-[#fbf8f1] p-5 md:p-12 flex flex-col md:flex-col items-center justify-center border-b md:border-b-0 md:border-r border-[#e3dac9]/50 shrink-0">
+                    <div className="relative group hidden md:block">
                         <div className="w-48 h-64 bg-gradient-to-br from-[#d4af37] to-[#8d6e3f] rounded-xl shadow-2xl flex items-center justify-center p-4 transform rotate-3 transition-transform group-hover:rotate-0">
                             {libro.portadaUrl ? (
                                 <img src={libro.portadaUrl} alt={libro.titulo} className="w-full h-full object-cover rounded-lg" />
@@ -62,7 +62,7 @@ export const LibroDetalleModal: React.FC<LibroDetalleModalProps> = ({
                         </div>
                     </div>
 
-                    <div className="mt-10 text-center">
+                    <div className="mt-4 md:mt-10 text-center w-full">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d4af37] bg-white px-3 py-1 rounded-full shadow-sm border border-[#e3dac9]/30 mb-4 inline-block">
                             {typeof libro.materia === 'string' ? libro.materia : (libro.materia as any)?.nombre || ''}
                         </span>

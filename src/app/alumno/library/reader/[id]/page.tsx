@@ -399,7 +399,7 @@ export default function ReaderPage() {
 
             {/* Content */}
             <main
-                className="flex-1 max-w-4xl mx-auto w-full px-6 py-12 md:py-20 relative"
+                className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 md:px-8 py-8 md:py-20 relative"
                 style={cursorStyle}
             >
                 <div className="pointer-events-none absolute top-0 left-0 w-24 h-24 border-l-2 border-t-2 border-[#d4af37]/20 -translate-x-4 -translate-y-4" />
