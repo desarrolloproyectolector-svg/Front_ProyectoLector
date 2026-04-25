@@ -109,7 +109,7 @@ export default function AnnotationToolbar({
       >
         {/* Contenedor principal */}
         <div
-          className="rounded-2xl shadow-2xl overflow-hidden"
+          className="rounded-2xl shadow-2xl"
           style={{
             background: 'rgba(20,10,4,0.92)',
             backdropFilter: 'blur(20px)',
@@ -310,8 +310,14 @@ export default function AnnotationToolbar({
       {/* ── Sub-panel de Diccionario (Glosario) ────────────────── */}
       {showGlosario && (
         <div
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[280px] z-50 pointer-events-auto"
-          style={{ animation: 'noteCardIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both' }}
+          className="fixed z-[499] pointer-events-auto"
+          style={{
+            top: pos.top,
+            left: pos.left,
+            transform: 'translateY(-100%) translateY(-8px)',
+            width: '280px',
+            animation: 'noteCardIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both',
+          }}
         >
           <div
             className="rounded-2xl p-3"
