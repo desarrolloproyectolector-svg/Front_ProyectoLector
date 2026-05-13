@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Create Axios Instance with Base URL
+// Create Axios Instance with Base URL |||| https://api.proyectolector.com
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api.proyectolector.com',
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://api-proyectolector.onrender.com',
     headers: {
         'Content-Type': 'application/json',
     },
