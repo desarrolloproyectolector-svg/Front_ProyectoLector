@@ -58,9 +58,9 @@ export const DeleteLibroModal: React.FC<DeleteLibroModalProps> = ({
                     </p>
                 </div>
 
-                <div className="mb-4 p-3 bg-[#fbf8f1] rounded-lg border border-[#d4af37]">
-                    <p className="text-sm font-semibold text-[#2b1b17]">{libro.titulo}</p>
-                    <p className="text-xs text-[#8d6e3f] mt-1">Código: {libro.codigo}</p>
+                <div className="mb-4 p-3 bg-[#f5f8ff] rounded-lg border border-[#d4af37]">
+                    <p className="text-sm font-semibold text-[#0a1628]">{libro.titulo}</p>
+                    <p className="text-xs text-[#6b8cba] mt-1">Código: {libro.codigo}</p>
                 </div>
 
                 {error && (
@@ -69,7 +69,7 @@ export const DeleteLibroModal: React.FC<DeleteLibroModalProps> = ({
                     </div>
                 )}
 
-                <p className="text-sm text-[#5d4037] mb-6">
+                <p className="text-sm text-[#1e3a6e] mb-6">
                     Se eliminará el libro, sus asignaciones a escuelas, el PDF y todos sus contenidos (unidades, segmentos, preguntas). <strong>Esta acción no se puede deshacer.</strong>
                 </p>
 
@@ -77,7 +77,7 @@ export const DeleteLibroModal: React.FC<DeleteLibroModalProps> = ({
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="flex-1 px-4 py-2 border border-[#d4af37] text-[#2b1b17] font-semibold rounded-lg hover:bg-[#fbf8f1] disabled:opacity-50"
+                        className="flex-1 px-4 py-2 border border-[#d4af37] text-[#0a1628] font-semibold rounded-lg hover:bg-[#f5f8ff] disabled:opacity-50"
                     >
                         Cancelar
                     </button>

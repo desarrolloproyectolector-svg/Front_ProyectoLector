@@ -120,7 +120,7 @@ export const EditUsuarioModal: React.FC<EditUsuarioModalProps> = ({
             <div className="p-6">
                 {/* Badge de rol (no editable) */}
                 <div className="mb-5 flex items-center gap-3">
-                    <span className="text-sm text-[#8d6e3f]">Tipo de usuario:</span>
+                    <span className="text-sm text-[#6b8cba]">Tipo de usuario:</span>
                     <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-bold">
                         {ROLE_LABELS[usuario.tipoPersona] ?? usuario.tipoPersona}
                     </span>

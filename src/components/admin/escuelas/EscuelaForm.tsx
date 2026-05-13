@@ -117,7 +117,7 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
 
             {/* Sección 1 — Datos principales */}
             <div>
-                <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-playfair font-bold text-[#0a1628] mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full" />
                     Información de la Institución
                 </h3>
@@ -140,16 +140,16 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                                 </svg>
                             }
                         />
-                        <p className="mt-1 text-xs text-[#8d6e3f]">Máximo 150 caracteres</p>
+                        <p className="mt-1 text-xs text-[#6b8cba]">Máximo 150 caracteres</p>
                     </div>
 
                     {/* Nivel */}
                     <div className="md:col-span-2">
-                        <label className="block text-sm font-bold text-[#2b1b17] mb-2">
+                        <label className="block text-sm font-bold text-[#0a1628] mb-2">
                             Nivel Educativo <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a1887f]">
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6b8cba]">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                 </svg>
@@ -161,7 +161,7 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                                 required
                                 className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${errors.nivel
                                     ? 'border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                                    : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
+                                    : 'border-[#c8d8f0] focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10'
                                     }`}
                             >
                                 <option value="">Selecciona un nivel</option>
@@ -230,14 +230,14 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                                 </svg>
                             }
                         />
-                        <p className="mt-1 text-xs text-[#8d6e3f]">Máximo 200 caracteres</p>
+                        <p className="mt-1 text-xs text-[#6b8cba]">Máximo 200 caracteres</p>
                     </div>
                 </div>
             </div>
 
             {/* Sección 2 — Ubicación */}
             <div>
-                <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-playfair font-bold text-[#0a1628] mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full" />
                     Ubicación
                 </h3>
@@ -278,7 +278,7 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
             {/* Sección 3 — Estado (solo en edición) */}
             {isEdit && (
                 <div>
-                    <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                    <h3 className="text-lg font-playfair font-bold text-[#0a1628] mb-4 flex items-center gap-2">
                         <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full" />
                         Estado de la Institución
                     </h3>
@@ -296,10 +296,10 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
                                     key={est}
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, estado: est }))}
-                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all duration-200 ${isSelected ? c.color : 'border-[#e3dac9] bg-white text-[#8d6e3f] hover:bg-[#fbf8f1]'
+                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all duration-200 ${isSelected ? c.color : 'border-[#c8d8f0] bg-white text-[#6b8cba] hover:bg-[#f5f8ff]'
                                         }`}
                                 >
-                                    <span className={`w-2.5 h-2.5 rounded-full ${isSelected ? c.dot : 'bg-[#a1887f]'}`} />
+                                    <span className={`w-2.5 h-2.5 rounded-full ${isSelected ? c.dot : 'bg-[#6b8cba]'}`} />
                                     {c.label}
                                 </button>
                             );
@@ -328,7 +328,7 @@ export const EscuelaForm: React.FC<EscuelaFormProps> = ({
             )}
 
             {/* Acciones */}
-            <div className="flex justify-end gap-3 pt-6 border-t border-[#e3dac9]">
+            <div className="flex justify-end gap-3 pt-6 border-t border-[#c8d8f0]">
                 <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                     Cancelar
                 </Button>

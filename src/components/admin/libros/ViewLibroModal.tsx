@@ -110,24 +110,24 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
                     <div className="space-y-6">
                         {/* Información básica */}
                         <div>
-                            <h2 className="font-playfair text-2xl font-bold text-[#2b1b17] mb-4">{libro.titulo}</h2>
+                            <h2 className="font-playfair text-2xl font-bold text-[#0a1628] mb-4">{libro.titulo}</h2>
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                                <div className="bg-[#fbf8f1] p-3 rounded-lg border border-[#d4af37]">
-                                    <p className="text-xs text-[#8d6e3f] font-semibold">Código</p>
-                                    <p className="text-sm font-mono text-[#2b1b17] mt-1">{libro.codigo}</p>
+                                <div className="bg-[#f5f8ff] p-3 rounded-lg border border-[#d4af37]">
+                                    <p className="text-xs text-[#6b8cba] font-semibold">Código</p>
+                                    <p className="text-sm font-mono text-[#0a1628] mt-1">{libro.codigo}</p>
                                 </div>
-                                <div className="bg-[#fbf8f1] p-3 rounded-lg border border-[#d4af37]">
-                                    <p className="text-xs text-[#8d6e3f] font-semibold">Grado</p>
-                                    <p className="text-sm text-[#2b1b17] mt-1">{libro.grado}°</p>
+                                <div className="bg-[#f5f8ff] p-3 rounded-lg border border-[#d4af37]">
+                                    <p className="text-xs text-[#6b8cba] font-semibold">Grado</p>
+                                    <p className="text-sm text-[#0a1628] mt-1">{libro.grado}°</p>
                                 </div>
-                                <div className="bg-[#fbf8f1] p-3 rounded-lg border border-[#d4af37]">
-                                    <p className="text-xs text-[#8d6e3f] font-semibold">Páginas</p>
-                                    <p className="text-sm text-[#2b1b17] mt-1">{libro.numPaginas}</p>
+                                <div className="bg-[#f5f8ff] p-3 rounded-lg border border-[#d4af37]">
+                                    <p className="text-xs text-[#6b8cba] font-semibold">Páginas</p>
+                                    <p className="text-sm text-[#0a1628] mt-1">{libro.numPaginas}</p>
                                 </div>
-                                <div className="bg-[#fbf8f1] p-3 rounded-lg border border-[#d4af37]">
-                                    <p className="text-xs text-[#8d6e3f] font-semibold">Estado</p>
-                                    <p className="text-sm text-[#2b1b17] mt-1">
+                                <div className="bg-[#f5f8ff] p-3 rounded-lg border border-[#d4af37]">
+                                    <p className="text-xs text-[#6b8cba] font-semibold">Estado</p>
+                                    <p className="text-sm text-[#0a1628] mt-1">
                                         {libro.estado === 'listo' && (
                                             <span className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-700">
                                                 Listo
@@ -149,15 +149,15 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
 
                             {libro.materia && (
                                 <div className="mb-4">
-                                    <p className="text-sm font-semibold text-[#8d6e3f]">Materia:</p>
-                                    <p className="text-sm text-[#2b1b17] mt-1">{libro.materia.nombre}</p>
+                                    <p className="text-sm font-semibold text-[#6b8cba]">Materia:</p>
+                                    <p className="text-sm text-[#0a1628] mt-1">{libro.materia.nombre}</p>
                                 </div>
                             )}
 
                             {libro.descripcion && (
                                 <div>
-                                    <p className="text-sm font-semibold text-[#8d6e3f]">Descripción:</p>
-                                    <p className="text-sm text-[#5d4037] mt-1">{libro.descripcion}</p>
+                                    <p className="text-sm font-semibold text-[#6b8cba]">Descripción:</p>
+                                    <p className="text-sm text-[#1e3a6e] mt-1">{libro.descripcion}</p>
                                 </div>
                             )}
                         </div>
@@ -165,24 +165,24 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
                         {/* Unidades y segmentos */}
                         {libro.unidades && libro.unidades.length > 0 && (
                             <div>
-                                <h3 className="font-semibold text-[#2b1b17] mb-3">Contenido ({libro.unidades.length} unidades)</h3>
+                                <h3 className="font-semibold text-[#0a1628] mb-3">Contenido ({libro.unidades.length} unidades)</h3>
                                 <div className="space-y-2">
                                     {libro.unidades.map(unidad => (
-                                        <div key={unidad.id} className="border border-[#e3dac9] rounded-lg overflow-hidden">
+                                        <div key={unidad.id} className="border border-[#c8d8f0] rounded-lg overflow-hidden">
                                             <button
                                                 onClick={() =>
                                                     setExpandedUnitId(expandedUnitId === unidad.id ? null : unidad.id)
                                                 }
-                                                className="w-full px-4 py-3 bg-[#f9f7f4] hover:bg-[#f0e6d2] transition-colors flex items-center justify-between"
+                                                className="w-full px-4 py-3 bg-[#f9f7f4] hover:bg-[#f5f8ff] transition-colors flex items-center justify-between"
                                             >
-                                                <span className="font-semibold text-[#2b1b17] text-left">
+                                                <span className="font-semibold text-[#0a1628] text-left">
                                                     Unidad {unidad.orden}: {unidad.nombre}
                                                 </span>
-                                                <span className="text-xs text-[#8d6e3f] bg-white px-2 py-1 rounded">
+                                                <span className="text-xs text-[#6b8cba] bg-white px-2 py-1 rounded">
                                                     {unidad.segmentos.length} segmentos
                                                 </span>
                                                 <svg
-                                                    className={`w-5 h-5 text-[#8d6e3f] transition-transform ${
+                                                    className={`w-5 h-5 text-[#6b8cba] transition-transform ${
                                                         expandedUnitId === unidad.id ? 'rotate-180' : ''
                                                     }`}
                                                     fill="none"
@@ -199,20 +199,20 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
                                             </button>
 
                                             {expandedUnitId === unidad.id && (
-                                                <div className="bg-white border-t border-[#e3dac9] divide-y divide-[#e3dac9]">
+                                                <div className="bg-white border-t border-[#c8d8f0] divide-y divide-[#c8d8f0]">
                                                     {unidad.segmentos.map(segmento => (
                                                         <div key={segmento.id} className="p-4">
                                                             <div className="flex items-start justify-between mb-2">
-                                                                <p className="text-xs font-semibold text-[#8d6e3f] text-uppercase">
+                                                                <p className="text-xs font-semibold text-[#6b8cba] text-uppercase">
                                                                     Segmento {segmento.orden} · Página {segmento.numeroPagina}
                                                                 </p>
                                                                 {segmento.preguntas && (
-                                                                    <span className="text-xs text-[#d4af37] bg-[#fbf8f1] px-2 py-1 rounded">
+                                                                    <span className="text-xs text-[#d4af37] bg-[#f5f8ff] px-2 py-1 rounded">
                                                                         {Object.values(segmento.preguntas).flat().length} preguntas
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <p className="text-sm text-[#5d4037] line-clamp-3">
+                                                            <p className="text-sm text-[#1e3a6e] line-clamp-3">
                                                                 {segmento.contenido} </p>
                                                         </div>
                                                     ))}
@@ -226,7 +226,7 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
 
                         {/* Escuelas con acceso */}
                         <div>
-                            <h3 className="font-semibold text-[#2b1b17] mb-3">Escuelas con este libro</h3>
+                            <h3 className="font-semibold text-[#0a1628] mb-3">Escuelas con este libro</h3>
                             {errorEscuelas && (
                                 <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <p className="text-sm text-red-700">{errorEscuelas}</p>
@@ -242,16 +242,16 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
                                         </svg>
                                     </div>
                                 ) : escuelas.length === 0 ? (
-                                    <p className="text-center text-[#8d6e3f] py-6">No hay escuelas con este libro</p>
+                                    <p className="text-center text-[#6b8cba] py-6">No hay escuelas con este libro</p>
                                 ) : (
                                     escuelas.map(escuela => (
                                         <div
                                             key={escuela.escuelaId}
-                                            className="flex items-center justify-between p-4 border border-[#e3dac9] rounded-lg hover:bg-[#f9f7f4] transition-colors"
+                                            className="flex items-center justify-between p-4 border border-[#c8d8f0] rounded-lg hover:bg-[#f9f7f4] transition-colors"
                                         >
                                             <div className="flex-1">
-                                                <p className="font-semibold text-[#2b1b17]">{escuela.nombreEscuela}</p>
-                                                <p className="text-sm text-[#8d6e3f] mt-1">
+                                                <p className="font-semibold text-[#0a1628]">{escuela.nombreEscuela}</p>
+                                                <p className="text-sm text-[#6b8cba] mt-1">
                                                     {(escuela.ciudad || '—')} • {(escuela.estadoRegion || '—')}
                                                 </p>
                                                 <div className="mt-2">
@@ -295,7 +295,7 @@ export const ViewLibroModal: React.FC<ViewLibroModalProps> = ({
                 <div className="mt-6 flex justify-end">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2 bg-[#d4af37] hover:bg-[#b8941e] text-[#2b1b17] font-semibold rounded-lg transition-colors"
+                        className="px-6 py-2 bg-[#d4af37] hover:bg-[#b8941e] text-[#0a1628] font-semibold rounded-lg transition-colors"
                     >
                         Cerrar
                     </button>

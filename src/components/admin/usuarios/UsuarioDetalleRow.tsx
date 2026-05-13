@@ -86,75 +86,75 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
     return (
         <>
             {/* Fila principal */}
-            <tr className={`block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-0 hover:bg-[#fbf8f1] transition-colors duration-200 ${isExpanded ? 'bg-[#fbf8f1] md:bg-[#fbf8f1]' : ''}`}>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Usuario</span>
+            <tr className={`block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#c8d8f0] md:border-0 hover:bg-[#f5f8ff] transition-colors duration-200 ${isExpanded ? 'bg-[#f5f8ff] md:bg-[#f5f8ff]' : ''}`}>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 relative">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Usuario</span>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#d4af37] to-[#c19a2e] flex items-center justify-center text-white font-bold shadow-md">
                             {usuario.nombre.charAt(0)}
                         </div>
                         <div>
-                            <div className="font-playfair font-bold text-[#2b1b17]">{nombreCompleto}</div>
-                            <div className="text-sm text-[#8d6e3f]">{usuario.correo}</div>
+                            <div className="font-playfair font-bold text-[#0a1628]">{nombreCompleto}</div>
+                            <div className="text-sm text-[#6b8cba]">{usuario.correo}</div>
                         </div>
                     </div>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Rol</span>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Rol</span>
                     <span className={`px-3 py-1.5 rounded-full text-xs font-bold inline-block whitespace-nowrap ${badgeColor}`}>
                         {badgeIcon} {badgeLabel}
                     </span>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Contacto</span>
-                    <div className="text-sm text-[#5d4037] flex items-center gap-1">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Contacto</span>
+                    <div className="text-sm text-[#1e3a6e] flex items-center gap-1">
                         {usuario.telefono ? (
                             <><span className="text-[#d4af37]">📞</span> {usuario.telefono}</>
                         ) : (
-                            <span className="text-[#a1887f] italic">Sin teléfono</span>
+                            <span className="text-[#6b8cba] italic">Sin teléfono</span>
                         )}
                     </div>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Escuela</span>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Escuela</span>
                     {usuario.escuela ? (
                         <div className="text-sm">
-                            <div className="font-bold text-[#2b1b17]">{usuario.escuela.nombre}</div>
-                            <div className="text-xs text-[#8d6e3f]">{usuario.escuela.nivel}</div>
+                            <div className="font-bold text-[#0a1628]">{usuario.escuela.nombre}</div>
+                            <div className="text-xs text-[#6b8cba]">{usuario.escuela.nivel}</div>
                         </div>
                     ) : (
-                        <span className="text-sm text-[#a1887f]">N/A</span>
+                        <span className="text-sm text-[#6b8cba]">N/A</span>
                     )}
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Estado</span>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block whitespace-nowrap ${usuario.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-700'}`}>
                         {usuario.activo ? '✓ Activo' : '○ Inactivo'}
                     </span>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Últ. Conexión</span>
-                    <span className="text-sm text-[#5d4037]">
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Últ. Conexión</span>
+                    <span className="text-sm text-[#1e3a6e]">
                         {formatUltimaConexion(usuario.ultimaConexion)}
                     </span>
                 </td>
-                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#fbf8f1]/50 md:bg-transparent rounded-b-xl md:rounded-none">
-                    <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
+                <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#f5f8ff]/50 md:bg-transparent rounded-b-xl md:rounded-none">
+                    <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba]">Acciones</span>
                     <div className="flex items-center gap-2 md:justify-center">
                         <button
                             onClick={() => setIsExpanded(!isExpanded)}
-                            className={`p-2 rounded-lg transition-all duration-200 ${isExpanded ? 'bg-[#d4af37] text-white' : 'hover:bg-[#d4af37]/10 text-[#8d6e3f]'}`}
+                            className={`p-2 rounded-lg transition-all duration-200 ${isExpanded ? 'bg-[#d4af37] text-white' : 'hover:bg-[#d4af37]/10 text-[#6b8cba]'}`}
                         >
                             <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <button onClick={() => onEdit(usuario)} className="p-2 hover:bg-blue-50 rounded-lg text-[#8d6e3f] hover:text-blue-600 transition-colors">
+                        <button onClick={() => onEdit(usuario)} className="p-2 hover:bg-blue-50 rounded-lg text-[#6b8cba] hover:text-blue-600 transition-colors">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </button>
-                        <button onClick={() => onDelete(usuario)} className="p-2 hover:bg-red-50 rounded-lg text-[#8d6e3f] hover:text-red-600 transition-colors">
+                        <button onClick={() => onDelete(usuario)} className="p-2 hover:bg-red-50 rounded-lg text-[#6b8cba] hover:text-red-600 transition-colors">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -165,10 +165,10 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
 
             {/* Fila expandible organizada */}
             {isExpanded && (
-                <tr className="block md:table-row bg-[#fbf8f1]/30 rounded-b-xl md:rounded-none">
+                <tr className="block md:table-row bg-[#f5f8ff]/30 rounded-b-xl md:rounded-none">
                     <td colSpan={7} className="block md:table-cell px-4 md:px-8 py-4 md:py-6">
-                        <div className="bg-white rounded-xl border border-[#e3dac9] shadow-sm overflow-hidden">
-                            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#e3dac9]">
+                        <div className="bg-white rounded-xl border border-[#c8d8f0] shadow-sm overflow-hidden">
+                            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#c8d8f0]">
 
                                 {/* Grupo 1: Información Personal */}
                                 <div className="p-5">
@@ -177,52 +177,52 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                                     </h4>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nombre(s)</p>
-                                            <p className="text-sm text-[#2b1b17]">{usuario.nombre}</p>
+                                            <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Nombre(s)</p>
+                                            <p className="text-sm text-[#0a1628]">{usuario.nombre}</p>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">A. Paterno</p>
-                                                <p className="text-sm text-[#2b1b17]">{paterno || '—'}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">A. Paterno</p>
+                                                <p className="text-sm text-[#0a1628]">{paterno || '—'}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">A. Materno</p>
-                                                <p className="text-sm text-[#2b1b17]">{materno || '—'}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">A. Materno</p>
+                                                <p className="text-sm text-[#0a1628]">{materno || '—'}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Género</p>
-                                                <p className="text-sm text-[#2b1b17] capitalize">{usuario.genero || '—'}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Género</p>
+                                                <p className="text-sm text-[#0a1628] capitalize">{usuario.genero || '—'}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">F. Nacimiento</p>
-                                                <p className="text-sm text-[#2b1b17]">{formatFechaNacimiento(usuario.fechaNacimiento)}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">F. Nacimiento</p>
+                                                <p className="text-sm text-[#0a1628]">{formatFechaNacimiento(usuario.fechaNacimiento)}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Grupo 2: Cuenta y Contacto */}
-                                <div className="p-5 bg-[#fbf8f1]/20">
+                                <div className="p-5 bg-[#f5f8ff]/20">
                                     <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-wider mb-4 flex items-center gap-2">
                                         📧 Información de Cuenta
                                     </h4>
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Correo Electrónico</p>
-                                            <p className="text-sm text-[#2b1b17] break-all">{usuario.correo}</p>
+                                            <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Correo Electrónico</p>
+                                            <p className="text-sm text-[#0a1628] break-all">{usuario.correo}</p>
                                         </div>
                                         <div className="flex justify-between gap-2 flex-wrap">
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">ID Usuario</p>
-                                                <p className="text-sm text-[#2b1b17]">#{usuario.id}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">ID Usuario</p>
+                                                <p className="text-sm text-[#0a1628]">#{usuario.id}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Rol ID</p>
-                                                <p className="text-sm text-[#2b1b17]">{usuario.rolId}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Rol ID</p>
+                                                <p className="text-sm text-[#0a1628]">{usuario.rolId}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Tipo</p>
-                                                <p className="text-sm text-[#2b1b17] capitalize">{usuario.tipoPersona}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Tipo</p>
+                                                <p className="text-sm text-[#0a1628] capitalize">{usuario.tipoPersona}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -236,22 +236,22 @@ export const UsuarioDetalleRow: React.FC<UsuarioDetalleRowProps> = ({
                                     {usuario.escuela ? (
                                         <div className="space-y-3">
                                             <div>
-                                                <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nombre de Escuela</p>
-                                                <p className="text-sm text-[#2b1b17]">{usuario.escuela.nombre}</p>
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Nombre de Escuela</p>
+                                                <p className="text-sm text-[#0a1628]">{usuario.escuela.nombre}</p>
                                             </div>
                                             <div className="flex justify-between gap-2 flex-wrap">
                                                 <div>
-                                                    <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">Nivel</p>
-                                                    <p className="text-sm text-[#2b1b17]">{usuario.escuela.nivel}</p>
+                                                    <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Nivel</p>
+                                                    <p className="text-sm text-[#0a1628]">{usuario.escuela.nivel}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] text-[#8d6e3f] font-bold uppercase">ID escuela</p>
-                                                    <p className="text-sm text-[#2b1b17]">#{usuario.escuela.id}</p>
+                                                    <p className="text-[10px] text-[#6b8cba] font-bold uppercase">ID escuela</p>
+                                                    <p className="text-sm text-[#0a1628]">#{usuario.escuela.id}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-[#a1887f] italic">No hay una escuela vinculada a este perfil.</p>
+                                        <p className="text-sm text-[#6b8cba] italic">No hay una escuela vinculada a este perfil.</p>
                                     )}
                                 </div>
 

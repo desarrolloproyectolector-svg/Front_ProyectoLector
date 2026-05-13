@@ -28,7 +28,7 @@ export const TutorFields: React.FC<TutorFieldsProps> = ({
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-playfair font-bold text-[#0a1628] mb-4 flex items-center gap-2">
                     <svg className="w-5 h-5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
@@ -149,15 +149,15 @@ export const TutorFields: React.FC<TutorFieldsProps> = ({
             {/* Solo mostrar vinculación de alumno al CREAR */}
             {!isEditing && (
                 <>
-                    <div className="border-t-2 border-[#e3dac9]"></div>
+                    <div className="border-t-2 border-[#c8d8f0]"></div>
                     <div>
-                        <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-2 flex items-center gap-2">
+                        <h3 className="text-lg font-playfair font-bold text-[#0a1628] mb-2 flex items-center gap-2">
                             <svg className="w-5 h-5 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                             </svg>
                             Vincular con Alumno
                         </h3>
-                        <p className="text-sm text-[#8d6e3f] mb-4">
+                        <p className="text-sm text-[#6b8cba] mb-4">
                             Opcional: Asocia este padre/tutor con un alumno existente en el sistema
                         </p>
                         <AlumnoSelector

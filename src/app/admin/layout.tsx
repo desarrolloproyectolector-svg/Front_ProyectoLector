@@ -31,7 +31,7 @@ export default function AdminLayout({
   const currentTitle = getTitle();
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] flex relative">
+    <div className="min-h-screen bg-[#eef2ff] flex relative">
 
       <SidebarAdmin isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
@@ -46,7 +46,7 @@ export default function AdminLayout({
 
         <header className="flex items-center gap-4 mb-2 md:mb-0">
           <button
-            className="md:hidden text-[#2b1b17] p-2 hover:bg-black/5 rounded-lg"
+            className="md:hidden text-[#1a2d5a] p-2 hover:bg-[#1a2d5a]/5 rounded-lg"
             onClick={() => setIsSidebarOpen(true)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

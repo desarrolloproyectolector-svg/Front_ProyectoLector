@@ -192,27 +192,23 @@ export const LoginBook: React.FC = () => {
                     style={{ transform: 'rotateY(0deg) rotateX(0deg)' }}
                 >
 
-                    {/* BACK COVER (Thickness & Base) */}
-                    <div className="absolute inset-0 bg-[#2b1b17] rounded-r-xl rounded-l-md transform translate-z-[-25px] shadow-2xl"></div>
+                    {/* BACK COVER */}
+                    <div className="absolute inset-0 bg-[#060d1a] rounded-r-xl rounded-l-md transform translate-z-[-25px] shadow-2xl"></div>
 
-                    {/* BASE PAGE (Static - Prevents showing brown back cover) */}
-                    <div className="absolute top-0 bottom-0 right-0 left-[-2px] bg-[#fbf8f1] rounded-r-xl rounded-l-sm border-l border-[#e3dac9] transform translate-z-[-24px] z-10 flex flex-col items-center justify-center text-[#4e342e] shadow-inner">
-                        {/* Printed Logo/Title Page */}
+                    {/* BASE PAGE (última página visible al abrir) */}
+                    <div className="absolute top-0 bottom-0 right-0 left-[-2px] bg-[#f5f8ff] rounded-r-xl rounded-l-sm border-l border-[#c8d8f0] transform translate-z-[-24px] z-10 flex flex-col items-center justify-center text-[#1a2d5a] shadow-inner">
                         <div className="opacity-80 flex flex-col items-center">
-                            <div className="w-12 h-12 border-2 border-[#4e342e] rounded-full flex items-center justify-center mb-6 p-2">
+                            <div className="w-12 h-12 border-2 border-[#1a2d5a] rounded-full flex items-center justify-center mb-6 p-2">
                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" /></svg>
                             </div>
-
-                            {/* Dynamic Welcome Message */}
-                            <h2 className="font-playfair text-3xl font-bold tracking-[0.1em] text-[#2b1b17] mb-2">¡BIENVENIDO!</h2>
-                            <p className="font-playfair text-2xl italic text-[#8d6e3f] border-b-2 border-[#d4af37]/30 pb-2 px-6 min-w-[150px] text-center">
+                            <h2 className="font-playfair text-3xl font-bold tracking-[0.1em] text-[#0a1628] mb-2">¡BIENVENIDO!</h2>
+                            <p className="font-playfair text-2xl italic text-[#c41e3a] border-b-2 border-[#c41e3a]/30 pb-2 px-6 min-w-[150px] text-center">
                                 {displayName}
                             </p>
-
                             <div className="mt-8 flex flex-col items-center gap-2">
-                                <div className="w-1 h-1 bg-[#4e342e] rounded-full"></div>
-                                <div className="w-1 h-6 bg-[#4e342e]/20 rounded-full"></div>
-                                <p className="font-lora text-[10px] italic text-[#8d6e3f] mt-2">Accediendo a tu biblioteca...</p>
+                                <div className="w-1 h-1 bg-[#1a2d5a] rounded-full"></div>
+                                <div className="w-1 h-6 bg-[#1a2d5a]/20 rounded-full"></div>
+                                <p className="font-lora text-[10px] italic text-[#6b8cba] mt-2">Accediendo a tu biblioteca...</p>
                             </div>
                         </div>
                     </div>
@@ -220,12 +216,12 @@ export const LoginBook: React.FC = () => {
                     {/* PHYSICAL PAGES (Side View) */}
                     <div
                         className="absolute top-1 bottom-1 right-1 w-[35px] transform rotate-y-90 origin-right translate-z-[-12px]"
-                        style={{ background: 'repeating-linear-gradient(90deg, #fdfbf7 0px, #fdfbf7 2px, #e3dac9 3px, #e3dac9 4px)' }}
+                        style={{ background: 'repeating-linear-gradient(90deg, #f5f8ff 0px, #f5f8ff 2px, #c8d8f0 3px, #c8d8f0 4px)' }}
                     ></div>
                     {/* PHYSICAL PAGES (Top View) */}
                     <div
                         className="absolute top-[3px] left-[5px] right-[10px] h-[25px] origin-top transform rotate-x-90 translate-z-[-12px]"
-                        style={{ background: 'linear-gradient(to bottom, #fdfbf7, #e3dac9)' }}
+                        style={{ background: '#dce8f8' }}
                     ></div>
 
                     {/* ANIMATED PAGES */}
@@ -233,12 +229,9 @@ export const LoginBook: React.FC = () => {
                         {[1, 2, 3, 4, 5, 6, 7].map(i => (
                             <div
                                 key={i}
-                                className="page absolute inset-0 bg-[#fbf8f1] rounded-r-xl rounded-l-md border-y border-r border-l-2 border-[#d4af37]/30 border-l-[#a1887f] shadow-[2px_0_10px_rgba(0,0,0,0.15)] origin-left transform-style-3d transition-transform duration-[1400ms] pointer-events-none"
+                                className="page absolute inset-0 bg-[#f5f8ff] rounded-r-xl rounded-l-md border-y border-r border-l-2 border-[#1a2d5a]/15 border-l-[#1a2d5a] shadow-[2px_0_10px_rgba(0,0,0,0.12)] origin-left transform-style-3d transition-transform duration-[1400ms] pointer-events-none"
                                 style={{ transform: `translateZ(${i}px)`, transitionTimingFunction: 'cubic-bezier(0.3, 0.1, 0.3, 1)' }}
                             >
-                                {/* Inner texture/gradient to give pages more depth as they flip */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/5 rounded-r-xl pointer-events-none"></div>
-                                <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white/40 to-transparent rounded-r-xl pointer-events-none"></div>
                             </div>
                         ))}
                     </div>
@@ -246,32 +239,32 @@ export const LoginBook: React.FC = () => {
                     {/* SPINE */}
                     <div
                         className="absolute top-0 bottom-0 -left-[2px] w-[50px] transform rotate-y-90 origin-left rounded-l-md z-30 pointer-events-none"
-                        style={{ background: 'linear-gradient(90deg, #2b1b17, #4e342e, #2b1b17)' }}
+                        style={{ background: '#060d1a' }}
                     >
                         <div className="absolute top-10 w-full h-1 bg-[#d4af37] shadow-[0_0_5px_rgba(212,175,55,0.8)]"></div>
                         <div className="absolute bottom-10 w-full h-1 bg-[#d4af37] shadow-[0_0_5px_rgba(212,175,55,0.8)]"></div>
-                        <div className="absolute top-1/2 w-full h-12 -mt-6 border-t border-b border-[#bd9b59]/50"></div>
+                        <div className="absolute top-1/2 w-full h-12 -mt-6 border-t border-b border-[#d4af37]/40"></div>
                     </div>
 
-                    {/* FRONT COVER (Interactive Part) */}
+                    {/* FRONT COVER */}
                     <div
                         className="absolute inset-0 z-50 transform-style-3d origin-left transition-transform duration-[1500ms] cubic-bezier(0.4, 0, 0.2, 1) will-change-transform"
                         id="frontCover"
                         ref={frontCoverRef}
                         style={{ transform: 'translateZ(30px)' }}
                     >
-
                         {/* OUTER FACE */}
-                        <div className="absolute inset-0 bg-[#3e2723] rounded-r-xl rounded-l-md shadow-lg overflow-hidden border-r border-[#1a100d]">
-                            {/* Texture & Effects */}
+                        <div className="absolute inset-0 bg-[#1A2F45] rounded-r-xl rounded-l-md shadow-lg overflow-hidden border-r border-[#060d1a]">
+                            {/* Texture overlay */}
                             <div
-                                className="absolute inset-0 opacity-60 mix-blend-overlay pointer-events-none"
+                                className="absolute inset-0 opacity-40 mix-blend-overlay pointer-events-none"
                                 style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/leather.png')", filter: 'contrast(150%)' }}
                             ></div>
+                            {/* Main border frame */}
                             <div className="absolute inset-6 border-[3px] border-[#d4af37] rounded-lg opacity-90 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] pointer-events-none">
-                                <div className="absolute inset-1 border border-[#bd9b59] opacity-50 rounded-sm pointer-events-none"></div>
+                                <div className="absolute inset-1 border border-[#d4af37]/50 opacity-50 rounded-sm pointer-events-none"></div>
                             </div>
-                            {/* Ornaments */}
+                            {/* Corner ornaments */}
                             <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-[#d4af37] pointer-events-none"></div>
                             <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-[#d4af37] pointer-events-none"></div>
                             <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-[#d4af37] pointer-events-none"></div>
@@ -281,25 +274,25 @@ export const LoginBook: React.FC = () => {
                             <div
                                 id="contentLayer"
                                 ref={contentLayerRef}
-                                className="relative z-[100] flex flex-col h-full px-12 py-16 text-center text-[#f0e6d2] pointer-events-auto transition-opacity duration-300"
+                                className="relative z-[100] flex flex-col h-full px-12 py-16 text-center text-white pointer-events-auto transition-opacity duration-300"
                                 style={{ transform: 'translateZ(50px)', transformStyle: 'flat' }}
                             >
                                 <div className="mb-auto mt-4">
-                                    <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-[#d4af37] to-[#8d6e3f] p-[2px] rounded-full shadow-lg">
-                                        <div className="w-full h-full bg-[#3e2723] rounded-full flex items-center justify-center">
+                                    <div className="w-20 h-20 mx-auto mb-4 bg-[#d4af37] p-[2px] rounded-full shadow-lg">
+                                        <div className="w-full h-full bg-[#0d1b2a] rounded-full flex items-center justify-center">
                                             <svg className="w-10 h-10 text-[#d4af37]" fill="currentColor" viewBox="0 0 24 24"><path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" /></svg>
                                         </div>
                                     </div>
                                     <h1 className="font-playfair text-2xl font-bold tracking-[0.2em] text-[#d4af37] drop-shadow-md">
                                         PROYECTO LECTOR
                                     </h1>
-                                    <p className="font-lora text-[10px] uppercase tracking-[0.4em] text-[#a1887f] mt-6">Plataforma Educativa</p>
+                                    <p className="font-lora text-[10px] uppercase tracking-[0.4em] text-white/60 mt-6">Plataforma Educativa</p>
                                 </div>
 
                                 {/* LOGIN FORM */}
                                 <form className="flex flex-col gap-5 mb-8 relative z-[101]" noValidate onSubmit={handleSubmit}>
                                     <div className="relative group text-left">
-                                        <label className="block font-lora text-[10px] uppercase text-[#bd9b59] mb-1 ml-1 tracking-widest">Usuario o Correo</label>
+                                        <label className="block font-lora text-[10px] uppercase text-[#d4af37] mb-1 ml-1 tracking-widest">Usuario o Correo</label>
                                         <input
                                             type="text"
                                             id="username"
@@ -309,7 +302,7 @@ export const LoginBook: React.FC = () => {
                                             value={username}
                                             onChange={handleInput}
                                             onBlur={handleBlur}
-                                            className={`w-full relative z-[102] cursor-text bg-[#1a100d]/60 border-b-2 border-[#5d4037] text-[#fff] font-playfair text-lg py-2 px-3 focus:outline-none focus:border-[#d4af37] focus:bg-[#1a100d]/90 transition-all rounded-t-sm placeholder-white/10 ${styles.autofillInput}`}
+                                            className={`w-full relative z-[102] cursor-text bg-[#050c18]/70 border-b-2 border-[#1e3a6e] text-[#fff] font-playfair text-lg py-2 px-3 focus:outline-none focus:border-[#c41e3a] focus:bg-[#050c18]/90 transition-all rounded-t-sm placeholder-white/40 ${styles.autofillInput}`}
                                             placeholder="ejemplo@correo.com"
                                         />
                                         <p
@@ -319,7 +312,7 @@ export const LoginBook: React.FC = () => {
                                         >⚠ Usuario o Correo válido requerido</p>
                                     </div>
                                     <div className="relative group text-left">
-                                        <label className="block font-lora text-[10px] uppercase text-[#bd9b59] mb-1 ml-1 tracking-widest">Contraseña</label>
+                                        <label className="block font-lora text-[10px] uppercase text-[#d4af37] mb-1 ml-1 tracking-widest">Contraseña</label>
                                         <input
                                             type="password"
                                             id="password"
@@ -329,7 +322,7 @@ export const LoginBook: React.FC = () => {
                                             value={password}
                                             onChange={handleInput}
                                             onBlur={handleBlur}
-                                            className={`w-full relative z-[102] cursor-text bg-[#1a100d]/60 border-b-2 border-[#5d4037] text-[#fff] font-playfair text-lg py-2 px-3 focus:outline-none focus:border-[#d4af37] focus:bg-[#1a100d]/90 transition-all rounded-t-sm placeholder-white/10 ${styles.autofillInput}`}
+                                            className={`w-full relative z-[102] cursor-text bg-[#050c18]/70 border-b-2 border-[#1e3a6e] text-[#fff] font-playfair text-lg py-2 px-3 focus:outline-none focus:border-[#c41e3a] focus:bg-[#050c18]/90 transition-all rounded-t-sm placeholder-white/40 ${styles.autofillInput}`}
                                             placeholder="•••••••"
                                         />
                                         <p
@@ -340,20 +333,20 @@ export const LoginBook: React.FC = () => {
                                     </div>
                                     <button
                                         type="submit"
-                                        className="mt-4 w-full relative z-[102] cursor-pointer bg-gradient-to-r from-[#bd9b59] to-[#8d6e3f] text-[#2b1b17] font-bold font-playfair text-sm uppercase py-4 rounded-sm shadow-lg hover:brightness-110 active:scale-[0.98] transition-all overflow-hidden group"
+                                        className="mt-4 w-full relative z-[102] cursor-pointer bg-[#c41e3a] text-white font-bold font-playfair text-sm uppercase py-4 rounded-sm shadow-lg hover:bg-[#a01830] active:scale-[0.98] transition-all overflow-hidden group"
                                     >
                                         <span className="relative z-10 tracking-[0.2em]">INICIAR SESIÓN</span>
                                     </button>
                                 </form>
 
-                                <div className="text-[15px] text-[#8d6e3f]">
-                                    <a href="#" className="hover:text-[#d4af37] underline decoration-[#5d4037]">¿Problemas para acceder?</a>
+                                <div className="text-[15px] text-[#d4af37]">
+                                    <a href="#" className="hover:text-[#c41e3a] underline decoration-[#1e3a6e]">¿Problemas para acceder?</a>
                                 </div>
                             </div>
                         </div>
 
                         {/* INNER FACE (Visible when open) */}
-                        <div className="absolute inset-0 bg-[#fbf8f1] rounded-l-md rounded-r-xl shadow-inner transform rotate-y-180 backface-hidden flex items-center justify-center p-12">
+                        <div className="absolute inset-0 bg-[#f5f8ff] rounded-l-md rounded-r-xl shadow-inner transform rotate-y-180 backface-hidden flex items-center justify-center p-12">
                         </div>
                     </div>
 

@@ -16,12 +16,14 @@ interface MenuBaseProps {
   role?: string;
   menuItems: MenuItem[];
   onClose?: () => void;
+  navyTheme?: boolean;
 }
 
 export default function MenuBase({
   isOpen,
   menuItems,
   onClose,
+  navyTheme = false,
 }: MenuBaseProps) {
   const pathname = usePathname();
   const { displayName, roleLabel, logout } = useAuth();
@@ -66,7 +68,9 @@ export default function MenuBase({
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full w-64 bg-[#2b1b17] text-[#f0e6d2] flex flex-col py-8 shadow-2xl z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      className={`fixed left-0 top-0 h-full w-64 ${
+        navyTheme ? 'bg-[#1A2F45] text-white' : 'bg-[#2b1b17] text-[#f0e6d2]'
+      } flex flex-col py-8 shadow-2xl z-50 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
     >
       {/* Logo */}
@@ -99,8 +103,12 @@ export default function MenuBase({
                 if (onClose) onClose();
               }}
               className={`flex items-center gap-4 p-3 rounded-lg transition-all ${isActive
-                  ? 'bg-[#d4af37]/10 text-[#d4af37]'
-                  : 'text-[#a1887f] hover:bg-[#d4af37]/5 hover:text-[#f0e6d2]'
+                  ? navyTheme
+                    ? 'bg-[#c41e3a]/20 text-[#d4af37] border-l-2 border-[#c41e3a]'
+                    : 'bg-[#d4af37]/10 text-[#d4af37]'
+                  : navyTheme
+                    ? 'text-[#c8d8f0] hover:bg-[#0d1b2a] hover:text-white'
+                    : 'text-[#a1887f] hover:bg-[#d4af37]/5 hover:text-[#f0e6d2]'
                 }`}
             >
               <div className="w-6 h-6">{renderIcon(item.icon)}</div>
@@ -112,10 +120,10 @@ export default function MenuBase({
       </nav>
 
       {/* User & Logout Section */}
-      <div className="mt-auto px-4 pt-6 border-t border-[#4e342e]">
+      <div className={`mt-auto px-4 pt-6 border-t ${navyTheme ? 'border-[#1e3a6e]' : 'border-[#4e342e]'}`}>
         <div className="mb-4 px-2">
-          <p className="text-sm font-semibold text-[#f0e6d2]">{displayName}</p>
-          <p className="text-xs text-[#a1887f]">{roleLabel}</p>
+          <p className="text-sm font-semibold">{displayName}</p>
+          <p className={`text-xs ${navyTheme ? 'text-[#6b8cba]' : 'text-[#a1887f]'}`}>{roleLabel}</p>
         </div>
 
         <button

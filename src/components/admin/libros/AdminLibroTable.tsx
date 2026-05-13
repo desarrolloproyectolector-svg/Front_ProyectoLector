@@ -25,13 +25,13 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
     if (libros.length === 0) {
         return (
             <div className="text-center py-12">
-                <div className="w-20 h-20 bg-[#fbf8f1] rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <svg className="w-10 h-10 text-[#a1887f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 bg-[#f5f8ff] rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <svg className="w-10 h-10 text-[#6b8cba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17s4.5 10.747 10 10.747c5.5 0 10-4.998 10-10.747 0-6.002-4.5-10.747-10-10.747z"></path>
                     </svg>
                 </div>
-                <h3 className="font-playfair text-xl font-bold text-[#2b1b17] mb-2">No se encontraron libros</h3>
-                <p className="text-[#8d6e3f]">Carga un nuevo libro para comenzar</p>
+                <h3 className="font-playfair text-xl font-bold text-[#0a1628] mb-2">No se encontraron libros</h3>
+                <p className="text-[#6b8cba]">Carga un nuevo libro para comenzar</p>
             </div>
         );
     }
@@ -39,45 +39,45 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
     return (
         <div className="w-full">
             <table className="w-full block md:table">
-                <thead className="hidden md:table-header-group bg-gradient-to-r from-[#fbf8f1] to-[#f0e6d2]">
+                <thead className="hidden md:table-header-group bg-[#dce8f8]">
                     <tr className="block md:table-row">
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Título</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Código</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Grado</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Materia</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Páginas</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Estado</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Activo</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold text-[#2b1b17] uppercase tracking-wider">Acciones</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Título</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Código</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Grado</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Materia</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Páginas</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Estado</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Activo</th>
+                        <th className="px-6 py-4 text-center text-xs font-bold text-[#1a2d5a] uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
-                <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#e3dac9] space-y-4 md:space-y-0 p-4 md:p-0">
+                <tbody className="block md:table-row-group divide-y md:divide-y md:divide-[#c8d8f0] space-y-4 md:space-y-0 p-4 md:p-0">
                     {libros.map(libro => (
-                        <tr key={libro.id} className="block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#e3dac9] md:border-b md:border-transparent hover:bg-[#f9f7f4] transition-colors relative">
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 relative">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Título</span>
-                                <span className="font-semibold text-[#2b1b17] hover:text-[#d4af37] cursor-pointer transition-colors block md:inline" onClick={() => onView(libro)}>
+                        <tr key={libro.id} className="block md:table-row bg-white md:bg-transparent mb-4 md:mb-0 rounded-xl md:rounded-none shadow-sm md:shadow-none border border-[#c8d8f0] md:border-b md:border-transparent hover:bg-[#f9f7f4] transition-colors relative">
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 relative">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Título</span>
+                                <span className="font-semibold text-[#0a1628] hover:text-[#d4af37] cursor-pointer transition-colors block md:inline" onClick={() => onView(libro)}>
                                     {libro.titulo}
                                 </span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Código</span>
-                                <span className="text-[#5d4037] text-sm font-mono block md:inline">{libro.codigo}</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Código</span>
+                                <span className="text-[#1e3a6e] text-sm font-mono block md:inline">{libro.codigo}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Grado</span>
-                                <span className="text-[#5d4037] block md:inline">{libro.grado}°</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Grado</span>
+                                <span className="text-[#1e3a6e] block md:inline">{libro.grado}°</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Materia</span>
-                                <span className="text-[#5d4037] text-sm block md:inline">{libro.materia?.nombre || '—'}</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Materia</span>
+                                <span className="text-[#1e3a6e] text-sm block md:inline">{libro.materia?.nombre || '—'}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Páginas</span>
-                                <span className="text-[#5d4037] block md:inline">{libro.numPaginas}</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Páginas</span>
+                                <span className="text-[#1e3a6e] block md:inline">{libro.numPaginas}</span>
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Estado</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Estado</span>
                                 {libro.estado === 'listo' && (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
@@ -97,8 +97,8 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                                     </span>
                                 )}
                             </td>
-                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#e3dac9]/30 md:border-0 md:text-center">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f] mb-2 block">Activo</span>
+                            <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 border-b border-[#c8d8f0]/30 md:border-0 md:text-center">
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba] mb-2 block">Activo</span>
                                 {libro.activo !== false ? (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 whitespace-nowrap">
                                         <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
@@ -112,7 +112,7 @@ export const AdminLibroTable: React.FC<AdminLibroTableProps> = ({
                                 )}
                             </td>
                             <td className="block md:table-cell px-4 md:px-6 py-3 md:py-4 flex md:table-cell justify-between items-center bg-[#f9f7f4]/50 md:bg-transparent rounded-b-xl md:rounded-none">
-                                <span className="md:hidden text-[10px] font-bold uppercase text-[#a1887f]">Acciones</span>
+                                <span className="md:hidden text-[10px] font-bold uppercase text-[#6b8cba]">Acciones</span>
                                 <div className="flex justify-end md:justify-center gap-2">
                                     <button
                                         onClick={() => onView(libro)}

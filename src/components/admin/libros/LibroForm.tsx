@@ -124,7 +124,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
 
             {/* Título */}
             <div>
-                <label htmlFor="titulo" className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                <label htmlFor="titulo" className="block text-sm font-semibold text-[#0a1628] mb-2">
                     Título del libro <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -144,7 +144,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
             {/* Grado y Materia */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="grado" className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                    <label htmlFor="grado" className="block text-sm font-semibold text-[#0a1628] mb-2">
                         Grado <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -164,7 +164,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
                 </div>
 
                 <div>
-                    <label htmlFor="materiaId" className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                    <label htmlFor="materiaId" className="block text-sm font-semibold text-[#0a1628] mb-2">
                         Materia
                     </label>
                     <select
@@ -187,7 +187,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
 
             {/* Código */}
             <div>
-                <label htmlFor="codigo" className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                <label htmlFor="codigo" className="block text-sm font-semibold text-[#0a1628] mb-2">
                     Código (opcional - se auto-genera si no se proporciona)
                 </label>
                 <input
@@ -205,7 +205,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
 
             {/* Descripción */}
             <div>
-                <label htmlFor="descripcion" className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                <label htmlFor="descripcion" className="block text-sm font-semibold text-[#0a1628] mb-2">
                     Descripción
                 </label>
                 <textarea
@@ -219,17 +219,17 @@ export const LibroForm: React.FC<LibroFormProps> = ({
                     className="w-full px-4 py-2 border border-[#d4af37] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent resize-none"
                     disabled={isLoading}
                 />
-                <p className="text-xs text-[#8d6e3f] mt-1">
+                <p className="text-xs text-[#6b8cba] mt-1">
                     {formData.descripcion?.length || 0}/255 caracteres
                 </p>
             </div>
 
             {/* Archivo PDF */}
             <div>
-                <label htmlFor="pdf" className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                <label htmlFor="pdf" className="block text-sm font-semibold text-[#0a1628] mb-2">
                     Archivo PDF <span className="text-red-500">*</span>
                 </label>
-                <div className="relative border-2 border-dashed border-[#d4af37] rounded-lg p-6 text-center hover:bg-[#fbf8f1] transition-colors cursor-pointer">
+                <div className="relative border-2 border-dashed border-[#d4af37] rounded-lg p-6 text-center hover:bg-[#f5f8ff] transition-colors cursor-pointer">
                     <input
                         type="file"
                         id="pdf"
@@ -253,10 +253,10 @@ export const LibroForm: React.FC<LibroFormProps> = ({
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                             />
                         </svg>
-                        <p className="text-sm font-semibold text-[#2b1b17]">
+                        <p className="text-sm font-semibold text-[#0a1628]">
                             {pdfFile ? pdfFile.name : 'Arrastra un PDF aquí o haz clic para seleccionar'}
                         </p>
-                        <p className="text-xs text-[#8d6e3f] mt-1">Máximo 50MB</p>
+                        <p className="text-xs text-[#6b8cba] mt-1">Máximo 50MB</p>
                     </div>
                 </div>
                 {pdfError && (
@@ -268,7 +268,7 @@ export const LibroForm: React.FC<LibroFormProps> = ({
             <button
                 type="submit"
                 disabled={isLoading || !pdfFile}
-                className="w-full bg-[#d4af37] hover:bg-[#b8941e] disabled:bg-[#d4af37]/50 text-[#2b1b17] font-bold py-3 px-4 rounded-lg transition-colors disabled:cursor-not-allowed"
+                className="w-full bg-[#d4af37] hover:bg-[#b8941e] disabled:bg-[#d4af37]/50 text-[#0a1628] font-bold py-3 px-4 rounded-lg transition-colors disabled:cursor-not-allowed"
             >
                 {isLoading ? (
                     <div className="flex items-center justify-center">

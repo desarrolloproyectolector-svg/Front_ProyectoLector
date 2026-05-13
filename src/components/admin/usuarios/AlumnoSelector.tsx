@@ -107,7 +107,7 @@ export const AlumnoSelector: React.FC<AlumnoSelectorProps> = ({
                             </div>
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-playfair font-bold text-[#2b1b17] text-lg">
+                                    <h4 className="font-playfair font-bold text-[#0a1628] text-lg">
                                         {getNombreCompletoAlumno(selectedAlumno)}
                                     </h4>
                                     <span className="px-2 py-0.5 bg-emerald-200 text-emerald-800 text-xs font-bold rounded-full">
@@ -140,7 +140,7 @@ export const AlumnoSelector: React.FC<AlumnoSelectorProps> = ({
             ) : (
                 <>
                     <div>
-                        <label className="block text-sm font-bold text-[#2b1b17] mb-2">
+                        <label className="block text-sm font-bold text-[#0a1628] mb-2">
                             Buscar Alumno (opcional)
                         </label>
                         <div className="relative">
@@ -150,10 +150,10 @@ export const AlumnoSelector: React.FC<AlumnoSelectorProps> = ({
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Escribe el nombre del alumno..."
                                 className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${
-                                    error ? 'border-red-300' : 'border-[#e3dac9]'
+                                    error ? 'border-red-300' : 'border-[#c8d8f0]'
                                 } bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300`}
                             />
-                            <svg className="w-5 h-5 text-[#a1887f] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#6b8cba] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                             {isSearching && (
@@ -165,13 +165,13 @@ export const AlumnoSelector: React.FC<AlumnoSelectorProps> = ({
                         {error && (
                             <p className="mt-1 text-sm text-red-600">{error}</p>
                         )}
-                        <p className="mt-1 text-xs text-[#8d6e3f]">
+                        <p className="mt-1 text-xs text-[#6b8cba]">
                             Escribe al menos 2 caracteres para buscar
                         </p>
                     </div>
 
                     {showResults && (
-                        <div className="bg-white border-2 border-[#e3dac9] rounded-xl shadow-lg max-h-64 overflow-y-auto">
+                        <div className="bg-white border-2 border-[#c8d8f0] rounded-xl shadow-lg max-h-64 overflow-y-auto">
                             {searchError ? (
                                 <div className="p-4 text-center text-red-600">
                                     <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,33 +181,33 @@ export const AlumnoSelector: React.FC<AlumnoSelectorProps> = ({
                                 </div>
                             ) : alumnos.length === 0 ? (
                                 <div className="p-6 text-center">
-                                    <svg className="w-12 h-12 mx-auto mb-3 text-[#a1887f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-12 h-12 mx-auto mb-3 text-[#6b8cba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
-                                    <p className="text-sm font-bold text-[#2b1b17] mb-1">No se encontraron alumnos</p>
-                                    <p className="text-xs text-[#8d6e3f]">No hay alumnos con el nombre "{searchTerm}"</p>
+                                    <p className="text-sm font-bold text-[#0a1628] mb-1">No se encontraron alumnos</p>
+                                    <p className="text-xs text-[#6b8cba]">No hay alumnos con el nombre "{searchTerm}"</p>
                                 </div>
                             ) : (
-                                <div className="divide-y divide-[#e3dac9]">
+                                <div className="divide-y divide-[#c8d8f0]">
                                     {alumnos.map((alumno) => (
                                         <button
                                             key={alumno.id}
                                             onClick={() => handleSelectAlumno(alumno)}
-                                            className="w-full p-4 hover:bg-[#fbf8f1] transition-colors text-left flex items-center gap-3"
+                                            className="w-full p-4 hover:bg-[#f5f8ff] transition-colors text-left flex items-center gap-3"
                                         >
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
                                                 {alumno.persona.nombre.charAt(0)}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-playfair font-bold text-[#2b1b17] truncate">
+                                                <h4 className="font-playfair font-bold text-[#0a1628] truncate">
                                                     {getNombreCompletoAlumno(alumno)}
                                                 </h4>
-                                                <p className="text-xs text-[#8d6e3f]">
+                                                <p className="text-xs text-[#6b8cba]">
                                                     Grado {alumno.grado}
                                                     {alumno.grupo && ` - Grupo ${alumno.grupo}`} 
                                                     {' | '}{alumno.escuela.nombre}
                                                 </p>
-                                                <p className="text-xs text-[#a1887f] truncate">
+                                                <p className="text-xs text-[#6b8cba] truncate">
                                                     {alumno.persona.correo}
                                                 </p>
                                             </div>

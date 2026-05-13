@@ -6,6 +6,7 @@ export default function SidebarAdmin({ isOpen, onClose }: { isOpen: boolean; onC
   return (
     <MenuBase
       isOpen={isOpen}
+      navyTheme={true}
       role="Administrador"
       menuItems={[
         { href: '/admin', icon: 'chart', label: 'Dashboard' },

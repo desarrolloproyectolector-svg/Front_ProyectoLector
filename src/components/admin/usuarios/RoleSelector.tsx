@@ -64,7 +64,7 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
                 </svg>
             ),
             color: 'from-[#d4af37] to-[#c19a2e]',
-            bgColor: 'bg-[#fbf8f1]',
+            bgColor: 'bg-[#f5f8ff]',
             borderColor: 'border-[#d4af37]/30',
             hoverColor: 'hover:border-[#d4af37]'
         }
@@ -81,7 +81,7 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
                         className={`group relative p-6 rounded-xl border-2 transition-all duration-300 ${
                             selectedRole === role.id
                                 ? `${role.bgColor} ${role.borderColor} shadow-lg scale-105`
-                                : `bg-white border-[#e3dac9] ${role.hoverColor} hover:shadow-md`
+                                : `bg-white border-[#c8d8f0] ${role.hoverColor} hover:shadow-md`
                         }`}
                     >
                         <div className="flex flex-col items-center gap-3">
@@ -91,7 +91,7 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
                                 {role.icon}
                             </div>
                             <span className={`font-bold text-sm ${
-                                selectedRole === role.id ? 'text-[#2b1b17]' : 'text-[#5d4037]'
+                                selectedRole === role.id ? 'text-[#0a1628]' : 'text-[#1e3a6e]'
                             }`}>
                                 {role.name}
                             </span>

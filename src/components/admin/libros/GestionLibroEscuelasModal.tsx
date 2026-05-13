@@ -105,16 +105,16 @@ export const GestionLibroEscuelasModal: React.FC<GestionLibroEscuelasModalProps>
                             </svg>
                         </div>
                     ) : escuelas.length === 0 ? (
-                        <p className="text-center text-[#8d6e3f] py-8">No hay escuelas asignadas a este libro</p>
+                        <p className="text-center text-[#6b8cba] py-8">No hay escuelas asignadas a este libro</p>
                     ) : (
                         escuelas.map(escuela => (
                             <div
                                 key={escuela.escuelaId}
-                                className="flex items-center justify-between p-4 border border-[#e3dac9] rounded-lg hover:bg-[#f9f7f4] transition-colors"
+                                className="flex items-center justify-between p-4 border border-[#c8d8f0] rounded-lg hover:bg-[#f9f7f4] transition-colors"
                             >
                                 <div className="flex-1">
-                                    <p className="font-semibold text-[#2b1b17]">{escuela.nombreEscuela}</p>
-                                    <p className="text-sm text-[#8d6e3f] mt-1">
+                                    <p className="font-semibold text-[#0a1628]">{escuela.nombreEscuela}</p>
+                                    <p className="text-sm text-[#6b8cba] mt-1">
                                         {(escuela.ciudad || '—')} • {(escuela.estadoRegion || '—')}
                                     </p>
                                     <div className="mt-2 flex items-center gap-2">
@@ -158,7 +158,7 @@ export const GestionLibroEscuelasModal: React.FC<GestionLibroEscuelasModalProps>
                     <button
                         onClick={onClose}
                         disabled={isLoading}
-                        className="flex-1 px-4 py-2 border border-[#d4af37] text-[#2b1b17] font-semibold rounded-lg hover:bg-[#fbf8f1] disabled:opacity-50 transition-colors"
+                        className="flex-1 px-4 py-2 border border-[#d4af37] text-[#0a1628] font-semibold rounded-lg hover:bg-[#f5f8ff] disabled:opacity-50 transition-colors"
                     >
                         Cerrar
                     </button>
@@ -167,7 +167,7 @@ export const GestionLibroEscuelasModal: React.FC<GestionLibroEscuelasModalProps>
                             onSuccess();
                             onClose();
                         }}
-                        className="flex-1 px-4 py-2 bg-[#d4af37] hover:bg-[#b8941e] text-[#2b1b17] font-semibold rounded-lg transition-colors"
+                        className="flex-1 px-4 py-2 bg-[#d4af37] hover:bg-[#b8941e] text-[#0a1628] font-semibold rounded-lg transition-colors"
                     >
                         Hecho
                     </button>

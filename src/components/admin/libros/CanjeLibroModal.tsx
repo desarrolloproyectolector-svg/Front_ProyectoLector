@@ -98,7 +98,7 @@ export const CanjeLibroModal: React.FC<CanjeLibroModalProps> = ({
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-[#2b1b17] mb-2">
+                        <label className="block text-sm font-semibold text-[#0a1628] mb-2">
                             Selecciona una escuela <span className="text-red-500">*</span>
                         </label>
                         <select
@@ -119,17 +119,17 @@ export const CanjeLibroModal: React.FC<CanjeLibroModalProps> = ({
                     </div>
 
                     {selectedEscuelaId && (
-                        <div className="p-3 bg-[#fbf8f1] rounded-lg border border-[#d4af37] text-sm">
-                            <p className="text-[#2b1b17]">
+                        <div className="p-3 bg-[#f5f8ff] rounded-lg border border-[#d4af37] text-sm">
+                            <p className="text-[#0a1628]">
                                 {escuelas.find(e => e.id === selectedEscuelaId)?.nombre}
                             </p>
-                            <p className="text-[#8d6e3f] text-xs mt-1">
+                            <p className="text-[#6b8cba] text-xs mt-1">
                                 {escuelas.find(e => e.id === selectedEscuelaId)?.direccion}
                             </p>
                         </div>
                     )}
 
-                    <p className="text-sm text-[#5d4037]">
+                    <p className="text-sm text-[#1e3a6e]">
                         Al canjear este libro, se activará en la escuela y los alumnos podrán acceder a su contenido.
                     </p>
 
@@ -138,7 +138,7 @@ export const CanjeLibroModal: React.FC<CanjeLibroModalProps> = ({
                             type="button"
                             onClick={onClose}
                             disabled={isLoading}
-                            className="flex-1 px-4 py-2 border border-[#d4af37] text-[#2b1b17] font-semibold rounded-lg hover:bg-[#fbf8f1] disabled:opacity-50"
+                            className="flex-1 px-4 py-2 border border-[#d4af37] text-[#0a1628] font-semibold rounded-lg hover:bg-[#f5f8ff] disabled:opacity-50"
                         >
                             Cancelar
                         </button>

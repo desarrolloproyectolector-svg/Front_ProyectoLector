@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ── Paleta principal ────────────────────────────── */
+  --navy-darkest:  #060d1a;   /* Sidebar bg, back cover    */
+  --navy-dark:     #0d1b2a;   /* Icon bg                   */
+  --navy-cover:    #1A2F45;   /* Front cover               */
+  --navy-mid:      #1a2d5a;   /* Textos, bordes páginas    */
+  --navy-border:   #1e3a6e;   /* Bordes inputs, decoración */
+  --navy-input:    #050c18;   /* Fondo inputs              */
+  --navy-muted:    #6b8cba;   /* Texto secundario          */
+  --page-bg:       #f5f8ff;   /* Fondo de páginas          */
+  --page-border:   #c8d8f0;   /* Bordes de páginas         */
+  --gold:          #d4af37;   /* Acento dorado             */
+  --red-accent:    #c41e3a;   /* Acento rojo (acciones)    */
+  --red-hover:     #a01830;   /* Hover rojo                */
+  --dash-bg:       #eef2ff;   /* Fondo de dashboards       */
 }
 
 @theme inline {

@@ -98,9 +98,9 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
         `w-full px-4 py-2.5 rounded-xl border-2 bg-white text-sm transition-all focus:outline-none focus:ring-4 ` +
         (errors[field]
             ? 'border-red-400 focus:border-red-400 focus:ring-red-400/10'
-            : 'border-[#e3dac9] focus:border-[#d4af37] focus:ring-[#d4af37]/10');
+            : 'border-[#c8d8f0] focus:border-[#d4af37] focus:ring-[#d4af37]/10');
 
-    const labelClass = 'block text-sm font-bold text-[#2b1b17] mb-1';
+    const labelClass = 'block text-sm font-bold text-[#0a1628] mb-1';
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -138,7 +138,7 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                 <div>
                     <label className={labelClass}>
                         Apellido materno
-                        <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                        <span className="ml-2 font-normal text-[#6b8cba] text-xs">(opcional)</span>
                     </label>
                     <input
                         type="text"
@@ -174,7 +174,7 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                 <div>
                     <label className={labelClass}>
                         Teléfono
-                        <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                        <span className="ml-2 font-normal text-[#6b8cba] text-xs">(opcional)</span>
                     </label>
                     <input
                         type="text"
@@ -191,7 +191,7 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                 <div>
                     <label className={labelClass}>
                         Género
-                        <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                        <span className="ml-2 font-normal text-[#6b8cba] text-xs">(opcional)</span>
                     </label>
                     <select
                         name="genero"
@@ -213,7 +213,7 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
             <div>
                 <label className={labelClass}>
                     Fecha de nacimiento
-                    <span className="ml-2 font-normal text-[#a1887f] text-xs">(opcional)</span>
+                    <span className="ml-2 font-normal text-[#6b8cba] text-xs">(opcional)</span>
                 </label>
                 <input
                     type="date"
@@ -263,7 +263,7 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
             <div>
                 <label className={labelClass}>
                     Nueva contraseña
-                    <span className="ml-2 font-normal text-[#a1887f] text-xs">
+                    <span className="ml-2 font-normal text-[#6b8cba] text-xs">
                         (dejar en blanco para no cambiar)
                     </span>
                 </label>
@@ -282,19 +282,19 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
             </div>
 
             {/* Botones */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-[#e3dac9]">
+            <div className="flex justify-end gap-3 pt-4 border-t border-[#c8d8f0]">
                 <button
                     type="button"
                     onClick={onCancel}
                     disabled={isLoading}
-                    className="px-6 py-2.5 rounded-xl border-2 border-[#e3dac9] text-[#5d4037] font-bold hover:bg-[#fbf8f1] transition-colors disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-xl border-2 border-[#c8d8f0] text-[#1e3a6e] font-bold hover:bg-[#f5f8ff] transition-colors disabled:opacity-50"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#0a1628] to-[#1A2F45] text-[#f5f8ff] font-bold hover:from-[#1A2F45] hover:to-[#1a2d5a] shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
                 >
                     {isLoading ? (
                         <>

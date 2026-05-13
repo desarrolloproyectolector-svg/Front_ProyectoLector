@@ -7,10 +7,7 @@
 
 /* OPTIMIZED ZOOM STATE */
 .zoomState {
-    /* Slower acceleration (2.5s) to appreciate the text as it flies by */
     transition: transform 2.5s cubic-bezier(0.7, 0, 0.84, 0), opacity 2.5s ease-in;
-
-    /* Kill expensive shadows to prevent stutter during heavy scale */
     box-shadow: none !important;
 }
 
@@ -43,7 +40,7 @@
 .autofillInput:-webkit-autofill:hover,
 .autofillInput:-webkit-autofill:focus,
 .autofillInput:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px #1a100d inset !important;
+    -webkit-box-shadow: 0 0 0 30px #050c18 inset !important;
     -webkit-text-fill-color: white !important;
     transition: background-color 5000s ease-in-out 0s;
 }

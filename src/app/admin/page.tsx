@@ -210,25 +210,25 @@ export default function AdminDashboardPage() {
                 {/* ── Header ── */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <p className="text-xs md:text-sm text-[#a1887f] capitalize mb-1">{fechaHoy}</p>
-                        <h1 className="text-3xl md:text-4xl font-playfair font-bold text-[#2b1b17] leading-tight">
+                        <p className="text-xs md:text-sm text-[#6b8cba] capitalize mb-1">{fechaHoy}</p>
+                        <h1 className="text-3xl md:text-4xl font-playfair font-bold text-[#0a1628] leading-tight">
                             Panel de Control
                         </h1>
-                        <p className="text-[#5d4037] font-lora mt-1">
+                        <p className="text-[#1e3a6e] font-lora mt-1">
                             Resumen general del sistema
                         </p>
                     </div>
 
                     {/* Reloj + estado */}
                     <div className="flex items-center gap-4">
-                        <div className="bg-white rounded-2xl px-5 py-3 shadow-md border border-[#e3dac9]/60 text-right">
-                            <p className="text-2xl font-mono font-bold text-[#2b1b17] tracking-widest">{hora}</p>
-                            <p className="text-xs text-[#a1887f] mt-0.5">hora del servidor</p>
+                        <div className="bg-white rounded-2xl px-5 py-3 shadow-md border border-[#c8d8f0]/60 text-right">
+                            <p className="text-2xl font-mono font-bold text-[#0a1628] tracking-widest">{hora}</p>
+                            <p className="text-xs text-[#6b8cba] mt-0.5">hora del servidor</p>
                         </div>
                         <button
                             onClick={loadData}
                             disabled={loading}
-                            className="p-3 bg-white rounded-xl shadow-md border border-[#e3dac9]/60 text-[#8d6e3f] hover:text-[#d4af37] hover:border-[#d4af37] transition-all duration-200 disabled:opacity-50"
+                            className="p-3 bg-white rounded-xl shadow-md border border-[#c8d8f0]/60 text-[#6b8cba] hover:text-[#d4af37] hover:border-[#d4af37] transition-all duration-200 disabled:opacity-50"
                             title="Actualizar datos"
                         >
                             <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,7 +244,7 @@ export default function AdminDashboardPage() {
                         <Link
                             key={label}
                             href={href}
-                            className="group bg-white rounded-2xl p-5 shadow-md border border-[#e3dac9]/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 block"
+                            className="group bg-white rounded-2xl p-5 shadow-md border border-[#c8d8f0]/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 block"
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div
@@ -259,14 +259,14 @@ export default function AdminDashboardPage() {
                             </div>
                             {loading ? (
                                 <div className="space-y-2">
-                                    <div className="h-8 w-20 bg-[#f0e6d2] rounded animate-pulse" />
-                                    <div className="h-4 w-16 bg-[#f0e6d2] rounded animate-pulse" />
+                                    <div className="h-8 w-20 bg-[#f5f8ff] rounded animate-pulse" />
+                                    <div className="h-4 w-16 bg-[#f5f8ff] rounded animate-pulse" />
                                 </div>
                             ) : (
                                 <>
-                                    <p className="text-3xl font-playfair font-bold text-[#2b1b17]">{fmt(value)}</p>
-                                    <p className="text-xs text-[#a1887f] mt-1 font-medium">{label}</p>
-                                    <p className="text-xs text-[#8d6e3f] mt-0.5">{sub}</p>
+                                    <p className="text-3xl font-playfair font-bold text-[#0a1628]">{fmt(value)}</p>
+                                    <p className="text-xs text-[#6b8cba] mt-1 font-medium">{label}</p>
+                                    <p className="text-xs text-[#6b8cba] mt-0.5">{sub}</p>
                                 </>
                             )}
                         </Link>
@@ -277,9 +277,9 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
                     {/* Desglose usuarios */}
-                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-[#e3dac9]/50 p-6">
+                    <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="font-playfair text-xl font-bold text-[#2b1b17]">Distribución de Usuarios</h2>
+                            <h2 className="font-playfair text-xl font-bold text-[#0a1628]">Distribución de Usuarios</h2>
                             <Link href="/admin/usuarios" className="text-xs text-[#d4af37] hover:underline font-bold">
                                 Ver todos →
                             </Link>
@@ -288,7 +288,7 @@ export default function AdminDashboardPage() {
                         {loading ? (
                             <div className="space-y-4">
                                 {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className="h-10 bg-[#f0e6d2] rounded-xl animate-pulse" />
+                                    <div key={i} className="h-10 bg-[#f5f8ff] rounded-xl animate-pulse" />
                                 ))}
                             </div>
                         ) : (
@@ -296,13 +296,13 @@ export default function AdminDashboardPage() {
                                 {rolesData.map(({ label, value, color, pct }) => (
                                     <div key={label}>
                                         <div className="flex justify-between items-center mb-1.5">
-                                            <span className="text-sm font-medium text-[#2b1b17]">{label}</span>
+                                            <span className="text-sm font-medium text-[#0a1628]">{label}</span>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-sm font-bold text-[#2b1b17]">{fmt(value)}</span>
-                                                <span className="text-xs text-[#a1887f]">{pct}%</span>
+                                                <span className="text-sm font-bold text-[#0a1628]">{fmt(value)}</span>
+                                                <span className="text-xs text-[#6b8cba]">{pct}%</span>
                                             </div>
                                         </div>
-                                        <div className="w-full bg-[#f0e6d2] rounded-full h-2">
+                                        <div className="w-full bg-[#f5f8ff] rounded-full h-2">
                                             <div
                                                 className="h-2 rounded-full transition-all duration-700"
                                                 style={{ width: `${pct}%`, backgroundColor: color }}
@@ -312,9 +312,9 @@ export default function AdminDashboardPage() {
                                 ))}
 
                                 {/* Total */}
-                                <div className="pt-4 mt-2 border-t border-[#e3dac9]">
+                                <div className="pt-4 mt-2 border-t border-[#c8d8f0]">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-[#2b1b17]">Total usuarios</span>
+                                        <span className="text-sm font-bold text-[#0a1628]">Total usuarios</span>
                                         <span className="text-2xl font-playfair font-bold text-[#d4af37]">
                                             {fmt(stats?.usuarios.total ?? 0)}
                                         </span>
@@ -325,9 +325,9 @@ export default function AdminDashboardPage() {
                     </div>
 
                     {/* Libros recientes */}
-                    <div className="lg:col-span-3 bg-white rounded-2xl shadow-md border border-[#e3dac9]/50 p-6">
+                    <div className="lg:col-span-3 bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="font-playfair text-xl font-bold text-[#2b1b17]">Libros en Catálogo</h2>
+                            <h2 className="font-playfair text-xl font-bold text-[#0a1628]">Libros en Catálogo</h2>
                             <Link href="/admin/libros" className="text-xs text-[#d4af37] hover:underline font-bold">
                                 Ver todos →
                             </Link>
@@ -336,20 +336,20 @@ export default function AdminDashboardPage() {
                         {loading ? (
                             <div className="space-y-3">
                                 {[1, 2, 3, 4, 5].map(i => (
-                                    <div key={i} className="h-14 bg-[#f0e6d2] rounded-xl animate-pulse" />
+                                    <div key={i} className="h-14 bg-[#f5f8ff] rounded-xl animate-pulse" />
                                 ))}
                             </div>
                         ) : libros.length === 0 ? (
                             <div className="text-center py-10">
                                 <p className="text-4xl mb-3">📚</p>
-                                <p className="text-[#a1887f] text-sm">No hay libros cargados aún</p>
+                                <p className="text-[#6b8cba] text-sm">No hay libros cargados aún</p>
                             </div>
                         ) : (
                             <div className="space-y-2">
                                 {libros.map((libro) => (
                                     <div
                                         key={libro.id}
-                                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#fbf8f1] transition-colors group"
+                                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-[#f5f8ff] transition-colors group"
                                     >
                                         {/* Icono grado */}
                                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-violet-50 flex items-center justify-center flex-shrink-0">
@@ -357,12 +357,12 @@ export default function AdminDashboardPage() {
                                         </div>
 
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-[#2b1b17] truncate text-sm">{libro.titulo}</p>
-                                            <p className="text-xs text-[#a1887f] font-mono">{libro.codigo}</p>
+                                            <p className="font-medium text-[#0a1628] truncate text-sm">{libro.titulo}</p>
+                                            <p className="text-xs text-[#6b8cba] font-mono">{libro.codigo}</p>
                                         </div>
 
                                         <div className="flex items-center gap-2 flex-shrink-0">
-                                            <span className="text-xs text-[#8d6e3f]">{libro.numPaginas}p</span>
+                                            <span className="text-xs text-[#6b8cba]">{libro.numPaginas}p</span>
                                             <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${libro.estado === 'listo'
                                                     ? 'bg-emerald-100 text-emerald-700'
                                                     : 'bg-amber-100 text-amber-700'
@@ -381,17 +381,17 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
                     {/* Accesos rápidos */}
-                    <div className="bg-white rounded-2xl shadow-md border border-[#e3dac9]/50 p-6">
-                        <h2 className="font-playfair text-xl font-bold text-[#2b1b17] mb-5">Acceso Rápido</h2>
+                    <div className="bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
+                        <h2 className="font-playfair text-xl font-bold text-[#0a1628] mb-5">Acceso Rápido</h2>
                         <div className="space-y-2">
                             {accesos.map(({ label, href, icon, color }) => (
                                 <Link
                                     key={label}
                                     href={href}
-                                    className={`flex items-center gap-3 p-3.5 rounded-xl border-2 border-transparent bg-[#fbf8f1] transition-all duration-200 group ${color}`}
+                                    className={`flex items-center gap-3 p-3.5 rounded-xl border-2 border-transparent bg-[#f5f8ff] transition-all duration-200 group ${color}`}
                                 >
                                     <span className="text-xl">{icon}</span>
-                                    <span className="text-sm font-semibold text-[#2b1b17]">{label}</span>
+                                    <span className="text-sm font-semibold text-[#0a1628]">{label}</span>
                                     <svg className="w-4 h-4 ml-auto text-[#c9b99a] group-hover:text-[#d4af37] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                                     </svg>
@@ -401,9 +401,9 @@ export default function AdminDashboardPage() {
                     </div>
 
                     {/* Auditoría reciente */}
-                    <div className="lg:col-span-3 bg-white rounded-2xl shadow-md border border-[#e3dac9]/50 p-6">
+                    <div className="lg:col-span-3 bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
                         <div className="flex items-center justify-between mb-5">
-                            <h2 className="font-playfair text-xl font-bold text-[#2b1b17]">Actividad Reciente</h2>
+                            <h2 className="font-playfair text-xl font-bold text-[#0a1628]">Actividad Reciente</h2>
                             <Link href="/admin/auditoria" className="text-xs text-[#d4af37] hover:underline font-bold">
                                 Ver auditoría →
                             </Link>
@@ -412,13 +412,13 @@ export default function AdminDashboardPage() {
                         {loading ? (
                             <div className="space-y-3">
                                 {[1, 2, 3, 4, 5].map(i => (
-                                    <div key={i} className="h-12 bg-[#f0e6d2] rounded-xl animate-pulse" />
+                                    <div key={i} className="h-12 bg-[#f5f8ff] rounded-xl animate-pulse" />
                                 ))}
                             </div>
                         ) : logs.length === 0 ? (
                             <div className="text-center py-8">
                                 <p className="text-4xl mb-3">🔍</p>
-                                <p className="text-[#a1887f] text-sm">Sin actividad registrada</p>
+                                <p className="text-[#6b8cba] text-sm">Sin actividad registrada</p>
                             </div>
                         ) : (
                             <div className="space-y-1">
@@ -428,17 +428,17 @@ export default function AdminDashboardPage() {
                                     return (
                                         <div
                                             key={log.id}
-                                            className="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-3 px-3 py-2.5 rounded-xl hover:bg-[#fbf8f1] transition-colors"
+                                            className="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-3 px-3 py-2.5 rounded-xl hover:bg-[#f5f8ff] transition-colors"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold flex-shrink-0 ${badgeClass}`}>
                                                     {badgeLabel}
                                                 </span>
-                                                <p className="text-sm text-[#5d4037] flex-1 truncate sm:hidden">{log.detalles}</p>
+                                                <p className="text-sm text-[#1e3a6e] flex-1 truncate sm:hidden">{log.detalles}</p>
                                             </div>
-                                            <p className="text-sm text-[#5d4037] flex-1 truncate hidden sm:block">{log.detalles}</p>
+                                            <p className="text-sm text-[#1e3a6e] flex-1 truncate hidden sm:block">{log.detalles}</p>
                                             <div className="flex items-center sm:justify-end gap-2 flex-shrink-0 text-left sm:text-right">
-                                                <span className="text-xs text-[#a1887f] font-mono">{log.ip}</span>
+                                                <span className="text-xs text-[#6b8cba] font-mono">{log.ip}</span>
                                                 <span className="text-xs text-[#c9b99a]">{timeAgo(log.fecha)}</span>
                                             </div>
                                         </div>

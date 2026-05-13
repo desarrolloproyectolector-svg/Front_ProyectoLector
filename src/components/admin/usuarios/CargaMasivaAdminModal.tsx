@@ -150,12 +150,12 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                 return (
                     <div className="space-y-5">
                         {/* Instrucciones */}
-                        <div className="bg-gradient-to-br from-[#fbf8f1] to-[#f0e6d2] rounded-xl p-5 border border-[#e3dac9]">
-                            <h4 className="font-playfair font-bold text-[#2b1b17] mb-3 flex items-center gap-2">
+                        <div className="bg-gradient-to-br from-[#f5f8ff] to-[#f5f8ff] rounded-xl p-5 border border-[#c8d8f0]">
+                            <h4 className="font-playfair font-bold text-[#0a1628] mb-3 flex items-center gap-2">
                                 <span className="text-[#d4af37]">📋</span>
                                 ¿Cómo funciona?
                             </h4>
-                            <ol className="space-y-2 text-sm text-[#5d4037]">
+                            <ol className="space-y-2 text-sm text-[#1e3a6e]">
                                 {[
                                     'Selecciona la escuela y el tipo de usuario a registrar.',
                                     'Descarga la plantilla Excel con el formato requerido.',
@@ -171,20 +171,20 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
 
                         {/* Selector de escuela */}
                         <div>
-                            <label className="block text-sm font-bold text-[#2b1b17] mb-2">
+                            <label className="block text-sm font-bold text-[#0a1628] mb-2">
                                 Escuela de destino
                                 <span className="text-red-500 ml-1">*</span>
                             </label>
                             {isLoadingEscuelas ? (
-                                <div className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-[#fbf8f1]">
+                                <div className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-[#c8d8f0] bg-[#f5f8ff]">
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#d4af37]" />
-                                    <span className="text-sm text-[#8d6e3f]">Cargando escuelas...</span>
+                                    <span className="text-sm text-[#6b8cba]">Cargando escuelas...</span>
                                 </div>
                             ) : (
                                 <select
                                     value={escuelaId ?? ''}
                                     onChange={(e) => setEscuelaId(e.target.value ? Number(e.target.value) : null)}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white font-lora text-sm focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-[#c8d8f0] bg-white font-lora text-sm focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 transition-all"
                                 >
                                     <option value="">Selecciona una escuela...</option>
                                     {escuelas.map(e => (
@@ -198,7 +198,7 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
 
                         {/* Selector de tipo */}
                         <div>
-                            <label className="block text-sm font-bold text-[#2b1b17] mb-2">
+                            <label className="block text-sm font-bold text-[#0a1628] mb-2">
                                 Tipo de usuario a registrar
                             </label>
                             <div className="grid grid-cols-2 gap-3">
@@ -209,8 +209,8 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                                         onClick={() => setTipo(t)}
                                         className={`px-4 py-3 rounded-xl border-2 font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                                             tipo === t
-                                                ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#2b1b17]'
-                                                : 'border-[#e3dac9] bg-white text-[#5d4037] hover:border-[#d4af37]/50'
+                                                ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#0a1628]'
+                                                : 'border-[#c8d8f0] bg-white text-[#1e3a6e] hover:border-[#d4af37]/50'
                                         }`}
                                     >
                                         <span>{t === 'alumno' ? '📚' : '👨‍🏫'}</span>
@@ -224,7 +224,7 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                         <button
                             onClick={handleDescargarPlantilla}
                             disabled={isDescargando}
-                            className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl border-2 border-dashed border-[#d4af37] bg-[#d4af37]/5 text-[#8d6e3f] font-bold hover:bg-[#d4af37]/10 transition-all disabled:opacity-60 group"
+                            className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl border-2 border-dashed border-[#d4af37] bg-[#d4af37]/5 text-[#6b8cba] font-bold hover:bg-[#d4af37]/10 transition-all disabled:opacity-60 group"
                         >
                             {isDescargando ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#d4af37]" />
@@ -244,20 +244,20 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                             onClick={() => puedeAvanzar && fileInputRef.current?.click()}
                             className={`rounded-xl border-2 border-dashed p-7 text-center transition-all duration-300 ${
                                 !puedeAvanzar
-                                    ? 'border-[#e3dac9] bg-[#f9f7f4] opacity-50 cursor-not-allowed'
+                                    ? 'border-[#c8d8f0] bg-[#f9f7f4] opacity-50 cursor-not-allowed'
                                     : isDragging
                                         ? 'border-[#d4af37] bg-[#d4af37]/10 scale-[1.02] cursor-pointer'
-                                        : 'border-[#e3dac9] bg-[#fbf8f1]/50 hover:border-[#d4af37]/50 hover:bg-[#fbf8f1] cursor-pointer'
+                                        : 'border-[#c8d8f0] bg-[#f5f8ff]/50 hover:border-[#d4af37]/50 hover:bg-[#f5f8ff] cursor-pointer'
                             }`}
                         >
                             <div className="flex flex-col items-center gap-2">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDragging ? 'bg-[#d4af37]/20' : 'bg-[#e3dac9]/50'}`}>
-                                    <svg className="w-6 h-6 text-[#a1887f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isDragging ? 'bg-[#d4af37]/20' : 'bg-[#c8d8f0]/50'}`}>
+                                    <svg className="w-6 h-6 text-[#6b8cba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-[#2b1b17] text-sm">
+                                    <p className="font-bold text-[#0a1628] text-sm">
                                         {!puedeAvanzar
                                             ? 'Selecciona una escuela primero'
                                             : isDragging
@@ -265,7 +265,7 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                                                 : 'Arrastra tu archivo Excel aquí'}
                                     </p>
                                     {puedeAvanzar && (
-                                        <p className="text-[#a1887f] text-xs mt-1">o haz clic para seleccionar · .xlsx, .xls · Máx. 10MB</p>
+                                        <p className="text-[#6b8cba] text-xs mt-1">o haz clic para seleccionar · .xlsx, .xls · Máx. 10MB</p>
                                     )}
                                 </div>
                             </div>
@@ -284,16 +284,16 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                 return (
                     <div className="space-y-5">
                         {/* Resumen de la carga */}
-                        <div className="bg-[#fbf8f1] rounded-xl border border-[#e3dac9] p-4 space-y-3">
-                            <h4 className="text-sm font-bold text-[#2b1b17] uppercase tracking-wider">Resumen de la carga</h4>
+                        <div className="bg-[#f5f8ff] rounded-xl border border-[#c8d8f0] p-4 space-y-3">
+                            <h4 className="text-sm font-bold text-[#1a2d5a] uppercase tracking-wider">Resumen de la carga</h4>
                             <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div>
-                                    <p className="text-[10px] font-bold text-[#a1887f] uppercase">Escuela</p>
-                                    <p className="text-[#2b1b17] font-bold">{escuelaSeleccionada?.nombre ?? '—'}</p>
+                                    <p className="text-[10px] font-bold text-[#6b8cba] uppercase">Escuela</p>
+                                    <p className="text-[#0a1628] font-bold">{escuelaSeleccionada?.nombre ?? '—'}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-[#a1887f] uppercase">Tipo</p>
-                                    <p className="text-[#2b1b17] font-bold capitalize">{tipo === 'alumno' ? '📚 Alumnos' : '👨‍🏫 Maestros'}</p>
+                                    <p className="text-[10px] font-bold text-[#6b8cba] uppercase">Tipo</p>
+                                    <p className="text-[#0a1628] font-bold capitalize">{tipo === 'alumno' ? '📚 Alumnos' : '👨‍🏫 Maestros'}</p>
                                 </div>
                             </div>
                         </div>
@@ -326,10 +326,10 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                         </div>
 
                         <div className="flex gap-3">
-                            <button onClick={handleReintentar} className="flex-1 px-4 py-3 rounded-xl border-2 border-[#e3dac9] text-[#5d4037] font-bold hover:bg-[#fbf8f1] transition-colors">
+                            <button onClick={handleReintentar} className="flex-1 px-4 py-3 rounded-xl border-2 border-[#c8d8f0] text-[#1e3a6e] font-bold hover:bg-[#f5f8ff] transition-colors">
                                 Cambiar archivo
                             </button>
-                            <button onClick={handleSubir} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg transition-all flex items-center justify-center gap-2">
+                            <button onClick={handleSubir} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-[#0a1628] to-[#1A2F45] text-[#f5f8ff] font-bold hover:from-[#1A2F45] hover:to-[#1a2d5a] shadow-lg transition-all flex items-center justify-center gap-2">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
@@ -343,7 +343,7 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                 return (
                     <div className="flex flex-col items-center justify-center py-12 gap-6">
                         <div className="relative">
-                            <div className="w-20 h-20 rounded-full border-4 border-[#e3dac9]" />
+                            <div className="w-20 h-20 rounded-full border-4 border-[#c8d8f0]" />
                             <div className="w-20 h-20 rounded-full border-4 border-[#d4af37] border-t-transparent animate-spin absolute inset-0" />
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <svg className="w-8 h-8 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,8 +352,8 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                             </div>
                         </div>
                         <div className="text-center">
-                            <p className="font-playfair font-bold text-[#2b1b17] text-lg">Procesando archivo...</p>
-                            <p className="text-[#8d6e3f] text-sm mt-1">Registrando usuarios en <span className="font-bold">{escuelaSeleccionada?.nombre}</span></p>
+                            <p className="font-playfair font-bold text-[#0a1628] text-lg">Procesando archivo...</p>
+                            <p className="text-[#6b8cba] text-sm mt-1">Registrando usuarios en <span className="font-bold">{escuelaSeleccionada?.nombre}</span></p>
                         </div>
                     </div>
                 );
@@ -374,18 +374,18 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                                     </svg>
                                 )}
                             </div>
-                            <h3 className="font-playfair font-bold text-[#2b1b17] text-lg">
+                            <h3 className="font-playfair font-bold text-[#0a1628] text-lg">
                                 {soloErrores ? 'Error al procesar' : 'Carga completada'}
                             </h3>
-                            <p className="text-[#8d6e3f] text-sm mt-1">{resultado?.message}</p>
+                            <p className="text-[#6b8cba] text-sm mt-1">{resultado?.message}</p>
                         </div>
 
                         {(resultado?.total !== undefined || resultado?.exitosos !== undefined) && (
                             <div className="grid grid-cols-3 gap-3">
                                 {resultado.total !== undefined && (
-                                    <div className="bg-[#fbf8f1] rounded-xl p-3 text-center border border-[#e3dac9]">
-                                        <p className="text-2xl font-playfair font-bold text-[#2b1b17]">{resultado.total}</p>
-                                        <p className="text-xs text-[#8d6e3f] font-bold uppercase mt-1">Total</p>
+                                    <div className="bg-[#f5f8ff] rounded-xl p-3 text-center border border-[#c8d8f0]">
+                                        <p className="text-2xl font-playfair font-bold text-[#0a1628]">{resultado.total}</p>
+                                        <p className="text-xs text-[#6b8cba] font-bold uppercase mt-1">Total</p>
                                     </div>
                                 )}
                                 {resultado.exitosos !== undefined && (
@@ -417,10 +417,10 @@ export const CargaMasivaAdminModal: React.FC<CargaMasivaAdminModalProps> = ({
                         )}
 
                         <div className="flex gap-3 pt-2">
-                            <button onClick={handleReintentar} className="flex-1 px-4 py-3 rounded-xl border-2 border-[#e3dac9] text-[#5d4037] font-bold hover:bg-[#fbf8f1] transition-colors">
+                            <button onClick={handleReintentar} className="flex-1 px-4 py-3 rounded-xl border-2 border-[#c8d8f0] text-[#1e3a6e] font-bold hover:bg-[#f5f8ff] transition-colors">
                                 Subir otro archivo
                             </button>
-                            <button onClick={handleClose} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg transition-all">
+                            <button onClick={handleClose} className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-[#0a1628] to-[#1A2F45] text-[#f5f8ff] font-bold hover:from-[#1A2F45] hover:to-[#1a2d5a] shadow-lg transition-all">
                                 Finalizar
                             </button>
                         </div>

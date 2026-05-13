@@ -143,17 +143,17 @@ export default function AdminLibrosPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
-                        <h1 className="text-4xl font-playfair font-bold text-[#2b1b17] mb-2">
+                        <h1 className="text-4xl font-playfair font-bold text-[#0a1628] mb-2">
                             Gestión de Libros
                         </h1>
-                        <p className="text-[#5d4037] text-lg font-lora">
+                        <p className="text-[#1e3a6e] text-lg font-lora">
                             Carga, gestiona y asigna libros a las escuelas
                         </p>
                     </div>
                     <button 
                         onClick={() => setShowAddModal(true)}
                         disabled={isLoading}
-                        className="px-6 py-3 bg-gradient-to-r from-[#2b1b17] to-[#3e2723] text-[#f0e6d2] rounded-xl font-bold hover:from-[#3e2723] hover:to-[#4e342e] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
+                        className="px-6 py-3 bg-gradient-to-r from-[#0a1628] to-[#1A2F45] text-[#f5f8ff] rounded-xl font-bold hover:from-[#1A2F45] hover:to-[#1a2d5a] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 whitespace-nowrap hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
                         Cargar Libro
@@ -163,19 +163,19 @@ export default function AdminLibrosPage() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     {[
-                        { label: 'Total Libros', value: libros.length, bg: 'from-[#2b1b17]/10 to-[#2b1b17]/5', color: 'text-[#2b1b17]', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+                        { label: 'Total Libros', value: libros.length, bg: 'from-[#0a1628]/10 to-[#0a1628]/5', color: 'text-[#0a1628]', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
                         { label: 'Listos', value: librosListo.length, bg: 'from-emerald-500/10 to-emerald-500/5', color: 'text-emerald-600', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
                         { label: 'Procesando', value: librosPendientes.length, bg: 'from-yellow-500/10 to-yellow-500/5', color: 'text-yellow-600', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
                         { label: 'Con Error', value: librosError.length, bg: 'from-red-500/10 to-red-500/5', color: 'text-red-600', icon: 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
                     ].map((stat, i) => (
-                        <div key={i} className="bg-gradient-to-br from-white to-[#faf8f5] rounded-xl p-6 shadow-md border border-[#e3dac9]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                        <div key={i} className="bg-gradient-to-br from-white to-[#f5f8ff] rounded-xl p-6 shadow-md border border-[#c8d8f0]/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                             <div className="flex items-center gap-4">
                                 <div className={`p-3.5 rounded-xl bg-gradient-to-br ${stat.bg} shadow-sm flex-shrink-0`}>
                                     <svg className={`w-7 h-7 ${stat.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={stat.icon}/></svg>
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs font-bold uppercase tracking-wider text-[#a1887f] mb-1 truncate">{stat.label}</p>
-                                    <h3 className="text-3xl font-playfair font-bold text-[#2b1b17]">{isLoading ? '...' : stat.value}</h3>
+                                    <p className="text-xs font-bold uppercase tracking-wider text-[#6b8cba] mb-1 truncate">{stat.label}</p>
+                                    <h3 className="text-3xl font-playfair font-bold text-[#0a1628]">{isLoading ? '...' : stat.value}</h3>
                                 </div>
                             </div>
                         </div>
@@ -192,7 +192,7 @@ export default function AdminLibrosPage() {
                 )}
 
                 {/* Toolbar */}
-                <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg border border-[#e3dac9]/50">
+                <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg border border-[#c8d8f0]/50">
                     <div className="flex flex-col lg:flex-row gap-4">
                         <div className="relative flex-1">
                             <input
@@ -200,18 +200,18 @@ export default function AdminLibrosPage() {
                                 placeholder="Buscar por título, código o materia..."
                                 value={searchTerm}
                                 onChange={e => handleSearchChange(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300"
+                                className="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-[#c8d8f0] bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300"
                                 disabled={isLoading}
                             />
-                            <svg className="w-5 h-5 text-[#a1887f] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <svg className="w-5 h-5 text-[#6b8cba] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-bold text-[#8d6e3f] uppercase tracking-wider whitespace-nowrap">Grado:</span>
+                            <span className="text-sm font-bold text-[#6b8cba] uppercase tracking-wider whitespace-nowrap">Grado:</span>
                             <select
                                 value={filterGrado}
                         onChange={e => handleGradoChange(e.target.value)}
-                                className="px-4 py-3 rounded-xl border-2 border-[#e3dac9] bg-white focus:outline-none focus:border-[#d4af37] font-medium text-sm transition-all"
+                                className="px-4 py-3 rounded-xl border-2 border-[#c8d8f0] bg-white focus:outline-none focus:border-[#d4af37] font-medium text-sm transition-all"
                                 disabled={isLoading}
                             >
                                 <option value="todos">Todos</option>
@@ -224,12 +224,12 @@ export default function AdminLibrosPage() {
                 </div>
 
                 {/* Tabla de libros */}
-                <div className="bg-white rounded-xl shadow-lg border border-[#e3dac9]/50 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-lg border border-[#c8d8f0]/50 overflow-hidden">
                     {isLoading ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="flex flex-col items-center">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37] mb-4"></div>
-                                <p className="text-[#8d6e3f] font-bold">Cargando catálogo...</p>
+                                <p className="text-[#6b8cba] font-bold">Cargando catálogo...</p>
                             </div>
                         </div>
                     ) : (

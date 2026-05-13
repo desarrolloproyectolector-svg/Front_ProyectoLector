@@ -144,7 +144,7 @@ export const UsuarioForm: React.FC<UsuarioFormProps> = ({
     return (
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             <div>
-                <h3 className="text-lg font-playfair font-bold text-[#2b1b17] mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-playfair font-bold text-[#0a1628] mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-gradient-to-b from-[#d4af37] to-[#c19a2e] rounded-full"></div>
                     Tipo de Usuario
                 </h3>
@@ -208,7 +208,7 @@ export const UsuarioForm: React.FC<UsuarioFormProps> = ({
             )}
 
             {selectedRole && (
-                <div className="flex justify-end gap-3 pt-6 border-t border-[#e3dac9]">
+                <div className="flex justify-end gap-3 pt-6 border-t border-[#c8d8f0]">
                     <Button
                         type="button"
                         variant="outline"

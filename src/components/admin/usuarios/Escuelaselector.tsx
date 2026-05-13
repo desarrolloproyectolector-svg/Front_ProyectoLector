@@ -88,7 +88,7 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
                             </div>
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-playfair font-bold text-[#2b1b17] text-lg">
+                                    <h4 className="font-playfair font-bold text-[#0a1628] text-lg">
                                         {selectedEscuela.nombre}
                                     </h4>
                                     <span className="px-2 py-0.5 bg-purple-200 text-purple-800 text-xs font-bold rounded-full">
@@ -124,7 +124,7 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
             ) : (
                 <>
                     <div>
-                        <label className="block text-sm font-bold text-[#2b1b17] mb-2">
+                        <label className="block text-sm font-bold text-[#0a1628] mb-2">
                             Buscar Escuela
                         </label>
                         <div className="relative">
@@ -134,10 +134,10 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Escribe el nombre de la escuela..."
-                                className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${error ? 'border-red-300' : 'border-[#e3dac9]'
+                                className={`w-full pl-11 pr-4 py-3 rounded-xl border-2 ${error ? 'border-red-300' : 'border-[#c8d8f0]'
                                     } bg-white focus:outline-none focus:border-[#d4af37] focus:ring-4 focus:ring-[#d4af37]/10 font-lora text-sm transition-all duration-300`}
                             />
-                            <svg className="w-5 h-5 text-[#a1887f] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#6b8cba] absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                             {isSearching && (
@@ -149,13 +149,13 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
                         {error && (
                             <p className="mt-1 text-sm text-red-600">{error}</p>
                         )}
-                        <p className="mt-1 text-xs text-[#8d6e3f]">
+                        <p className="mt-1 text-xs text-[#6b8cba]">
                             Escribe al menos 2 caracteres para buscar
                         </p>
                     </div>
 
                     {showResults && (
-                        <div className="bg-white border-2 border-[#e3dac9] rounded-xl shadow-lg max-h-64 overflow-y-auto">
+                        <div className="bg-white border-2 border-[#c8d8f0] rounded-xl shadow-lg max-h-64 overflow-y-auto">
                             {searchError ? (
                                 <div className="p-4 text-center text-red-600">
                                     <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,33 +165,33 @@ export const EscuelaSelector: React.FC<EscuelaSelectorProps> = ({
                                 </div>
                             ) : escuelas.length === 0 ? (
                                 <div className="p-6 text-center">
-                                    <svg className="w-12 h-12 mx-auto mb-3 text-[#a1887f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-12 h-12 mx-auto mb-3 text-[#6b8cba]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                     </svg>
-                                    <p className="text-sm font-bold text-[#2b1b17] mb-1">No se encontraron escuelas</p>
-                                    <p className="text-xs text-[#8d6e3f]">No hay escuelas con el nombre "{searchTerm}"</p>
+                                    <p className="text-sm font-bold text-[#0a1628] mb-1">No se encontraron escuelas</p>
+                                    <p className="text-xs text-[#6b8cba]">No hay escuelas con el nombre "{searchTerm}"</p>
                                 </div>
                             ) : (
-                                <div className="divide-y divide-[#e3dac9]">
+                                <div className="divide-y divide-[#c8d8f0]">
                                     {escuelas.map((escuela) => (
                                         <button
                                             key={escuela.id}
                                             onClick={() => handleSelectEscuela(escuela)}
-                                            className="w-full p-4 hover:bg-[#fbf8f1] transition-colors text-left flex items-center gap-3"
+                                            className="w-full p-4 hover:bg-[#f5f8ff] transition-colors text-left flex items-center gap-3"
                                         >
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
                                                 🏫
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h4 className="font-playfair font-bold text-[#2b1b17] truncate">
+                                                <h4 className="font-playfair font-bold text-[#0a1628] truncate">
                                                     {escuela.nombre}
                                                 </h4>
-                                                <p className="text-xs text-[#8d6e3f]">
+                                                <p className="text-xs text-[#6b8cba]">
                                                     {escuela.nivel}
                                                     {escuela.clave && ` • Clave: ${escuela.clave}`}
                                                 </p>
                                                 {escuela.direccion && (
-                                                    <p className="text-xs text-[#a1887f] truncate">
+                                                    <p className="text-xs text-[#6b8cba] truncate">
                                                         📍 {escuela.direccion}
                                                     </p>
                                                 )}
