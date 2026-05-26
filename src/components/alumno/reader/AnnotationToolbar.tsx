@@ -56,17 +56,19 @@ export default function AnnotationToolbar({
   const [hoveredColor, setHoveredColor] = useState<HighlightColor | null>(null);
   const [showBelow, setShowBelow] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   const [showGlosario, setShowGlosario] = useState(false);
   const [isLoadingGlosario, setIsLoadingGlosario] = useState(false);
   const [remoteDefinicion, setRemoteDefinicion] = useState<{ palabra: string, definicion: string | null } | null>(null);
   const [glosarioError, setGlosarioError] = useState<string | null>(null);
 
-  // Detectar vista móvil de forma responsiva
+  // Detectar vista móvil de forma responsiva y si es dispositivo táctil
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
+    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -104,7 +106,7 @@ export default function AnnotationToolbar({
     if (!selection) return;
 
     const handleScroll = () => {
-      if (isMobile) {
+      if (isTouchDevice) {
         onClear();
       } else {
         const sel = window.getSelection();
@@ -133,7 +135,7 @@ export default function AnnotationToolbar({
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [selection, isMobile, onClear]);
+  }, [selection, isTouchDevice, onClear]);
 
   // Focus en textarea al abrir comentario
   useEffect(() => {

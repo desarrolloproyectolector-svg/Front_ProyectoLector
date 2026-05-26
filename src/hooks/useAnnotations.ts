@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { AlumnoLibrosService } from '../service/alumno/libros.service';
 import { AnotacionResponse, AnotacionPayload } from '../types/alumno/libros';
 
@@ -217,7 +217,9 @@ export function useAnnotations({ alumnoId, libroId, segmentoId }: UseAnnotations
         return () => { mounted = false; };
     }, [libroId]);
 
-    const anotacionesDelSegmento = todas.filter(a => String(a.segmentoId) === String(segmentoId));
+    const anotacionesDelSegmento = useMemo(() => {
+        return todas.filter(a => String(a.segmentoId) === String(segmentoId));
+    }, [todas, segmentoId]);
 
     const toggleTool = useCallback((tool: ActiveTool) => {
         setActiveTool(prev => prev === tool ? null : tool);
