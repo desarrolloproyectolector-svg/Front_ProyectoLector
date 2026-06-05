@@ -1,14 +1,16 @@
+import { GamificacionEvento } from './gamificacion';
+
 export type NivelPregunta = 'basico' | 'intermedio' | 'avanzado';
 
 export type EstadoEvaluacion =
-  | 'sin_evaluacion'     // inicial, aún no se intentó cargar
-  | 'sin_preguntas'      // backend no tiene preguntas → puede avanzar libremente
-  | 'cargando'           // cargando preguntas del backend
-  | 'pendiente'          // preguntas listas, esperando respuesta del alumno
-  | 'enviando'           // enviando respuestas
-  | 'aprobado'           // score >= 70, puede avanzar
-  | 'refuerzo'           // score < 70, puede reintentar
-  | 'intentos_agotados'; // 3 intentos usados, puede avanzar de todas formas
+  | 'sin_evaluacion'
+  | 'sin_preguntas'
+  | 'cargando'
+  | 'pendiente'
+  | 'enviando'
+  | 'aprobado'
+  | 'refuerzo'
+  | 'intentos_agotados';
 
 // ── Diagnóstico ──────────────────────────────────────────────────────────────
 
@@ -41,7 +43,7 @@ export interface DiagnosticoResultado {
 // ── Evaluación de segmento ───────────────────────────────────────────────────
 
 export interface PreguntaEvaluacion {
-  preguntaId: number;     // ahora es number, no string
+  preguntaId: number;
   texto: string;
   opcionA: string;
   opcionB: string;
@@ -65,7 +67,7 @@ export type LetraRespuesta = 'A' | 'B' | 'C' | 'D';
 export interface RespuestaItem {
   preguntaId: number;
   respuesta: LetraRespuesta;
-  tiempoMs?: number;      // opcional, para telemetría
+  tiempoMs?: number;
 }
 
 export interface EnviarRespuestasPayload {
@@ -82,7 +84,7 @@ export interface PalabraGlosario {
 export interface ApoioEvaluacion {
   tipo: 'pista' | 'glosario' | 'resumen';
   contenido?: string;
-  palabras?: PalabraGlosario[];   // solo cuando tipo === 'glosario'
+  palabras?: PalabraGlosario[];
 }
 
 // ── Resultado de evaluación ──────────────────────────────────────────────────
@@ -94,6 +96,7 @@ export interface EvaluacionResultado {
   siguienteAccion: 'continuar' | 'refuerzo';
   apoyos: ApoioEvaluacion[];
   tiposError: Record<string, number>;
+  gamificacion?: GamificacionEvento;   // ← viene cuando aprobado: true
 }
 
 // ── Reintento ────────────────────────────────────────────────────────────────

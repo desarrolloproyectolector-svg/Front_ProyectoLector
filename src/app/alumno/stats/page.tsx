@@ -5,10 +5,12 @@ import { Cell, PieChart, Pie } from 'recharts';
 import { TarjetaEstadistica } from '../../../components/alumno/TarjetaEstadistica';
 import { AlumnoService } from '../../../service/alumno/alumno.service';
 import { AlumnoLibrosService } from '../../../service/alumno/libros.service';
+import { GamificacionService } from '../../../service/alumno/gamificacion.service';
 import { EstadisticasAlumno } from '../../../types/alumno/alumno';
 import { LibroAlumno } from '../../../types/alumno/libros';
+import { ProgresoGamificacion, Insignia } from '../../../types/alumno/gamificacion';
 
-// ── Barra de progreso animada (tab Libros) ─────────────────────────────────
+// ── Barra de progreso animada ──────────────────────────────────────────────
 function BarraProgreso({ porcentaje, color = '#3b82f6' }: { porcentaje: number; color?: string }) {
   const [w, setW] = useState(0);
   useEffect(() => { const t = setTimeout(() => setW(Math.min(porcentaje, 100)), 120); return () => clearTimeout(t); }, [porcentaje]);
@@ -20,7 +22,7 @@ function BarraProgreso({ porcentaje, color = '#3b82f6' }: { porcentaje: number; 
   );
 }
 
-// ── Lista de progreso escalable (1 a N libros) ────────────────────────────────
+// ── Lista de progreso por libro ────────────────────────────────────────────
 function GraficaAvance({ libros }: { libros: LibroAlumno[] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { const t = setTimeout(() => setMounted(true), 80); return () => clearTimeout(t); }, []);
@@ -28,10 +30,8 @@ function GraficaAvance({ libros }: { libros: LibroAlumno[] }) {
   const sorted = [...libros].sort((a, b) => b.progresoPorcentaje - a.progresoPorcentaje);
 
   return (
-    <div
-      className="space-y-2.5 overflow-y-auto pr-1"
-      style={{ maxHeight: 380, scrollbarWidth: 'thin', scrollbarColor: '#3b82f660 transparent' }}
-    >
+    <div className="space-y-2.5 overflow-y-auto pr-1"
+      style={{ maxHeight: 380, scrollbarWidth: 'thin', scrollbarColor: '#3b82f660 transparent' }}>
       {sorted.map((libro, i) => {
         const pct   = libro.progresoPorcentaje;
         const done  = pct >= 100;
@@ -47,9 +47,7 @@ function GraficaAvance({ libros }: { libros: LibroAlumno[] }) {
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'none' : 'translateY(6px)',
               transition: `opacity 0.4s ease ${i * 45}ms, transform 0.4s ease ${i * 45}ms, box-shadow 0.2s`,
-            }}
-          >
-            {/* Fila superior: título + materia + % */}
+            }}>
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="min-w-0">
                 <p className="text-sm font-bold text-[#0a1628] leading-snug truncate">{libro.titulo}</p>
@@ -60,12 +58,9 @@ function GraficaAvance({ libros }: { libros: LibroAlumno[] }) {
               <div className="flex flex-col items-end shrink-0 gap-0.5">
                 <span className="text-base font-playfair font-black leading-none" style={{ color }}>{pct}%</span>
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{ background: `${color}18`, color }}>
-                  {label}
-                </span>
+                  style={{ background: `${color}18`, color }}>{label}</span>
               </div>
             </div>
-            {/* Barra de progreso */}
             <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: `${color}18` }}>
               <div className="h-full rounded-full"
                 style={{
@@ -73,8 +68,7 @@ function GraficaAvance({ libros }: { libros: LibroAlumno[] }) {
                   transition: `width 0.85s cubic-bezier(0.16,1,0.3,1) ${i * 55}ms`,
                   background: `linear-gradient(90deg, ${color}70, ${color})`,
                   boxShadow: pct > 0 ? `0 0 8px ${color}50` : 'none',
-                }}
-              />
+                }} />
             </div>
           </div>
         );
@@ -83,21 +77,91 @@ function GraficaAvance({ libros }: { libros: LibroAlumno[] }) {
   );
 }
 
+// ── Barra de nivel ─────────────────────────────────────────────────────────
+function BarraNivel({ porcentaje, color }: { porcentaje: number; color: string }) {
+  const [w, setW] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setW(Math.min(porcentaje, 100)), 200); return () => clearTimeout(t); }, [porcentaje]);
+  return (
+    <div className="w-full h-3 rounded-full overflow-hidden bg-white/20">
+      <div className="h-full rounded-full transition-all duration-1000 ease-out"
+        style={{ width: `${w}%`, background: `linear-gradient(90deg, ${color}90, ${color})` }} />
+    </div>
+  );
+}
+
+// ── Tarjeta de insignia ────────────────────────────────────────────────────
+function TarjetaInsignia({ insignia }: { insignia: Insignia }) {
+  const obtenida = insignia.obtenida;
+  return (
+    <div className={`rounded-2xl border p-4 flex flex-col items-center text-center gap-2 transition-all duration-200 hover:shadow-md ${
+      obtenida
+        ? 'bg-white border-[#d4af37]/30 shadow-sm'
+        : 'bg-gray-50 border-gray-200 opacity-50 grayscale'
+    }`}>
+      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
+        obtenida ? 'bg-[#d4af37]/10' : 'bg-gray-100'
+      }`}>
+        {insignia.icono ?? '🏅'}
+      </div>
+      <div>
+        <p className={`text-xs font-bold leading-tight ${obtenida ? 'text-[#0a1628]' : 'text-gray-400'}`}>
+          {insignia.nombre}
+        </p>
+        <p className={`text-[10px] mt-0.5 leading-snug ${obtenida ? 'text-[#6b8cba]' : 'text-gray-300'}`}>
+          {insignia.descripcion}
+        </p>
+      </div>
+      {obtenida && insignia.obtenidaEn && (
+        <span className="text-[9px] text-[#d4af37] font-bold uppercase tracking-wider">
+          {new Date(insignia.obtenidaEn).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </span>
+      )}
+      {!obtenida && (
+        <span className="text-[9px] text-gray-300 font-bold uppercase tracking-wider">Bloqueada</span>
+      )}
+    </div>
+  );
+}
+
 // ── Página ─────────────────────────────────────────────────────────────────
 export default function StatsPage() {
-  const [stats, setStats] = useState<EstadisticasAlumno | null>(null);
-  const [libros, setLibros] = useState<LibroAlumno[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [tabActiva, setTabActiva] = useState<'resumen' | 'libros'>('resumen');
+  const [stats,       setStats]       = useState<EstadisticasAlumno | null>(null);
+  const [libros,      setLibros]      = useState<LibroAlumno[]>([]);
+  const [gamificacion, setGamificacion] = useState<ProgresoGamificacion | null>(null);
+  const [insignias,   setInsignias]   = useState<Insignia[]>([]);
+  const [noVistas,    setNoVistas]    = useState(0);
+  const [isLoading,   setIsLoading]   = useState(true);
+  const [tabActiva,   setTabActiva]   = useState<'resumen' | 'libros' | 'gamificacion'>('resumen');
 
   useEffect(() => {
     let m = true;
-    Promise.all([AlumnoService.getEstadisticas(), AlumnoLibrosService.getMisLibros()])
-      .then(([s, l]) => { if (m) { setStats(s); setLibros(l); } })
+    Promise.all([
+      AlumnoService.getEstadisticas(),
+      AlumnoLibrosService.getMisLibros(),
+      GamificacionService.getProgreso(),
+      GamificacionService.getInsignias(),
+    ])
+      .then(([s, l, g, ins]) => {
+        if (!m) return;
+        setStats(s);
+        setLibros(l);
+        setGamificacion(g);
+        setInsignias(ins.data);
+        setNoVistas(ins.noVistas);
+      })
       .catch(console.error)
       .finally(() => { if (m) setIsLoading(false); });
     return () => { m = false; };
   }, []);
+
+  // Marcar vistas cuando el alumno abre la tab de gamificación
+  useEffect(() => {
+    if (tabActiva === 'gamificacion' && noVistas > 0) {
+      GamificacionService.marcarInsigniasVistas()
+        .then(() => setNoVistas(0))
+        .catch(console.error);
+    }
+  }, [tabActiva, noVistas]);
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
@@ -113,45 +177,49 @@ export default function StatsPage() {
 
   const librosCompletos  = libros.filter(l => l.progresoPorcentaje >= 100);
   const librosEnProgreso = libros.filter(l => l.progresoPorcentaje > 0 && l.progresoPorcentaje < 100);
-  const promedioGlobal   = libros.length ? Math.round(libros.reduce((s, l) => s + l.progresoPorcentaje, 0) / libros.length) : 0;
-  const rachaRatio       = stats.rachaMaximaDias > 0 ? Math.round((stats.rachaActualDias / stats.rachaMaximaDias) * 100) : 0;
-
-  // Datos gráfica horizontal
-  const barData = libros
-    .slice().sort((a, b) => b.progresoPorcentaje - a.progresoPorcentaje)
-    .slice(0, 8)
-    .map(l => ({
-      name: l.titulo.length > 22 ? l.titulo.slice(0, 22) + '…' : l.titulo,
-      titulo: l.titulo, materia: l.materia, grado: l.grado,
-      progreso: l.progresoPorcentaje,
-      color: l.progresoPorcentaje >= 100 ? '#4caf50' : l.progresoPorcentaje > 0 ? '#3b82f6' : '#6b8cba',
-    }));
+  const promedioGlobal   = libros.length
+    ? Math.round(libros.reduce((s, l) => s + l.progresoPorcentaje, 0) / libros.length)
+    : 0;
+  const rachaRatio = stats.rachaMaximaDias > 0
+    ? Math.round((stats.rachaActualDias / stats.rachaMaximaDias) * 100)
+    : 0;
 
   const streakData = [
     { v: stats.rachaActualDias },
     { v: Math.max(stats.rachaMaximaDias - stats.rachaActualDias, 0) },
   ];
 
+  const insigniasPorCategoria = insignias.reduce<Record<string, Insignia[]>>((acc, ins) => {
+    const cat = ins.categoria ?? 'general';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(ins);
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-6 animate-fade-in pb-10">
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-[#c8d8f0]">
-        {(['resumen', 'libros'] as const).map(t => (
+        {(['resumen', 'libros', 'gamificacion'] as const).map(t => (
           <button key={t} onClick={() => setTabActiva(t)}
-            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all border-b-2 ${tabActiva === t
+            className={`relative px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all border-b-2 ${tabActiva === t
               ? 'border-[#d4af37] text-[#0a1628] bg-white shadow-sm'
               : 'border-transparent text-[#6b8cba] hover:text-[#0a1628]'}`}>
-            {t === 'resumen' ? 'Resumen General' : 'Mis Libros'}
+            {t === 'resumen' ? 'Resumen General' : t === 'libros' ? 'Mis Libros' : 'Gamificación'}
+            {/* Badge de insignias no vistas */}
+            {t === 'gamificacion' && noVistas > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                {noVistas}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
-      {/* ══ TAB RESUMEN ════════════════════════════════════════════════════ */}
+      {/* ══ TAB RESUMEN ═══════════════════════════════════════════════════ */}
       {tabActiva === 'resumen' && (
         <div className="space-y-6">
-
-          {/* KPI strip */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <TarjetaEstadistica label="Libros Leídos" value={String(stats.librosLeidos)} subtext={`${stats.librosEnProgreso} en progreso`}>
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
@@ -167,10 +235,7 @@ export default function StatsPage() {
             </TarjetaEstadistica>
           </div>
 
-          {/* Avance de lectura + Racha */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            {/* Avance por libro — lista escalable */}
             <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
               <div className="flex items-center justify-between mb-3">
                 <div>
@@ -188,16 +253,12 @@ export default function StatsPage() {
               </div>
               {libros.length === 0
                 ? <p className="text-center text-[#6b8cba] text-sm py-12">Sin libros asignados aún</p>
-                : <GraficaAvance libros={libros} />
-              }
+                : <GraficaAvance libros={libros} />}
             </div>
 
-            {/* Racha de lectura */}
             <div className="bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6 flex flex-col">
               <h3 className="font-playfair text-lg font-bold text-[#0a1628] mb-1">Tu Racha</h3>
               <p className="text-xs text-[#6b8cba] font-lora italic mb-4">Días consecutivos leyendo</p>
-
-              {/* Donut racha */}
               <div className="flex flex-col items-center flex-1 justify-center gap-2">
                 <div className="relative" style={{ width: 148, height: 148 }}>
                   <PieChart width={148} height={148}>
@@ -213,7 +274,6 @@ export default function StatsPage() {
                     <span className="text-[10px] text-[#6b8cba] uppercase tracking-wider">días</span>
                   </div>
                 </div>
-
                 <div className="w-full mt-2 space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-[#6b8cba]">Racha actual</span>
@@ -228,7 +288,6 @@ export default function StatsPage() {
                     <span className="font-black text-[#0a1628]">{stats.rachaMaximaDias}d</span>
                   </div>
                 </div>
-
                 {stats.rachaActualDias >= stats.rachaMaximaDias && stats.rachaActualDias > 0 && (
                   <div className="mt-2 px-3 py-1.5 rounded-full text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200">
                     🏆 ¡Nuevo récord personal!
@@ -238,10 +297,7 @@ export default function StatsPage() {
             </div>
           </div>
 
-          {/* Métricas de rendimiento */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* Evaluaciones + progreso global */}
             <div className="bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
               <h3 className="font-playfair text-lg font-bold text-[#0a1628] mb-5">Rendimiento Académico</h3>
               <div className="space-y-5">
@@ -264,7 +320,6 @@ export default function StatsPage() {
               </div>
             </div>
 
-            {/* Resumen biblioteca */}
             <div className="bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-playfair text-lg font-bold text-[#0a1628]">Mi Biblioteca</h3>
@@ -276,14 +331,10 @@ export default function StatsPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { label: 'Libros completados', value: librosCompletos.length, color: '#4caf50',
-                    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /> },
-                  { label: 'En progreso', value: librosEnProgreso.length, color: '#3b82f6',
-                    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /> },
-                  { label: 'Anotaciones', value: stats.anotacionesTotales, color: '#9c27b0',
-                    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /> },
-                  { label: 'Tiempo este mes', value: `${stats.tiempoEsteMesMinutos}m`, color: '#2196f3',
-                    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /> },
+                  { label: 'Libros completados', value: librosCompletos.length, color: '#4caf50', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /> },
+                  { label: 'En progreso', value: librosEnProgreso.length, color: '#3b82f6', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /> },
+                  { label: 'Anotaciones', value: stats.anotacionesTotales, color: '#9c27b0', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /> },
+                  { label: 'Tiempo este mes', value: `${stats.tiempoEsteMesMinutos}m`, color: '#2196f3', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /> },
                 ].map(item => (
                   <div key={item.label}
                     className="flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 cursor-default"
@@ -311,7 +362,7 @@ export default function StatsPage() {
             <div className="text-center py-16 text-[#6b8cba] font-lora italic">No tienes libros asignados aún.</div>
           ) : (
             libros.slice().sort((a, b) => b.progresoPorcentaje - a.progresoPorcentaje).map(libro => {
-              const done = libro.progresoPorcentaje >= 100;
+              const done  = libro.progresoPorcentaje >= 100;
               const fresh = libro.progresoPorcentaje === 0;
               const color = done ? '#4caf50' : fresh ? '#6b8cba' : '#3b82f6';
               const badge = done ? '✅ Completado' : fresh ? '📌 Sin iniciar' : '📖 En progreso';
@@ -348,6 +399,93 @@ export default function StatsPage() {
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {/* ══ TAB GAMIFICACIÓN ══════════════════════════════════════════════ */}
+      {tabActiva === 'gamificacion' && (
+        <div className="space-y-6">
+
+          {/* Nivel actual */}
+          {gamificacion && (
+            <div className="rounded-3xl p-6 text-white relative overflow-hidden shadow-xl"
+              style={{ background: `linear-gradient(135deg, ${gamificacion.nivel?.color ?? '#0a1628'}, #0a1628)` }}>
+              <div className="absolute inset-0 opacity-10"
+                style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
+                {/* Icono + nivel */}
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl shadow-lg">
+                    {gamificacion.nivel?.icono ?? '⭐'}
+                  </div>
+                  <div>
+                    <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Nivel {gamificacion.nivelActual}</p>
+                    <p className="font-playfair text-2xl font-bold text-white">{gamificacion.nivel?.nombre ?? '—'}</p>
+                    <p className="text-white/70 text-sm mt-0.5">{gamificacion.puntosTotales} puntos totales</p>
+                  </div>
+                </div>
+
+                {/* Barra hacia siguiente nivel */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between text-xs text-white/70">
+                    <span>Progreso al nivel {gamificacion.nivelActual + 1}</span>
+                    <span>{gamificacion.porcentajeNivel}%</span>
+                  </div>
+                  <BarraNivel porcentaje={gamificacion.porcentajeNivel} color="rgba(255,255,255,0.9)" />
+                  {gamificacion.nivelSiguiente && (
+                    <p className="text-white/50 text-[11px]">
+                      Faltan {gamificacion.puntosParaSiguienteNivel} puntos para <strong className="text-white/80">{gamificacion.nivelSiguiente.nombre}</strong>
+                    </p>
+                  )}
+                </div>
+
+                {/* Stats rápidos */}
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 shrink-0">
+                  {[
+                    { label: 'Racha', value: `${gamificacion.rachaActual}d 🔥` },
+                    { label: 'Segmentos', value: gamificacion.segmentosLeidos },
+                    { label: 'Evaluaciones', value: gamificacion.evaluacionesOk },
+                    { label: 'Libros', value: gamificacion.librosCompletados },
+                  ].map(s => (
+                    <div key={s.label} className="bg-white/10 rounded-xl px-3 py-1.5 text-center">
+                      <p className="text-white font-bold text-sm leading-none">{s.value}</p>
+                      <p className="text-white/50 text-[10px] uppercase tracking-wider mt-0.5">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Insignias por categoría */}
+          {insignias.length > 0 && (
+            <div className="space-y-6">
+              {Object.entries(insigniasPorCategoria).map(([categoria, lista]) => (
+                <div key={categoria} className="bg-white rounded-2xl shadow-md border border-[#c8d8f0]/50 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-playfair text-lg font-bold text-[#0a1628] capitalize">{categoria}</h3>
+                    <span className="text-[11px] text-[#6b8cba] font-bold">
+                      {lista.filter(i => i.obtenida).length} / {lista.length}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {lista.map(insignia => (
+                      <TarjetaInsignia key={insignia.id} insignia={insignia} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty state insignias */}
+          {insignias.length === 0 && (
+            <div className="text-center py-16 bg-white rounded-2xl border border-[#c8d8f0]/50">
+              <p className="text-4xl mb-3">🏅</p>
+              <p className="font-playfair text-lg font-bold text-[#0a1628] mb-1">Aún no tienes insignias</p>
+              <p className="text-sm text-[#6b8cba] font-lora italic">Sigue leyendo y completando evaluaciones para desbloquearlas.</p>
+            </div>
           )}
         </div>
       )}

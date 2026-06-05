@@ -1,3 +1,5 @@
+import { GamificacionEvento } from './gamificacion';
+
 // Estructura real que devuelve GET /escuelas/mis-libros
 export interface LibroAlumnoRaw {
     id: string;
@@ -83,7 +85,7 @@ export interface SegmentoRaw {
     numeroPagina: string | null;
     orden: string;
     idExterno: string;
-    nombre?: string; // Algunos endpoints podrían devolverlo como nombre o el frontend lo mapea así
+    nombre?: string;
     glosario?: EntradaGlosario[];
 }
 
@@ -109,11 +111,13 @@ export interface ProgresoPayload {
     ultimoSegmentoId?: number;
 }
 
+// ← gamificacion es opcional: solo viene cuando hay evento
 export interface ProgresoResponse {
     libroId: number;
     porcentaje: number;
     ultimoSegmentoId?: number;
     ultimaLectura: string;
+    gamificacion?: GamificacionEvento;
 }
 
 export interface AnotacionPayload {

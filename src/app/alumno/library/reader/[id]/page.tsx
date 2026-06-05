@@ -18,6 +18,7 @@ import EvaluacionPanel from '../../../../../components/alumno/reader/EvaluacionP
 import DiagnosticoModal from '../../../../../components/alumno/reader/DiagnosticoModal';
 import { useAuth } from '../../../../../context/AuthContext';
 import { useEvaluacion } from '../../../../../hooks/useEvaluacion';
+import { useGamificacion } from '../../../../../hooks/useGamificacion';
 import { EvaluacionService } from '../../../../../service/alumno/evaluacion.service';
 import {
   DiagnosticoNecesarioResponse,
@@ -161,17 +162,17 @@ export default function ReaderPage() {
   const initialSegId = searchParams.get('segmento') ? Number(searchParams.get('segmento')) : null;
   const alumnoId     = user?.id ?? 0;
 
-  const [libro,       setLibro]       = useState<LibroDetalle | null>(null);
-  const [currentIdx,  setCurrentIdx]  = useState(0);
-  const [isLoading,   setIsLoading]   = useState(true);
-  const [isSaving,    setIsSaving]    = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [libro,          setLibro]          = useState<LibroDetalle | null>(null);
+  const [currentIdx,     setCurrentIdx]     = useState(0);
+  const [isLoading,      setIsLoading]      = useState(true);
+  const [isSaving,       setIsSaving]       = useState(false);
+  const [showSidebar,    setShowSidebar]    = useState(false);
   const [maxUnlockedIdx, setMaxUnlockedIdx] = useState(0);
-  const [preferencias, setPreferencias] = useState<PreferenciasAlumno | null>(null);
+  const [preferencias,   setPreferencias]   = useState<PreferenciasAlumno | null>(null);
 
   // ── Filtro de lectura (Temas y Brillo) ──────────────────────────────────
-  const [theme, setTheme] = useState<'normal' | 'sepia' | 'oscuro_calido' | 'oscuro_neutro'>('normal');
-  const [brightness, setBrightness] = useState<number>(1.0);
+  const [theme,         setTheme]         = useState<'normal' | 'sepia' | 'oscuro_calido' | 'oscuro_neutro'>('normal');
+  const [brightness,    setBrightness]    = useState<number>(1.0);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const themeMenuRef = useRef<HTMLDivElement>(null);
 
@@ -184,9 +185,7 @@ export default function ReaderPage() {
       const savedBrightness = localStorage.getItem('reader-brightness');
       if (savedBrightness) {
         const val = parseFloat(savedBrightness);
-        if (!isNaN(val) && val >= 0.70 && val <= 1.0) {
-          setBrightness(val);
-        }
+        if (!isNaN(val) && val >= 0.70 && val <= 1.0) setBrightness(val);
       }
     }
   }, []);
@@ -219,32 +218,22 @@ export default function ReaderPage() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showThemeMenu]);
 
-  // ── Detección de footer para ocultar herramientas y evitar solapamientos ─────
+  // ── Detección de footer ───────────────────────────────────────────────────
   const navRef = useRef<HTMLDivElement>(null);
   const [isNavVisible, setIsNavVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
     const handleScroll = () => {
       const currentNav = navRef.current;
       if (!currentNav) return;
-
       const rect = currentNav.getBoundingClientRect();
-      // Si la parte superior de la barra de navegación es menor a la altura visible del viewport,
-      // significa que está a la vista del usuario en pantalla.
-      const enteredViewport = rect.top < window.innerHeight;
-      setIsNavVisible(enteredViewport);
+      setIsNavVisible(rect.top < window.innerHeight);
     };
-
     handleScroll();
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll);
-    
-    // Intervalo de re-verificación para cambios dinámicos de tamaño o de segmento
     const interval = setInterval(handleScroll, 250);
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
@@ -252,19 +241,21 @@ export default function ReaderPage() {
     };
   }, []);
 
-  // ── Diagnóstico ──────────────────────────────────────────────────────────
+  // ── Diagnóstico ───────────────────────────────────────────────────────────
   const [diagnosticoPendiente, setDiagnosticoPendiente] = useState<DiagnosticoNecesarioResponse | null>(null);
-  const [diagnosticoListo, setDiagnosticoListo] = useState(false);
+  const [diagnosticoListo,     setDiagnosticoListo]     = useState(false);
 
-  // ── Timer de segmento (del back) ─────────────────────────────────────────
-  // tiempoMinimoSegundos vendrá de useEvaluacion una vez que se cargue la evaluación
+  // ── Timer de segmento ─────────────────────────────────────────────────────
   const [segmentTimeElapsed, setSegmentTimeElapsed] = useState(0);
 
-  const timer = useReadingTimer(libroId);
-  const startNotifiedRef    = useRef(false);
-  const segmentsReadRef     = useRef(0);
-  const fechaInicioRef      = useRef<string | null>(null);
-  const segmentoInicioIdRef = useRef<number | null>(null);
+  const timer                 = useReadingTimer(libroId);
+  const startNotifiedRef      = useRef(false);
+  const segmentsReadRef       = useRef(0);
+  const fechaInicioRef        = useRef<string | null>(null);
+  const segmentoInicioIdRef   = useRef<number | null>(null);
+
+  // ── Gamificación ──────────────────────────────────────────────────────────
+  const { procesarEvento } = useGamificacion();
 
   // ── Load book ─────────────────────────────────────────────────────────────
   const fetchLibro = useCallback(async () => {
@@ -309,7 +300,6 @@ export default function ReaderPage() {
           setDiagnosticoListo(true);
         }
       } catch {
-        // Si el check falla, permitir continuar sin diagnóstico
         setDiagnosticoListo(true);
       }
     } catch {
@@ -324,9 +314,9 @@ export default function ReaderPage() {
 
   useEffect(() => {
     if (!isLoading && libro && !startNotifiedRef.current && diagnosticoListo) {
-      startNotifiedRef.current  = true;
-      segmentsReadRef.current   = 0;
-      fechaInicioRef.current    = new Date().toISOString();
+      startNotifiedRef.current    = true;
+      segmentsReadRef.current     = 0;
+      fechaInicioRef.current      = new Date().toISOString();
       segmentoInicioIdRef.current = libro.segmentos?.[currentIdx]?.id ?? null;
       toast.info(`¡Comenzando "${libro.titulo}"! Que disfrutes la lectura 📖`, 4000);
     }
@@ -339,9 +329,9 @@ export default function ReaderPage() {
   const evaluacion = useEvaluacion({
     libroId,
     segmentoId: currentSegment?.id ?? 0,
+    onGamificacionEvento: procesarEvento,   // ← conectado
   });
 
-  // tiempoMinimoSegundos viene del back a través de useEvaluacion
   const tiempoMinimoSegundos = evaluacion.tiempoMinimoSegundos;
 
   const progressPercent = useMemo(() => {
@@ -393,24 +383,18 @@ export default function ReaderPage() {
     }
   }, [segmentTimeElapsed, currentSegment]);
 
-  // Solo contar tiempo cuando estamos en la frontera y no hemos cumplido el mínimo
   useEffect(() => {
     if (currentIdx !== maxUnlockedIdx) return;
-    if (tiempoMinimoSegundos <= 0) return; // si el back no mandó tiempo, no bloquear
+    if (tiempoMinimoSegundos <= 0) return;
     if (segmentTimeElapsed >= tiempoMinimoSegundos) return;
-
     const handleTick = () => {
-      if (!document.hidden) {
-        setSegmentTimeElapsed(prev => prev + 1);
-      }
+      if (!document.hidden) setSegmentTimeElapsed(prev => prev + 1);
     };
-
     const interval = setInterval(handleTick, 1000);
     return () => clearInterval(interval);
   }, [currentIdx, maxUnlockedIdx, segmentTimeElapsed, tiempoMinimoSegundos]);
 
   const isFrontier = currentIdx === maxUnlockedIdx;
-  // isWaiting: solo si tiempoMinimoSegundos > 0 y no se ha cumplido
   const isWaiting  = isFrontier && tiempoMinimoSegundos > 0 && segmentTimeElapsed < tiempoMinimoSegundos;
   const waitTime   = tiempoMinimoSegundos - segmentTimeElapsed;
 
@@ -422,9 +406,7 @@ export default function ReaderPage() {
       currentIdx < totalSegments - 1 &&
       evaluacion.estado === 'sin_evaluacion';
 
-    if (esFronteraCompleta) {
-      evaluacion.cargarEvaluacion();
-    }
+    if (esFronteraCompleta) evaluacion.cargarEvaluacion();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFrontier, isWaiting, currentIdx, totalSegments, evaluacion.estado]);
 
@@ -434,13 +416,20 @@ export default function ReaderPage() {
     try {
       setIsSaving(true);
       const pct = Math.round(((maxIdx + 1) / totalSegments) * 100);
-      await AlumnoLibrosService.updateProgreso(libroId, { ultimoSegmentoId: segId, porcentaje: pct });
+      const res = await AlumnoLibrosService.updateProgreso(libroId, {
+        ultimoSegmentoId: segId,
+        porcentaje: pct,
+      });
+      // ── Disparar evento de gamificación si el back lo devuelve ────────────
+      if (res?.gamificacion) {
+        procesarEvento(res.gamificacion);
+      }
     } catch (e) {
       console.error(e);
     } finally {
       setIsSaving(false);
     }
-  }, [libro, libroId, totalSegments]);
+  }, [libro, libroId, totalSegments, procesarEvento]);
 
   const handleNext = useCallback(() => {
     if (!isWaiting && currentIdx < totalSegments - 1) {
@@ -451,8 +440,8 @@ export default function ReaderPage() {
         return;
       }
 
-      const next   = currentIdx + 1;
-      let newMax   = maxUnlockedIdx;
+      const next = currentIdx + 1;
+      let newMax = maxUnlockedIdx;
       if (currentIdx === maxUnlockedIdx) {
         newMax = next;
         setMaxUnlockedIdx(newMax);
@@ -480,12 +469,12 @@ export default function ReaderPage() {
     const totalSeconds = timer.stop();
     if (fechaInicioRef.current && segmentoInicioIdRef.current) {
       AlumnoLibrosService.registrarSesion(libroId, {
-        duracionSegundos: totalSeconds,
-        segmentosLeidos: segmentsReadRef.current + 1,
-        segmentoInicioId: segmentoInicioIdRef.current,
-        segmentoFinId: currentSegment?.id ?? segmentoInicioIdRef.current,
-        fechaInicio: fechaInicioRef.current,
-        fechaFin: new Date().toISOString(),
+        duracionSegundos:  totalSeconds,
+        segmentosLeidos:   segmentsReadRef.current + 1,
+        segmentoInicioId:  segmentoInicioIdRef.current,
+        segmentoFinId:     currentSegment?.id ?? segmentoInicioIdRef.current,
+        fechaInicio:       fechaInicioRef.current,
+        fechaFin:          new Date().toISOString(),
       }).catch(e => console.error('Error guardando sesión:', e));
     }
     if (totalSeconds > 5) {
@@ -532,11 +521,11 @@ export default function ReaderPage() {
   const totalAnotaciones = annotations.getPayloadParaBack().length;
 
   return (
-    <div 
+    <div
       className={`min-h-screen ${cfg.wrapperBg} flex flex-col font-lora ${cfg.textColor} w-full max-w-full overflow-x-hidden transition-colors duration-300`}
     >
-      {/* Overlay global de brillo para toda la vista (incluyendo sidebars y modales) */}
-      <div 
+      {/* Overlay global de brillo */}
+      <div
         className="pointer-events-none fixed inset-0 z-[999999] bg-black transition-opacity duration-200"
         style={{ opacity: 1 - brightness }}
       />
@@ -548,7 +537,8 @@ export default function ReaderPage() {
           animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
         }
       `}</style>
-      {/* ── Diagnóstico modal (bloquea la lectura hasta completarse) ── */}
+
+      {/* Diagnóstico modal */}
       {diagnosticoPendiente && (
         <DiagnosticoModal
           libroId={libroId}
@@ -571,7 +561,6 @@ export default function ReaderPage() {
 
       <EvaluacionPanel ev={evaluacion} tituloSegmento={currentSegment.titulo} onContinuar={handleNext} />
 
-      {/* Toolbar de anotaciones */}
       <AnnotationToolbar
         selection={toolbarSelection}
         pendingType={annotations.pendingType}
@@ -592,7 +581,6 @@ export default function ReaderPage() {
       {/* Header */}
       <header className={`sticky top-0 z-110 ${cfg.headerBg} backdrop-blur-md px-3 sm:px-4 md:px-8 py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-2 sm:gap-2 relative transition-colors duration-300`}>
 
-        {/* Fila 1: Navegación primaria y título del libro */}
         <div className="flex items-center justify-between w-full sm:w-auto min-w-0 flex-1 gap-2">
           <div className="flex items-center gap-1 md:gap-3 min-w-0 flex-1">
             <button onClick={handleExit}
@@ -601,10 +589,10 @@ export default function ReaderPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
-            
-            <button 
+
+            <button
               onClick={() => window.dispatchEvent(new CustomEvent('open-student-sidebar'))}
-              className={`p-2 ${cfg.headerIconBtnHover} rounded-full transition-all duration-200 hover:scale-110 active:scale-95 group shrink-0`} 
+              className={`p-2 ${cfg.headerIconBtnHover} rounded-full transition-all duration-200 hover:scale-110 active:scale-95 group shrink-0`}
               title="Menú Principal"
             >
               <svg className={`w-5 h-5 md:w-6 md:h-6 ${cfg.headerBtnIcon}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -620,7 +608,6 @@ export default function ReaderPage() {
             </div>
           </div>
 
-          {/* Botón Capítulos en Móvil (Fila 1) */}
           <button onClick={() => setShowSidebar(true)}
             className={`sm:hidden p-2 rounded-lg transition-all shadow-md flex items-center justify-center shrink-0 ${cfg.headerChaptersBtn}`}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -629,15 +616,13 @@ export default function ReaderPage() {
           </button>
         </div>
 
-        {/* Fila 2: Metadatos en móvil, herramientas en escritorio */}
         <div className={`flex items-center justify-between sm:justify-end gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 ${
-          (theme === 'oscuro_calido' || theme === 'oscuro_neutro') 
-            ? 'border-white/10' 
-            : theme === 'sepia' 
-              ? 'border-[#e4dcbf]' 
+          (theme === 'oscuro_calido' || theme === 'oscuro_neutro')
+            ? 'border-white/10'
+            : theme === 'sepia'
+              ? 'border-[#e4dcbf]'
               : 'border-slate-200'
         }`}>
-          {/* Metadata en móvil (Fila 2 izquierda) */}
           <div className="sm:hidden flex-1 min-w-0">
             <p className={`text-[10px] font-black ${cfg.headerSub} uppercase tracking-widest truncate`}>
               {currentSegment.unidadNombre || 'Contenido'} &bull; {currentIdx + 1} de {totalSegments}
@@ -647,12 +632,13 @@ export default function ReaderPage() {
           <div className="hidden md:flex flex-col items-end mr-2">
             <span className={`text-[10px] font-black ${cfg.headerProgressLabel}`}>PROGRESO</span>
             <div className={`w-32 h-2.5 border ${cfg.headerProgressBg} rounded-full overflow-hidden mt-1 p-[1px]`}>
-              <div 
-                className={`h-full bg-gradient-to-r ${cfg.headerProgressFill} rounded-full transition-all duration-500`} 
-                style={{ width: `${progressPercent}%` }} 
+              <div
+                className={`h-full bg-gradient-to-r ${cfg.headerProgressFill} rounded-full transition-all duration-500`}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
+
           <ReadingTimer formattedTime={timer.formattedTime} isRunning={timer.isRunning} />
 
           {totalAnotaciones > 0 && (
@@ -692,7 +678,7 @@ export default function ReaderPage() {
             </button>
 
             {showThemeMenu && (
-              <div 
+              <div
                 className="absolute right-0 mt-2 w-52 rounded-xl shadow-xl border overflow-hidden z-200 animate-fade"
                 style={{
                   backgroundColor: (theme === 'oscuro_calido' || theme === 'oscuro_neutro') ? (theme === 'oscuro_calido' ? '#241e19' : '#1e1e1e') : theme === 'sepia' ? '#faf6eb' : 'white',
@@ -705,13 +691,12 @@ export default function ReaderPage() {
                   }`}>
                     Filtro de lectura
                   </p>
-                  
-                  {/* Luz */}
+
                   <button
                     onClick={() => { changeTheme('normal'); setShowThemeMenu(false); }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all text-left ${
-                      theme === 'normal' 
-                        ? 'bg-slate-100 text-[#0a1628] shadow-sm' 
+                      theme === 'normal'
+                        ? 'bg-slate-100 text-[#0a1628] shadow-sm'
                         : (theme === 'oscuro_calido' || theme === 'oscuro_neutro') ? 'text-slate-300 hover:bg-slate-800' : 'text-[#4a3525] hover:bg-[#ebdcb9]/40'
                     }`}
                   >
@@ -721,12 +706,11 @@ export default function ReaderPage() {
                     <span>Modo Claro (Luz)</span>
                   </button>
 
-                  {/* Sepia */}
                   <button
                     onClick={() => { changeTheme('sepia'); setShowThemeMenu(false); }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all text-left ${
-                      theme === 'sepia' 
-                        ? 'bg-amber-100/50 text-[#5d401b] shadow-sm' 
+                      theme === 'sepia'
+                        ? 'bg-amber-100/50 text-[#5d401b] shadow-sm'
                         : (theme === 'oscuro_calido' || theme === 'oscuro_neutro') ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-black/5'
                     }`}
                   >
@@ -736,12 +720,11 @@ export default function ReaderPage() {
                     <span>Sepia (Día)</span>
                   </button>
 
-                  {/* Oscuro Cálido */}
                   <button
                     onClick={() => { changeTheme('oscuro_calido'); setShowThemeMenu(false); }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all text-left ${
-                      theme === 'oscuro_calido' 
-                        ? 'bg-amber-950/40 text-[#f5e6cc] shadow-sm border border-amber-800/30' 
+                      theme === 'oscuro_calido'
+                        ? 'bg-amber-950/40 text-[#f5e6cc] shadow-sm border border-amber-800/30'
                         : theme === 'oscuro_neutro' ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-black/5'
                     }`}
                   >
@@ -751,12 +734,11 @@ export default function ReaderPage() {
                     <span>Oscuro Cálido (Ámbar)</span>
                   </button>
 
-                  {/* Oscuro Neutro */}
                   <button
                     onClick={() => { changeTheme('oscuro_neutro'); setShowThemeMenu(false); }}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all text-left ${
-                      theme === 'oscuro_neutro' 
-                        ? 'bg-slate-850 text-white shadow-inner border border-slate-700' 
+                      theme === 'oscuro_neutro'
+                        ? 'bg-slate-850 text-white shadow-inner border border-slate-700'
                         : theme === 'oscuro_calido'
                           ? 'text-slate-300 hover:bg-slate-800'
                           : theme === 'sepia' ? 'text-[#4a3525] hover:bg-[#ebdcb9]/40' : 'text-slate-700 hover:bg-black/5'
@@ -768,12 +750,10 @@ export default function ReaderPage() {
                     <span>Oscuro Neutro (Gris)</span>
                   </button>
 
-                  {/* Separador */}
                   <div className={`h-px my-2 ${
                     (theme === 'oscuro_calido' || theme === 'oscuro_neutro') ? 'bg-slate-700' : theme === 'sepia' ? 'bg-[#ebdcb9]' : 'bg-slate-200'
                   }`} />
 
-                  {/* Brillo Slider */}
                   <div className="px-2.5 py-1.5 space-y-1.5">
                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider">
                       <span className={(theme === 'oscuro_calido' || theme === 'oscuro_neutro') ? 'text-slate-400' : theme === 'sepia' ? 'text-amber-800/60' : 'text-slate-500'}>
@@ -818,8 +798,8 @@ export default function ReaderPage() {
       </header>
 
       {/* Content */}
-      <main 
-        className="flex-1 max-w-4xl mx-auto w-full px-2.5 sm:px-6 md:px-8 py-4 sm:py-6 md:py-12 relative" 
+      <main
+        className="flex-1 max-w-4xl mx-auto w-full px-2.5 sm:px-6 md:px-8 py-4 sm:py-6 md:py-12 relative"
         style={cursorStyle}
       >
         <div className={`${cfg.cardBg} ${cfg.textColor} shadow-[0_8px_30px_rgb(0,0,0,0.04)] border ${cfg.cardBorder} rounded-2xl md:rounded-3xl p-4 sm:p-8 md:p-16 relative transition-colors duration-300`}>
@@ -853,7 +833,7 @@ export default function ReaderPage() {
         </div>
 
         {/* Navigation */}
-        <div 
+        <div
           ref={navRef}
           className={`mt-8 pt-6 pb-6 border-t ${cfg.navBorder}/60 grid grid-cols-3 items-center gap-1.5 sm:gap-2`}
         >
@@ -874,7 +854,6 @@ export default function ReaderPage() {
           </div>
 
           <div className="flex justify-end">
-            {/* Botón Siguiente — dinámico */}
             {(() => {
               if (!isFrontier) {
                 return (
@@ -994,7 +973,7 @@ export default function ReaderPage() {
                   {segAnns.length > 0 && (
                     <span className={`text-[9px] font-black text-[#d4af37] rounded-full px-1.5 py-0.5 shrink-0 border ${
                       (theme === 'oscuro_calido' || theme === 'oscuro_neutro')
-                        ? 'bg-[#1e293b] border-[#334155]' 
+                        ? 'bg-[#1e293b] border-[#334155]'
                         : theme === 'sepia'
                           ? 'bg-[#fbf6e9] border-[#ebdcb9]'
                           : 'bg-[#f5f8ff] border-[#c8d8f0]'

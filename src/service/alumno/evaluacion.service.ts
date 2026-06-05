@@ -35,23 +35,25 @@ export class EvaluacionService {
     return response.data?.data ?? response.data;
   }
 
-  // ── Evaluación de segmento ─────────────────────────────────────────────────
+  // ── Evaluación de segmento (flujo oficial — dispara gamificación) ──────────
 
   /**
    * Obtiene las preguntas de evaluación para un segmento.
-   * GET /evaluacion/:libroId/segmento/:segmentoId
+   * GET /escuelas/mis-libros/:libroId/segmentos/:segmentoId/evaluacion
    */
   static async getEvaluacion(
     libroId: number,
     segmentoId: number
   ): Promise<EvaluacionData> {
-    const response = await api.get(`/evaluacion/${libroId}/segmento/${segmentoId}`);
+    const response = await api.get(
+      `/escuelas/mis-libros/${libroId}/segmentos/${segmentoId}/evaluacion`
+    );
     return response.data?.data ?? response.data;
   }
 
   /**
    * Envía las respuestas del alumno para un segmento.
-   * POST /evaluacion/:libroId/segmento/:segmentoId
+   * POST /escuelas/mis-libros/:libroId/segmentos/:segmentoId/evaluacion
    */
   static async enviarRespuestas(
     libroId: number,
@@ -59,22 +61,23 @@ export class EvaluacionService {
     payload: EnviarRespuestasPayload
   ): Promise<EvaluacionResultado> {
     const response = await api.post(
-      `/evaluacion/${libroId}/segmento/${segmentoId}`,
+      `/escuelas/mis-libros/${libroId}/segmentos/${segmentoId}/evaluacion`,
       payload
     );
     return response.data?.data ?? response.data;
   }
 
   /**
-   * Obtiene preguntas para reintento (las mismas rutas GET sirven para reintento,
-   * el back rota las preguntas automáticamente).
-   * GET /evaluacion/:libroId/segmento/:segmentoId
+   * Solicita una variación de preguntas para reintento (sin body).
+   * POST /escuelas/mis-libros/:libroId/segmentos/:segmentoId/evaluacion/reintento
    */
   static async solicitarReintento(
     libroId: number,
     segmentoId: number
   ): Promise<ReintentoData> {
-    const response = await api.get(`/evaluacion/${libroId}/segmento/${segmentoId}`);
+    const response = await api.post(
+      `/escuelas/mis-libros/${libroId}/segmentos/${segmentoId}/evaluacion/reintento`
+    );
     return response.data?.data ?? response.data;
   }
 
@@ -89,10 +92,10 @@ export class EvaluacionService {
     return response.data?.data ?? response.data;
   }
 
-  // ── Apoyos pedagógicos independiente ──────────────────────────────────────
+  // ── Apoyos pedagógicos ─────────────────────────────────────────────────────
 
   /**
-   * Consulta los apoyos pedagógicos sin pasar por evaluación.
+   * Consulta los apoyos pedagógicos de un segmento de forma independiente.
    * GET /evaluacion/:libroId/segmento/:segmentoId/apoyos
    */
   static async getApoyos(

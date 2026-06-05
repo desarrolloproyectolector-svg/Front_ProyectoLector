@@ -1,4 +1,5 @@
 import api from '../../../utils/api';
+import { AlumnoLibroDetalle } from '../../../types/profesor/profesor';
 
 export interface Escuela {
     id: number;
@@ -29,9 +30,7 @@ export class EscuelasService {
      */
     static async getAll(page: number = 1, limit: number = 100): Promise<EscuelasResponse> {
         try {
-            const response = await api.get('/escuelas', {
-                params: { page, limit },
-            });
+            const response = await api.get('/escuelas', { params: { page, limit } });
             return response.data;
         } catch (error: any) {
             console.error('❌ Error al obtener escuelas:', error.response?.data || error);
@@ -51,5 +50,14 @@ export class EscuelasService {
             console.error('❌ Error al obtener escuela:', error.response?.data || error);
             throw error;
         }
+    }
+
+    /**
+     * Libros asignados a un alumno con licencia vigente (Admin/Director)
+     * GET /escuelas/alumnos/:alumnoId/libros
+     */
+    static async getLibrosAlumno(alumnoId: string | number): Promise<AlumnoLibroDetalle[]> {
+        const response = await api.get(`/escuelas/alumnos/${alumnoId}/libros`);
+        return response.data?.data ?? response.data;
     }
 }

@@ -12,6 +12,7 @@ import {
 interface UseEvaluacionOptions {
   libroId: number;
   segmentoId: number;
+  onGamificacionEvento?: (evento: any) => void;
 }
 
 export interface UseEvaluacionReturn {
@@ -32,12 +33,13 @@ export interface UseEvaluacionReturn {
   resetear: () => void;
 }
 
+const TIEMPO_MINIMO_EVALUACION = 120; // <-- Tiempo forzado en segundos para todas las evaluaciones
+
 export function useEvaluacion({ libroId, segmentoId }: UseEvaluacionOptions): UseEvaluacionReturn {
   const [estado, setEstado] = useState<EstadoEvaluacion>('sin_evaluacion');
   const [evaluacion, setEvaluacion] = useState<EvaluacionData | null>(null);
   const [resultado, setResultado] = useState<EvaluacionResultado | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [tiempoMinimoSegundos, setTiempoMinimoSegundos] = useState(0);
 
   // Resetear al cambiar de segmento
   useEffect(() => {
@@ -45,7 +47,6 @@ export function useEvaluacion({ libroId, segmentoId }: UseEvaluacionOptions): Us
     setEvaluacion(null);
     setResultado(null);
     setIsOpen(false);
-    setTiempoMinimoSegundos(0);
   }, [segmentoId]);
 
   // Puede avanzar si no hay preguntas, aprobó o agotó intentos
@@ -53,6 +54,9 @@ export function useEvaluacion({ libroId, segmentoId }: UseEvaluacionOptions): Us
     estado === 'sin_preguntas' ||
     estado === 'aprobado' ||
     estado === 'intentos_agotados';
+
+  // Tiempo mínimo en segundos que debe leer antes de evaluar (computado dinámicamente a 120 segundos)
+  const tiempoMinimoSegundos = evaluacion?.preguntas?.length ? TIEMPO_MINIMO_EVALUACION : 0;
 
   const cargarEvaluacion = useCallback(async () => {
     setEstado(prev => {
@@ -68,8 +72,6 @@ export function useEvaluacion({ libroId, segmentoId }: UseEvaluacionOptions): Us
         return;
       }
 
-      // Guardar el tiempoMinimoSegundos que viene del back
-      setTiempoMinimoSegundos(data.tiempoMinimoSegundos ?? 0);
       setEvaluacion(data);
       setEstado('pendiente');
     } catch {
@@ -112,7 +114,7 @@ export function useEvaluacion({ libroId, segmentoId }: UseEvaluacionOptions): Us
         nivel: data.nivel,
         preguntas: data.preguntas,
         intentosRestantes: data.intentosRestantes,
-        tiempoMinimoSegundos: data.tiempoMinimoSegundos ?? prev.tiempoMinimoSegundos,
+        tiempoMinimoSegundos: data.preguntas?.length ? TIEMPO_MINIMO_EVALUACION : (data.tiempoMinimoSegundos ?? prev.tiempoMinimoSegundos),
       } : null);
       setResultado(null);
       setEstado('pendiente');
@@ -129,7 +131,6 @@ export function useEvaluacion({ libroId, segmentoId }: UseEvaluacionOptions): Us
     setEvaluacion(null);
     setResultado(null);
     setIsOpen(false);
-    setTiempoMinimoSegundos(0);
   }, []);
 
   return {
