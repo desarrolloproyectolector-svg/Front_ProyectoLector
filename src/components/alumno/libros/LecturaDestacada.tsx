@@ -13,7 +13,9 @@ export const LecturaDestacada: React.FC<LecturaDestacadaProps> = ({ libro, onCli
 
     const formatFecha = (fecha?: string) => {
         if (!fecha) return null;
-        return new Date(fecha).toLocaleDateString('es-MX', {
+        const d = new Date(fecha);
+        if (isNaN(d.getTime())) return null;
+        return d.toLocaleDateString('es-MX', {
             day: 'numeric',
             month: 'long',
         });
@@ -38,7 +40,7 @@ export const LecturaDestacada: React.FC<LecturaDestacadaProps> = ({ libro, onCli
             <div className="relative z-10 flex-1 w-full order-2 md:order-1 mt-6 md:mt-0">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 bg-gradient-to-r from-[#d4af37] to-[#c19a2e] rounded-full shadow-lg border border-white/20">
                     <span className="text-[10px] font-black tracking-widest uppercase text-[#0a1628]">
-                        ⚡ {hasStarted ? 'Continúa donde lo dejaste' : 'Tu próxima lectura'}
+                        {hasStarted ? 'Continúa donde lo dejaste' : 'Tu próxima lectura'}
                     </span>
                 </div>
 

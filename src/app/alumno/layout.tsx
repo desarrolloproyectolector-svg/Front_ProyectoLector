@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import SidebarAlumno from '../../components/MenuLateral/SidebarAlumno';
 import RouteGuard from '../../components/auth/RouteGuard';
+import XpHeaderBar from '../../components/alumno/gamificacion/XpHeaderBar';
+
 
 export default function DashboardLayout({
   children,
@@ -63,6 +65,7 @@ export default function DashboardLayout({
   };
 
   const currentTitle = getTitle();
+  const showXpBar = pathname.includes('/library') || pathname.includes('/stats');
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] flex relative w-full max-w-full overflow-x-hidden">
@@ -92,7 +95,7 @@ export default function DashboardLayout({
 
         {/* Header */}
         {!isReader && (
-          <header className="flex justify-between items-center mb-8">
+          <header className="flex justify-between items-center mb-8 relative z-30">
             <div className="flex items-center gap-4">
 
               {/* Burger */}
@@ -128,6 +131,7 @@ export default function DashboardLayout({
 
             {/* Actions */}
             <div className="flex items-center gap-4">
+              {showXpBar && <XpHeaderBar />}
               <button className="relative p-2 text-[#6b8cba] hover:text-[#d4af37] transition-colors">
                 <svg
                   className="w-6 h-6"
