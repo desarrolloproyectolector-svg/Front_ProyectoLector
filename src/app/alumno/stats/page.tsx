@@ -1,4 +1,5 @@
 'use client';
+// Vista consolidada de estadísticas y gamificación del estudiante.
 
 import { useState, useEffect } from 'react';
 import { Cell, PieChart, Pie } from 'recharts';
