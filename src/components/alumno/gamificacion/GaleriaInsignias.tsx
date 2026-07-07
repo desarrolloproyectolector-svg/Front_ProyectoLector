@@ -296,7 +296,7 @@ export default function GaleriaInsignias({
             </div>
             <div className="flex flex-col items-start sm:items-end gap-2">
               <div className="flex items-baseline gap-1">
-                <span className="font-playfair text-5xl font-black text-[#d4af37]">{pctTotal}</span>
+                <span className="font-playfair text-6xl font-black text-[#d4af37]">{pctTotal}</span>
                 <span className="text-xl text-white/40">%</span>
               </div>
               <div className="w-48 h-2 bg-white/10 rounded-full overflow-hidden">

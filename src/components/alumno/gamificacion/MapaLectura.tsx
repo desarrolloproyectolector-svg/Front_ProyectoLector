@@ -391,8 +391,6 @@ export default function MapaLectura() {
   const [textos,      setTextos]      = useState<MapaTextoDetalle[]>([]);
   const [isLoading,   setIsLoading]   = useState(true);
   const [selectedId,  setSelectedId]  = useState<number | null>(null);
-  const [vistaOrden,  setVistaOrden]  = useState<VistaOrden>('cronologico');
-  const [isAnimating, setIsAnimating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -411,17 +409,11 @@ export default function MapaLectura() {
     return () => { cancelled = true; };
   }, []);
 
-  const cambiarVista = useCallback((nueva: VistaOrden) => {
-    if (nueva === vistaOrden) return;
-    setIsAnimating(true);
-    setTimeout(() => { setVistaOrden(nueva); setIsAnimating(false); }, 180);
-  }, [vistaOrden]);
-
   const textosOrdenados = [...textos].sort((a, b) => {
-    if (vistaOrden === 'cronologico') {
-      return new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime();
-    }
-    return a.nivelDificultad - b.nivelDificultad;
+    if (!a.fechaInicio && !b.fechaInicio) return 0;
+    if (!a.fechaInicio) return 1;
+    if (!b.fechaInicio) return -1;
+    return new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime();
   });
 
   const selectedTexto = textos.find(t => t.libroId === selectedId) ?? null;
@@ -456,7 +448,7 @@ export default function MapaLectura() {
             }}
           />
           <div className="relative z-10">
-            <p className="text-[10px] uppercase tracking-widest text-[#d4af37] font-extrabold mb-4">
+            <p className="text-xs uppercase tracking-widest text-[#6b8cba] font-bold mb-4">
               Tu Trayecto Lector
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -468,17 +460,17 @@ export default function MapaLectura() {
               ].map(s => (
                 <div 
                   key={s.label}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-3 hover:bg-white/8 transition-colors duration-200"
+                  className="bg-white/5 border border-white/10 rounded-2xl p-5 md:p-6 flex items-center gap-4 hover:bg-white/8 transition-colors duration-200 shadow-sm"
                 >
                   <div 
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
                     style={{ background: `${s.color}15`, border: `1px solid ${s.color}25` }}
                   >
-                    <GamificacionIcon name={s.icon} className="w-5 h-5" strokeColor={s.color} />
+                    <GamificacionIcon name={s.icon} className="w-6 h-6" strokeColor={s.color} />
                   </div>
                   <div>
-                    <p className="text-[9px] text-[#6b8cba] uppercase tracking-wider font-semibold leading-none mb-1">{s.label}</p>
-                    <p className="text-xl font-bold text-white leading-none">{s.value}</p>
+                    <p className="text-[10px] md:text-xs text-[#6b8cba] uppercase tracking-widest font-bold leading-none mb-2">{s.label}</p>
+                    <p className="text-3xl md:text-4xl font-playfair font-black text-white leading-none">{s.value}</p>
                   </div>
                 </div>
               ))}
@@ -486,37 +478,12 @@ export default function MapaLectura() {
           </div>
         </div>
 
-        {/* ── Toggle de vista ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex flex-col">
-            <h3 className="text-lg font-bold text-[#0a1628]">Mi trayecto lector</h3>
-            <p className="text-xs text-[#6b8cba] mt-1 font-medium">
-              El historial visual de todos tus libros: completados, en curso y pendientes de empezar.
-            </p>
-          </div>
-          <div className="flex bg-white border border-[#c8d8f0]/50 rounded-xl overflow-hidden shadow-sm self-start sm:self-auto">
-            {([
-              { key: 'cronologico', label: 'Cronológico', icono: 'calendar' },
-              { key: 'dificultad',  label: 'Dificultad',  icono: 'chart-bar' },
-            ] as const).map(v => (
-              <button
-                key={v.key}
-                onClick={() => cambiarVista(v.key)}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold transition-all duration-150 ${
-                  vistaOrden === v.key
-                    ? 'bg-[#0a1628] text-[#d4af37]'
-                    : 'text-[#6b8cba] hover:text-[#0a1628]'
-                }`}
-              >
-                <GamificacionIcon
-                  name={v.icono}
-                  className="w-3.5 h-3.5"
-                  strokeColor={vistaOrden === v.key ? '#d4af37' : '#6b8cba'}
-                />
-                <span className="hidden sm:block">{v.label}</span>
-              </button>
-            ))}
-          </div>
+        {/* ── Encabezado ── */}
+        <div className="flex flex-col gap-1">
+          <h3 className="font-playfair text-xl md:text-2xl font-bold text-[#0a1628]">Mi trayecto lector</h3>
+          <p className="text-xs md:text-sm text-[#6b8cba] font-lora italic">
+            El historial visual de todos tus libros: completados, en curso y pendientes de empezar.
+          </p>
         </div>
 
         {/* ── Timeline ── */}
@@ -524,7 +491,7 @@ export default function MapaLectura() {
 
           <div
             ref={scrollRef}
-            className={`transition-opacity duration-200 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}
+            className="transition-opacity duration-200"
           >
             {/* DESKTOP: Horizontal scroll */}
             <div
