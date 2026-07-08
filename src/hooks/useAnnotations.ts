@@ -343,8 +343,8 @@ export function useAnnotations({ alumnoId, libroId, segmentoId }: UseAnnotations
     }, [segmentoId, applyOptimisticAdd]);
 
     const removeAnotacion = useCallback((id: string | number) => {
-        const toDelete = todas.find(a => a.id === id);
-        setTodas(prev => prev.filter(a => a.id !== id));
+        const toDelete = todas.find(a => String(a.id) === String(id));
+        setTodas(prev => prev.filter(a => String(a.id) !== String(id)));
 
         if (typeof id === 'string' && id.startsWith('temp_')) return;
 

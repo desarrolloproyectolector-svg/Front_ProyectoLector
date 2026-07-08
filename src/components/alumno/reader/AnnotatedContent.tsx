@@ -391,6 +391,11 @@ function AnnotatedContent({
 }: AnnotatedContentProps) {
   const [hoveredHighlightId, setHoveredHighlightId] = useState<string | null>(null);
   const [activeHighlightId,  setActiveHighlightId]  = useState<string | null>(null);
+  const [isTouchDevice,      setIsTouchDevice]      = useState(false);
+
+  useEffect(() => {
+    setIsTouchDevice(typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
+  }, []);
 
   const startRangeRef = useRef<{ node: Node; offset: number } | null>(null);
 
@@ -1125,8 +1130,8 @@ function AnnotatedContent({
         className="segmento-contenido text-inherit leading-[2] text-justify font-lora text-lg md:text-xl"
         style={{ 
           hyphens: 'auto',
-          userSelect: activeTool && activeTool !== 'comentario' ? 'none' : 'auto',
-          WebkitUserSelect: activeTool && activeTool !== 'comentario' ? 'none' : 'auto'
+          userSelect: activeTool && activeTool !== 'comentario' ? (isTouchDevice ? 'none' : 'auto') : 'auto',
+          WebkitUserSelect: activeTool && activeTool !== 'comentario' ? (isTouchDevice ? 'none' : 'auto') : 'auto'
         }}
         dangerouslySetInnerHTML={{ __html: htmlToRender }}
       />
