@@ -63,9 +63,10 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, o
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        const cleanedValue = name === 'grado' ? value.replace(/\D/g, '') : value;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'grado' ? (value === '' ? '' : parseInt(value, 10)) : value,
+            [name]: name === 'grado' ? (cleanedValue === '' ? '' : parseInt(cleanedValue, 10)) : value,
         }));
         if (errors[name as 'grado' | 'nombre']) {
             setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -167,9 +168,8 @@ export const AddGrupoModal: React.FC<AddGrupoModalProps> = ({ isOpen, onClose, o
                             Grado <span className="text-red-500">*</span>
                         </label>
                         <input
-                            type="number"
+                            type="text"
                             name="grado"
-                            min={1}
                             value={isNaN(Number(formData.grado)) ? '' : formData.grado}
                             onChange={handleChange}
                             placeholder="Ej: 1"

@@ -31,7 +31,8 @@ export default function GrupoForm({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    const finalValue = name === 'grado' ? value.replace(/\D/g, '') : value;
+    setForm({ ...form, [name]: finalValue });
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -102,7 +103,7 @@ export default function GrupoForm({
           <Input
             label="Grado"
             name="grado"
-            type="number"
+            type="text"
             value={form.grado}
             onChange={handleChange}
             placeholder="Ej: 1"

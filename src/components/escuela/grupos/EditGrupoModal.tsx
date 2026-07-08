@@ -77,9 +77,10 @@ export const EditGrupoModal: React.FC<EditGrupoModalProps> = ({ isOpen, onClose,
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        const cleanedValue = name === 'grado' ? value.replace(/\D/g, '') : value;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'grado' ? (value === '' ? '' : parseInt(value, 10)) : value,
+            [name]: name === 'grado' ? (cleanedValue === '' ? '' : parseInt(cleanedValue, 10)) : value,
         }));
         if (errors[name as keyof UpdateGrupoDTO]) {
             setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -196,9 +197,8 @@ export const EditGrupoModal: React.FC<EditGrupoModalProps> = ({ isOpen, onClose,
                     <div>
                         <label className="block text-sm font-bold text-[#0a1628] mb-2">Grado</label>
                         <input
-                            type="number"
+                            type="text"
                             name="grado"
-                            min={1}
                             value={isNaN(Number(formData.grado)) ? '' : formData.grado}
                             onChange={handleChange}
                             className={`w-full px-4 py-3 rounded-xl border-2 bg-white font-lora text-sm transition-all duration-300 focus:outline-none ${

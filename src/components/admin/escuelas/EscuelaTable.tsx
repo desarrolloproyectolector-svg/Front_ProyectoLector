@@ -208,7 +208,29 @@ const EscuelaRow: React.FC<{
                                             <p className="text-sm text-[#0a1628]">{escuela.telefono ?? '—'}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Dirección</p>
+                                            <div className="flex items-center justify-between gap-2 mb-2">
+                                                <p className="text-[10px] text-[#6b8cba] font-bold uppercase">Dirección</p>
+                                                {(escuela.nombre || escuela.direccion) && (
+                                                    <a
+                                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                                            [escuela.nombre, escuela.direccion, escuela.ciudad, escuela.estadoRegion]
+                                                                .filter((s): s is string => !!s)
+                                                                .map(s => s.trim().replace(/\s+/g, ' '))
+                                                                .join(', ')
+                                                        )}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-[#d4af37] bg-[#d4af37]/10 hover:bg-[#d4af37] hover:text-white rounded-lg border border-[#d4af37]/35 hover:border-transparent transition-all duration-300 shadow-sm hover:shadow"
+                                                        title="Buscar ubicación en Google Maps"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                        Ver en mapa
+                                                    </a>
+                                                )}
+                                            </div>
                                             <p className="text-sm text-[#0a1628]">{escuela.direccion ?? '—'}</p>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
