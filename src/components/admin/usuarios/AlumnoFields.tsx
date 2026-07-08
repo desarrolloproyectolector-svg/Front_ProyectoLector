@@ -148,9 +148,12 @@ export const AlumnoFields: React.FC<AlumnoFieldsProps> = ({
                     <Input
                         label="Grado"
                         name="grado"
-                        type="number"
+                        type="text"
                         value={data.grado || ''}
-                        onChange={(e) => onChange('grado', e.target.value ? parseInt(e.target.value) : '')}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, ''); // Deja solo números
+                            onChange('grado', val ? parseInt(val) : '');
+                        }}
                         placeholder="Ej: 1"
                         error={errors.grado}
                         icon={

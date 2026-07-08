@@ -232,12 +232,15 @@ export const UsuarioFormEdit: React.FC<UsuarioFormEditProps> = ({
                     <div>
                         <label className={labelClass}>Grado</label>
                         <input
-                            type="number"
+                            type="text"
                             name="grado"
                             id="grado"
                             disabled={isLoading}
                             value={grado ?? ''}
-                            onChange={e => setGrado(e.target.value ? parseInt(e.target.value) : undefined)}
+                            onChange={e => {
+                                const val = e.target.value.replace(/\D/g, ''); // Deja solo números
+                                setGrado(val ? parseInt(val) : undefined);
+                            }}
                             placeholder="Ej: 1"
                             className={inputClass('grado')}
                         />
